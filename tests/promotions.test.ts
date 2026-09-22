@@ -3,8 +3,27 @@ import { describe, it } from 'node:test';
 import { Prisma } from '@prisma/client';
 import { applyPromotions, matchesTimeWindow, type BasketLine, type LoadedPromotion } from '../src/lib/promotions';
 
-/** Minimalna akcija s razumnim zadanim vrijednostima. */
-function promotion(overrides: Partial<LoadedPromotion> = {}): LoadedPromotion {
+/**
+ * Minimalna akcija s razumnim zadanim vrijednostima.
+ *
+ * Novčana polja se u testovima zadaju običnim brojevima, a pretvorba u
+ * `Decimal` radi se ovdje — testovi ostaju čitljivi.
+ */
+type PromotionOverrides = Partial<
+  Omit<LoadedPromotion, 'value' | 'buyQty' | 'getQty' | 'minBasketAmount' | 'minQty' | 'maxDiscountAmount'>
+> & {
+  value?: number;
+  buyQty?: number;
+  getQty?: number;
+  minBasketAmount?: number;
+  minQty?: number;
+  maxDiscountAmount?: number;
+};
+
+const dec = (value: number | undefined) =>
+  value === undefined ? null : new Prisma.Decimal(value);
+
+function promotion(overrides: PromotionOverrides = {}): LoadedPromotion {
   return {
     id: overrides.id ?? 'p1',
     tenantId: 't1',
@@ -16,11 +35,11 @@ function promotion(overrides: Partial<LoadedPromotion> = {}): LoadedPromotion {
     priority: overrides.priority ?? 0,
     exclusive: overrides.exclusive ?? false,
     value: new Prisma.Decimal(overrides.value ?? 0),
-    buyQty: overrides.buyQty ?? null,
-    getQty: overrides.getQty ?? null,
-    minBasketAmount: overrides.minBasketAmount ?? null,
-    minQty: overrides.minQty ?? null,
-    maxDiscountAmount: overrides.maxDiscountAmount ?? null,
+    buyQty: dec(overrides.buyQty),
+    getQty: dec(overrides.getQty),
+    minBasketAmount: dec(overrides.minBasketAmount),
+    minQty: dec(overrides.minQty),
+    maxDiscountAmount: dec(overrides.maxDiscountAmount),
     usageLimit: null,
     usagePerCustomer: null,
     usageCount: 0,
@@ -60,7 +79,7 @@ describe('postotni popust', () => {
 
   it('poštuje gornju granicu popusta', () => {
     const result = applyPromotions(
-      [promotion({ type: 'PERCENT_OFF', value: 50, maxDiscountAmount: new Prisma.Decimal(3) })],
+      [promotion({ type: 'PERCENT_OFF', value: 50, maxDiscountAmount: 3 })],
       [line({ quantity: 10 })],
     );
     assert.equal(result.totalDiscount, 3);
@@ -102,7 +121,7 @@ describe('fiksna cijena', () => {
 
 describe('kupi X dobij Y', () => {
   it('gratis se dodjeljuje najjeftinijem artiklu', () => {
-    const promo = promotion({ type: 'BUY_X_GET_Y', buyQty: new Prisma.Decimal(2), getQty: new Prisma.Decimal(1) });
+    const promo = promotion({ type: 'BUY_X_GET_Y', buyQty: 2, getQty: 1 });
     const result = applyPromotions([promo], [
       line({ key: 'L0', unitPrice: 10, quantity: 2 }),
       line({ key: 'L1', unitPrice: 4, quantity: 1 }),
@@ -113,7 +132,7 @@ describe('kupi X dobij Y', () => {
   });
 
   it('bez dovoljne količine nema gratisa', () => {
-    const promo = promotion({ type: 'BUY_X_GET_Y', buyQty: new Prisma.Decimal(2), getQty: new Prisma.Decimal(1) });
+    const promo = promotion({ type: 'BUY_X_GET_Y', buyQty: 2, getQty: 1 });
     const result = applyPromotions([promo], [line({ quantity: 2 })]);
     assert.equal(result.totalDiscount, 0);
   });
@@ -121,7 +140,7 @@ describe('kupi X dobij Y', () => {
 
 describe('svaki N-ti artikl', () => {
   it('popust na svaki treći komad', () => {
-    const promo = promotion({ type: 'NTH_ITEM_DISCOUNT', value: 50, buyQty: new Prisma.Decimal(3) });
+    const promo = promotion({ type: 'NTH_ITEM_DISCOUNT', value: 50, buyQty: 3 });
     const result = applyPromotions([promo], [line({ quantity: 6, unitPrice: 10 })]);
     // Šest komada → dva puta po 50 % od 10 €.
     assert.equal(result.totalDiscount, 10);
@@ -130,7 +149,7 @@ describe('svaki N-ti artikl', () => {
 
 describe('popust na košaricu', () => {
   it('vrijedi tek iznad praga', () => {
-    const promo = promotion({ type: 'BASKET_THRESHOLD', value: 10, minBasketAmount: new Prisma.Decimal(50) });
+    const promo = promotion({ type: 'BASKET_THRESHOLD', value: 10, minBasketAmount: 50 });
     const small = applyPromotions([promo], [line({ quantity: 2, unitPrice: 10 })]);
     assert.equal(small.totalDiscount, 0);
 
