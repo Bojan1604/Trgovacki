@@ -87,6 +87,13 @@ Ako ni ondje ne prolazi, lozinka nije ta. Ako prolazi, prepišite je točno u
 `.env`. Znakovi `/`, `#`, `?` i razmak u lozinci moraju biti kodirani
 (`/` → `%2F`, `#` → `%23`, `?` → `%3F`, razmak → `%20`).
 
+**P1000 zna značiti i krivi port.** Ako je na računalu više verzija
+PostgreSQL-a, prva je zauzela 5432, a sljedeće su dobile 5433, 5434… Svaka ima
+vlastitu lozinku korisnika `postgres`, pa spajanje na krivu ispadne kao kriva
+lozinka. Port na koji ste se spojili piše u **SQL Shell (psql)** u retku
+`Port`; upišite taj broj u `DATABASE_URL`. `npm run doctor` sam provjerava
+uobičajene portove i javi ako sluša još jedan poslužitelj.
+
 Drugi port: `set PORT=3001` pa `npm run dev` (PowerShell: `$env:PORT=3001`).
 
 ---

@@ -18,6 +18,8 @@ const bad = (text, detail = '') => console.log(`  \x1b[31m✗\x1b[0m ${text}${de
 const hint = (text) => console.log(`      \x1b[2m→ ${text}\x1b[0m`);
 
 let problems = 0;
+/** Naredba koju sažetak predlaže kad nema grešaka — baza možda još nije napunjena. */
+let nextStep = 'npm run dev';
 const fail = (text, detail, ...hints) => {
   problems += 1;
   bad(text, detail);
@@ -99,48 +101,74 @@ async function portOpen(host, port, timeout = 2500) {
 }
 
 /**
- * Traži instalaciju PostgreSQL-a na uobičajenim mjestima.
+ * Traži instalacije PostgreSQL-a na uobičajenim mjestima.
  *
  * Windows instalacija ne dodaje `bin` u PATH, pa `psql` u Command Promptu nije
  * prepoznat iako je poslužitelj uredno instaliran i pokrenut. Razlika između
  * "nije instaliran" i "instaliran, ali ne radi" mijenja sljedeći korak.
+ *
+ * Vraćamo sve pronađene verzije, a ne samo prvu: kad ih je više, svaka ima
+ * vlastiti port i vlastitu lozinku korisnika postgres, pa je to čest uzrok
+ * odbijene prijave.
  */
-function findInstallation() {
+function findInstallations() {
   const roots =
     process.platform === 'win32'
       ? ['C:\\Program Files\\PostgreSQL', 'C:\\Program Files (x86)\\PostgreSQL']
       : ['/usr/lib/postgresql', '/usr/local/pgsql', '/opt/homebrew/opt'];
 
+  const found = [];
   for (const root of roots) {
     if (!existsSync(root)) continue;
     for (const entry of readdirSync(root).sort().reverse()) {
       const bin = path.join(root, entry, 'bin');
-      if (existsSync(bin)) return { version: entry, bin };
+      if (existsSync(bin)) found.push({ version: entry, bin });
     }
   }
-  return null;
+  return found;
 }
+
+/**
+ * Portovi na kojima instalacijski program ostavi PostgreSQL. Druga i svaka
+ * sljedeća verzija na istom računalu dobiva 5433, 5434… jer je 5432 zauzet.
+ */
+const COMMON_PORTS = [5432, 5433, 5434, 5435];
+
+/** Konfigurirani port i ostali portovi na kojima ipak nešto sluša. */
+let configuredPort = 5432;
+let otherPorts = [];
 
 if (url) {
   const host = url.hostname;
-  const port = Number(url.port || 5432);
+  configuredPort = Number(url.port || 5432);
 
-  if (await portOpen(host, port)) {
-    ok('PostgreSQL sluša', `${host}:${port}`);
+  if (await portOpen(host, configuredPort)) {
+    ok('PostgreSQL sluša', `${host}:${configuredPort}`);
   } else {
-    const install = findInstallation();
-    if (install) {
-      fail('PostgreSQL je instaliran, ali ne prima veze', `${host}:${port}`,
-        `Pronađena instalacija: verzija ${install.version} u ${install.bin}`,
+    const installs = findInstallations();
+    if (installs.length > 0) {
+      fail('PostgreSQL je instaliran, ali ne prima veze', `${host}:${configuredPort}`,
+        `Pronađene verzije: ${installs.map((i) => i.version).join(', ')} (${installs[0].bin})`,
         process.platform === 'win32'
           ? 'Pokrenite servis: otvorite services.msc, nađite "postgresql-x64-…" i kliknite Start'
           : 'Pokrenite servis PostgreSQL-a.',
         'Napomena: aplikaciji psql ne treba — spaja se preko mreže.');
     } else {
-      fail('PostgreSQL nije pronađen', `${host}:${port}`,
+      fail('PostgreSQL nije pronađen', `${host}:${configuredPort}`,
         'Instalirajte ga: https://www.postgresql.org/download/windows/',
         'Ili podignite bazu Dockerom: docker compose up -d');
     }
+  }
+
+  // Zauzet port ne znači da je to poslužitelj koji tražimo. Popis ostalih
+  // otvorenih portova koristi se niže kad prijava padne na lozinci.
+  const candidates = COMMON_PORTS.filter((candidate) => candidate !== configuredPort);
+  const open = await Promise.all(candidates.map((candidate) => portOpen(host, candidate, 1200)));
+  otherPorts = candidates.filter((_, index) => open[index]);
+
+  if (otherPorts.length > 0) {
+    console.log(`  \x1b[33m•\x1b[0m Još jedan poslužitelj sluša — ${host}:${otherPorts.join(', ')}`);
+    hint('Više instalacija PostgreSQL-a: svaka ima vlastiti port i vlastitu lozinku.');
   }
 }
 
@@ -170,26 +198,56 @@ if (clientReady && url) {
     if (count === 0) {
       console.log('  \x1b[33m•\x1b[0m Baza je prazna');
       hint('Pokrenite: npm run db:push  pa  npm run db:seed');
+      nextStep = 'npm run db:push';
     } else {
       ok('Tablice postoje', `${count} tablica`);
       const stores = await db.store.count().catch(() => 0);
-      if (stores === 0) hint('Nema podataka — pokrenite: npm run db:seed');
+      if (stores === 0) {
+        hint('Nema podataka — pokrenite: npm run db:seed');
+        nextStep = 'npm run db:seed';
+      }
       else ok('Demo podaci su učitani', `${stores} poslovnica`);
     }
   } catch (error) {
     const message = String(error?.message ?? error);
-    if (message.includes('P1000') || message.toLowerCase().includes('authentication')) {
+    // Prisma poruke počinju praznim retkom i nastavljaju se ispisom upita, pa
+    // uzimamo prvi redak koji uopće nešto kaže — inače se prikaže prazan opis.
+    const code = String(error?.code ?? '');
+    const firstLine =
+      message
+        .split('\n')
+        .map((line) => line.trim())
+        .find((line) => line.length > 0 && !line.startsWith('Invalid `')) ?? 'bez opisa';
+
+    if (code === 'P1000' || message.includes('P1000') || message.toLowerCase().includes('authentication')) {
+      // Kad sluša i drugi port, najčešći uzrok nije kriva lozinka nego kriv
+      // poslužitelj: lozinka je postavljena na drugoj verziji PostgreSQL-a.
+      const wrongServerHints =
+        otherPorts.length > 0
+          ? [`Na portu ${otherPorts.join(' i ')} sluša još jedan poslužitelj — vjerojatno druga verzija.`,
+             `Ako ste lozinku postavljali na njoj, u .env zamijenite port ${configuredPort} s ${otherPorts[0]}.`,
+             'Port poslužitelja piše u psql-u pri spajanju (redak "Port").']
+          : [];
+
       fail('Lozinka nije prihvaćena', 'P1000',
+        ...wrongServerHints,
         ...passwordNotes.flat(),
         'Provjerite lozinku kroz "SQL Shell (psql)" iz izbornika Start.',
         'Ako i ondje ne prolazi, lozinka u .env nije ona koju PostgreSQL očekuje.');
-    } else if (message.includes('P1001')) {
+    } else if (code === 'P1001' || message.includes('P1001')) {
       fail('Poslužitelj baze nije dostupan', 'P1001', 'Provjerite radi li PostgreSQL servis.');
-    } else if (message.includes('P1003')) {
+    } else if (
+      code === 'P1003' ||
+      message.includes('P1003') ||
+      /does not exist|ne postoji/i.test(message) && /database|baz/i.test(message)
+    ) {
       console.log('  \x1b[33m•\x1b[0m Baza još ne postoji');
-      hint('Pokrenite: npm run db:push — kreirat će je.');
+      hint(`Pokrenite: npm run db:push — kreirat će bazu "${url.pathname.slice(1)}".`);
+      hint('Zatim: npm run db:seed — napunit će je demo podacima.');
+      nextStep = 'npm run db:push';
     } else {
-      fail('Spajanje na bazu nije uspjelo', message.split('\n')[0].slice(0, 90));
+      fail('Spajanje na bazu nije uspjelo', code || undefined, firstLine.slice(0, 120),
+        'Ako poruka spominje da baza ne postoji, pokrenite: npm run db:push');
     }
   } finally {
     await db.$disconnect().catch(() => {});
@@ -199,7 +257,8 @@ if (clientReady && url) {
 /* --- Sažetak ------------------------------------------------------------ */
 console.log('');
 if (problems === 0) {
-  console.log('\x1b[32mSve je spremno.\x1b[0m Pokrenite: npm run dev\n');
+  const heading = nextStep === 'npm run dev' ? 'Sve je spremno.' : 'Okolina je ispravna.';
+  console.log(`\x1b[32m${heading}\x1b[0m Pokrenite: ${nextStep}\n`);
 } else {
   console.log(`\x1b[31mPronađeno problema: ${problems}.\x1b[0m Riješite ih redom pa ponovite: npm run doctor\n`);
   process.exitCode = 1;
