@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { ScrollText } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime, formatQty } from '@/lib/format';
@@ -22,7 +23,7 @@ export default async function MovementsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('stock.view');
+  const user = await requirePageAccess('stock.view');
   const page = Math.max(1, Number(params.page ?? 1) || 1);
   const { storeIds, storeId: selectedStoreId } = await resolveStoreScope(user, params.store);
 

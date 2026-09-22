@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AlertTriangle, RefreshCw, ShieldCheck } from 'lucide-react';
-import { requirePermission, accessibleStoreIds } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { toNumber } from '@/lib/money';
@@ -21,7 +22,7 @@ const ADAPTER_LABEL: Record<string, string> = {
 };
 
 export default async function FiscalPage() {
-  const user = await requirePermission('sale.view');
+  const user = await requirePageAccess('sale.view');
   const storeIds = await accessibleStoreIds(user);
   const config = env();
 

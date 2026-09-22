@@ -1,4 +1,5 @@
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { deltaPct, previousRange, resolveRange, salesByDay, salesTotals } from '@/lib/services/analytics';
 import { formatAmount, formatDate, formatPercent, formatQty } from '@/lib/format';
 import { Card, CardHeader } from '@/components/ui/primitives';
@@ -16,7 +17,7 @@ export default async function SalesReportPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('report.sales');
+  const user = await requirePageAccess('report.sales');
   const preset = params.range ?? '30d';
   const range = resolveRange(preset);
   const allStores = await accessibleStoreIds(user);

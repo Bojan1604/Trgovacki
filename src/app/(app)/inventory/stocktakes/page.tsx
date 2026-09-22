@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ListChecks, Plus } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatPercent } from '@/lib/format';
@@ -14,7 +15,7 @@ export const metadata = { title: 'Inventure' };
 export const dynamic = 'force-dynamic';
 
 export default async function StockTakesPage() {
-  const user = await requirePermission('stocktake.manage');
+  const user = await requirePageAccess('stocktake.manage');
   const storeIds = await accessibleStoreIds(user);
 
   const stockTakes = await db.stockTake.findMany({

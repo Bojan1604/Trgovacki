@@ -1,6 +1,7 @@
 import { ClipboardList } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { formatDateTime } from '@/lib/format';
 import { AUDIT_ACTION } from '@/lib/labels';
@@ -20,7 +21,7 @@ export default async function AuditPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('audit.view');
+  const user = await requirePageAccess('audit.view');
   const page = Math.max(1, Number(params.page ?? 1) || 1);
 
   const where: Prisma.AuditLogWhereInput = {

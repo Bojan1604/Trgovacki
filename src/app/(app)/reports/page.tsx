@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { hasPermission } from '@/lib/permissions';
 import { REPORT_LINKS } from '@/components/layout/nav-config';
 import { Card, PageHeader } from '@/components/ui/primitives';
@@ -23,7 +24,7 @@ const DESCRIPTIONS: Record<string, string> = {
 };
 
 export default async function ReportsPage() {
-  const user = await requirePermission('report.sales');
+  const user = await requirePageAccess('report.sales');
   const available = REPORT_LINKS.filter((r) => hasPermission(user.permissions, r.permission));
 
   return (

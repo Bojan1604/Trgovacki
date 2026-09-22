@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Star, TrendingUp } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatPercent } from '@/lib/format';
@@ -13,7 +14,7 @@ export const metadata = { title: 'Program vjernosti' };
 export const dynamic = 'force-dynamic';
 
 export default async function LoyaltyPage() {
-  const user = await requirePermission('customer.view');
+  const user = await requirePageAccess('customer.view');
 
   const [programs, cardStats, tierBreakdown, topCards, recentTxns] = await Promise.all([
     db.loyaltyProgram.findMany({

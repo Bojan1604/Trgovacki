@@ -1,5 +1,5 @@
 {
-  "pokrenuto": "2026-09-22T15:34:37.089Z",
+  "pokrenuto": "2026-09-22T21:23:58.339Z",
   "ukupno": 77,
   "proslo": 77,
   "greskeUKonzoli": [],
@@ -20,7 +20,7 @@
       "section": "Prijava",
       "name": "Prijava vodi na nadzornu ploču",
       "ok": true,
-      "detail": "http://localhost:3000/dashboard"
+      "detail": "http://127.0.0.1:3100/dashboard"
     },
     {
       "section": "Nadzorna ploča",
@@ -32,13 +32,13 @@
       "section": "Nadzorna ploča",
       "name": "Promet je izračunat",
       "ok": true,
-      "detail": "69.099 €"
+      "detail": "69.358 €"
     },
     {
       "section": "Nadzorna ploča",
       "name": "Prebacivanje na cijeli lanac mijenja brojke",
       "ok": true,
-      "detail": "614.961 €"
+      "detail": "621.350 €"
     },
     {
       "section": "Globalna pretraga",
@@ -74,7 +74,7 @@
       "section": "Novi artikl s kalkulacijom",
       "name": "Generiran ispravan EAN-13",
       "ok": true,
-      "detail": "3850911597413"
+      "detail": "3851121367551"
     },
     {
       "section": "Novi artikl s kalkulacijom",
@@ -86,7 +86,7 @@
       "section": "Novi artikl s kalkulacijom",
       "name": "Novi artikl je spremljen i otvoren",
       "ok": true,
-      "detail": "cmucu241q009v7dclszvn2yhr"
+      "detail": "cmud6jpxs00057dkl5zal0me6"
     },
     {
       "section": "Cijene i akcije",
@@ -116,7 +116,7 @@
       "section": "Skladište",
       "name": "Izračunata vrijednost zalihe po nabavnoj cijeni",
       "ok": true,
-      "detail": "5.016.350 €"
+      "detail": "5.012.606 €"
     },
     {
       "section": "Skladište",
@@ -194,7 +194,7 @@
       "section": "Izvještaji",
       "name": "Izvještaj: Prodaja po artiklima",
       "ok": true,
-      "detail": "294 retka"
+      "detail": "293 retka"
     },
     {
       "section": "Izvještaji",
@@ -260,7 +260,7 @@
       "section": "Izvještaji",
       "name": "Promjena razdoblja mijenja rezultat",
       "ok": true,
-      "detail": "7 dana 13.822 € · 90 dana 133.761 €"
+      "detail": "7 dana 14.081 € · 90 dana 134.020 €"
     },
     {
       "section": "Kupci i program vjernosti",
@@ -392,7 +392,7 @@
       "section": "Blagajna — naplata gotovinom",
       "name": "Račun je izdan s brojem i fiskalnim podacima",
       "ok": true,
-      "detail": "broj 189/1/1"
+      "detail": "broj 194/1/1"
     },
     {
       "section": "Blagajna — naplata gotovinom",
@@ -410,13 +410,13 @@
       "section": "Blagajna — povrat robe",
       "name": "Račun za povrat je pronađen po broju",
       "ok": true,
-      "detail": "189/1/1"
+      "detail": "194/1/1"
     },
     {
       "section": "Blagajna — povrat robe",
       "name": "Povrat je proveden",
       "ok": true,
-      "detail": "Povrat je proveden  Dokument 191/1/1"
+      "detail": "Povrat je proveden  Dokument 196/1/1"
     },
     {
       "section": "Blagajna — zatvaranje smjene",
@@ -428,7 +428,7 @@
       "section": "Blagajna — zatvaranje smjene",
       "name": "Z-izvještaj prikazuje promet i razliku",
       "ok": true,
-      "detail": "Smjena je zatvorena  Z-izvještaj za smjenu SM-00489/2026  Promet smjene 9,43 € Broj računa"
+      "detail": "Smjena je zatvorena  Z-izvještaj za smjenu SM-00490/2026  Promet smjene 9,43 € Broj računa"
     },
     {
       "section": "Prodaja — evidencija",

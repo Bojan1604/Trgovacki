@@ -1,5 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate } from '@/lib/format';
@@ -14,7 +15,7 @@ export const metadata = { title: 'Otpisi' };
 export const dynamic = 'force-dynamic';
 
 export default async function WriteOffsPage() {
-  const user = await requirePermission('writeoff.manage');
+  const user = await requirePageAccess('writeoff.manage');
   const storeIds = await accessibleStoreIds(user);
 
   const [writeOffs, byReason] = await Promise.all([

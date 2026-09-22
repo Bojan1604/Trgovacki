@@ -12,7 +12,8 @@ export default async function LoginPage({
   const params = await searchParams;
   const user = await getSessionUser();
   // Samo interne putanje — vanjski URL u parametru ne smije preusmjeriti korisnika.
-  const next = params.next?.startsWith('/') && !params.next.startsWith('//') ? params.next : '/dashboard';
+  // Bez parametra šaljemo na korijen, koji odredište bira prema pravima korisnika.
+  const next = params.next?.startsWith('/') && !params.next.startsWith('//') ? params.next : '/';
   if (user) redirect(next);
 
   const demo = process.env.NODE_ENV !== 'production';

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Plus, Tags } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { formatAmount, formatQty } from '@/lib/format';
 import { resolveRange } from '@/lib/ranges';
@@ -12,7 +13,7 @@ export const metadata = { title: 'Brendovi' };
 export const dynamic = 'force-dynamic';
 
 export default async function BrandsPage() {
-  const user = await requirePermission('product.view');
+  const user = await requirePageAccess('product.view');
   const range = resolveRange('90d');
 
   const [brands, stats] = await Promise.all([

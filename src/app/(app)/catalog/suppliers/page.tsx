@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Handshake, Plus } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatPercent } from '@/lib/format';
@@ -19,7 +20,7 @@ export default async function SuppliersPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('supplier.view');
+  const user = await requirePageAccess('supplier.view');
 
   const where: Prisma.SupplierWhereInput = {
     tenantId: user.tenantId,

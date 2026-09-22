@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Printer, Send, Truck } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatPercent, formatQty } from '@/lib/format';
@@ -14,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function PurchaseOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requirePermission('po.view');
+  const user = await requirePageAccess('po.view');
 
   const order = await db.purchaseOrder.findFirst({
     where: { id, tenantId: user.tenantId },

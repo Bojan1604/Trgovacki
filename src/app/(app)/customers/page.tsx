@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Plus, Users } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatPercent } from '@/lib/format';
@@ -24,7 +25,7 @@ export default async function CustomersPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('customer.view');
+  const user = await requirePageAccess('customer.view');
   const page = Math.max(1, Number(params.page ?? 1) || 1);
 
   const where: Prisma.CustomerWhereInput = {

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Plus, Store as StoreIcon } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { formatDate } from '@/lib/format';
 import { STORE_TYPE } from '@/lib/labels';
@@ -26,7 +27,7 @@ const STATUS_LABEL = {
 } as const;
 
 export default async function StoresSettingsPage() {
-  const user = await requirePermission('store.manage');
+  const user = await requirePageAccess('store.manage');
 
   const stores = await db.store.findMany({
     where: { tenantId: user.tenantId },

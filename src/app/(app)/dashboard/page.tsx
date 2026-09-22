@@ -2,7 +2,8 @@ import Link from 'next/link';
 import {
   AlertTriangle, ArrowRight, Boxes, Percent, Receipt, ShoppingBag, TrendingUp, Users, Wallet,
 } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import {
   deltaPct, lowStockCount, previousRange, resolveRange, salesByCategory, salesByDay,
@@ -27,7 +28,7 @@ export default async function DashboardPage({
   searchParams: Promise<{ range?: string; scope?: string }>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('dashboard.view');
+  const user = await requirePageAccess('dashboard.view');
   const preset = params.range ?? '30d';
   const range = resolveRange(preset);
   const previous = previousRange(range);

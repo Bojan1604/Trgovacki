@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Gift, Plus } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate } from '@/lib/format';
@@ -19,7 +20,7 @@ export default async function GiftCardsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('customer.view');
+  const user = await requirePageAccess('customer.view');
 
   const cards = await db.giftCard.findMany({
     where: {

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Barcode, Boxes, Pencil, ShoppingCart, Tag, TrendingUp } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { marginPct, markupPct, toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatDateTime, formatPercent, formatQty } from '@/lib/format';
@@ -24,7 +25,7 @@ const MOVEMENT_LABEL: Record<string, string> = {
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requirePermission('product.view');
+  const user = await requirePageAccess('product.view');
   const storeIds = await accessibleStoreIds(user);
 
   const product = await db.product.findFirst({

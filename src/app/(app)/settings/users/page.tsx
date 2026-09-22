@@ -1,5 +1,6 @@
 import { Plus, UserCog } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatDateTime, formatPercent } from '@/lib/format';
@@ -24,7 +25,7 @@ export default async function UsersSettingsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('user.view');
+  const user = await requirePageAccess('user.view');
 
   const [users, roles] = await Promise.all([
     db.user.findMany({

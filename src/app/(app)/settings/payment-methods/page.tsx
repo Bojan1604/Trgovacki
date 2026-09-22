@@ -1,5 +1,6 @@
 import { CreditCard, Plus } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatPercent } from '@/lib/format';
@@ -12,7 +13,7 @@ export const metadata = { title: 'Načini plaćanja' };
 export const dynamic = 'force-dynamic';
 
 export default async function PaymentMethodsPage() {
-  const user = await requirePermission('settings.manage');
+  const user = await requirePageAccess('settings.manage');
 
   const methods = await db.paymentMethod.findMany({
     where: { tenantId: user.tenantId },

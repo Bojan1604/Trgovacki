@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Printer } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { shiftReport } from '@/lib/services/shifts';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime, formatPercent, formatQty } from '@/lib/format';
@@ -27,7 +28,7 @@ const CASH_MOVEMENT_LABEL: Record<string, string> = {
 
 export default async function ShiftDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requirePermission('sale.view');
+  const user = await requirePageAccess('sale.view');
 
   const report = await shiftReport(id, user.tenantId).catch(() => null);
   if (!report) notFound();

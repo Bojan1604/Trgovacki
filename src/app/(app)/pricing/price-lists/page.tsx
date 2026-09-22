@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FileSpreadsheet, Plus } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { formatDate } from '@/lib/format';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
@@ -19,7 +20,7 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 export default async function PriceListsPage() {
-  const user = await requirePermission('price.view');
+  const user = await requirePageAccess('price.view');
 
   const priceLists = await db.priceList.findMany({
     where: { tenantId: user.tenantId },

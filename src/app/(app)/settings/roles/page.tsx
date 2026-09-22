@@ -1,5 +1,6 @@
 import { ShieldCheck } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { PERMISSION_GROUPS, hasPermission } from '@/lib/permissions';
 import { Badge, Card, CardHeader, PageHeader } from '@/components/ui/primitives';
@@ -9,7 +10,7 @@ export const metadata = { title: 'Role i prava' };
 export const dynamic = 'force-dynamic';
 
 export default async function RolesSettingsPage() {
-  const user = await requirePermission('role.manage');
+  const user = await requirePageAccess('role.manage');
 
   const roles = await db.role.findMany({
     where: { tenantId: user.tenantId },

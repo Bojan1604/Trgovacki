@@ -1,5 +1,6 @@
 import { BadgePercent, Plus } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatPercent } from '@/lib/format';
@@ -53,7 +54,7 @@ export default async function PromotionsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('promotion.view');
+  const user = await requirePageAccess('promotion.view');
 
   const promotions = await db.promotion.findMany({
     where: {

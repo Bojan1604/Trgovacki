@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Mail, MapPin, Phone, Star } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatDateTime, formatPercent } from '@/lib/format';
@@ -24,7 +25,7 @@ const LOYALTY_LABEL: Record<string, string> = {
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requirePermission('customer.view');
+  const user = await requirePageAccess('customer.view');
 
   const customer = await db.customer.findFirst({
     where: { id, tenantId: user.tenantId },

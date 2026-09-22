@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Check, Printer } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatPercent, formatQty } from '@/lib/format';
@@ -20,7 +21,7 @@ const ALLOCATION_LABEL: Record<string, string> = {
 
 export default async function ReceiptDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requirePermission('receipt.view');
+  const user = await requirePageAccess('receipt.view');
 
   const receipt = await db.goodsReceipt.findFirst({
     where: { id, tenantId: user.tenantId },

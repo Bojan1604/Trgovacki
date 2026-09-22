@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Download, Plus } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate } from '@/lib/format';
@@ -24,7 +25,7 @@ export default async function PriceListDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const user = await requirePermission('price.view');
+  const user = await requirePageAccess('price.view');
   const page = Math.max(1, Number(query.page ?? 1) || 1);
 
   const priceList = await db.priceList.findFirst({

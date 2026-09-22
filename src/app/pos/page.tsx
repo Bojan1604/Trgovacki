@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { accessibleStoreIds, getSessionUser } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
+import { landingPath } from '@/lib/landing';
 import { PosTerminal } from '@/components/pos/pos-terminal';
 
 export const dynamic = 'force-dynamic';
@@ -14,11 +15,11 @@ export default async function PosPage({
   const params = await searchParams;
   const user = await getSessionUser();
   if (!user) redirect('/login');
-  if (!hasPermission(user.permissions, 'pos.operate')) redirect('/dashboard');
+  if (!hasPermission(user.permissions, 'pos.operate')) redirect(landingPath(user.permissions));
 
   const storeIds = await accessibleStoreIds(user);
   const storeId = params.store ?? user.activeStoreId ?? storeIds[0];
-  if (!storeId) redirect('/dashboard');
+  if (!storeId) redirect(landingPath(user.permissions));
 
   const categories = await db.category.findMany({
     where: { tenantId: user.tenantId, isActive: true, level: 1 },

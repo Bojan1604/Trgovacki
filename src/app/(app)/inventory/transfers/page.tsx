@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeftRight, Plus } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate } from '@/lib/format';
@@ -20,7 +21,7 @@ export default async function TransfersPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('transfer.view');
+  const user = await requirePageAccess('transfer.view');
   const storeIds = await accessibleStoreIds(user);
 
   const transfers = await db.stockTransfer.findMany({

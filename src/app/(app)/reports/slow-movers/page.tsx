@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Archive } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { slowMovers } from '@/lib/services/analytics';
 import { formatAmount, formatDate, formatQty } from '@/lib/format';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
@@ -16,7 +17,7 @@ export default async function SlowMoversPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('report.stock');
+  const user = await requirePageAccess('report.stock');
   const days = Number(params.days ?? 60) || 60;
   const storeIds = await accessibleStoreIds(user);
 

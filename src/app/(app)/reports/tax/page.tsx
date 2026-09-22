@@ -1,4 +1,5 @@
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { resolveRange } from '@/lib/ranges';
 import { taxRecap } from '@/lib/services/analytics';
 import { db } from '@/lib/db';
@@ -17,7 +18,7 @@ export default async function TaxReportPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('report.finance');
+  const user = await requirePageAccess('report.finance');
   const preset = params.range ?? 'month';
   const range = resolveRange(preset);
   const allStores = await accessibleStoreIds(user);

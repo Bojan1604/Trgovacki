@@ -1,4 +1,4 @@
-import { requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { ProductForm } from '@/components/catalog/product-form';
 
@@ -6,7 +6,7 @@ export const metadata = { title: 'Novi artikl' };
 export const dynamic = 'force-dynamic';
 
 export default async function NewProductPage() {
-  const user = await requirePermission('product.create');
+  const user = await requirePageAccess('product.create');
 
   const [categories, brands, units, taxRates, suppliers] = await Promise.all([
     db.category.findMany({

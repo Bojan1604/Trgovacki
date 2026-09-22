@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { resolveRange, previousRange, deltaPct } from '@/lib/ranges';
 import { salesByStore } from '@/lib/services/analytics';
 import { formatAmount, formatDate, formatPercent } from '@/lib/format';
@@ -17,7 +18,7 @@ export default async function StoresReportPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('report.sales');
+  const user = await requirePageAccess('report.sales');
   const preset = params.range ?? '30d';
   const range = resolveRange(preset);
   const storeIds = await accessibleStoreIds(user);

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Layers, Plus } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatPercent } from '@/lib/format';
@@ -12,7 +13,7 @@ export const metadata = { title: 'Kategorije' };
 export const dynamic = 'force-dynamic';
 
 export default async function CategoriesPage() {
-  const user = await requirePermission('product.view');
+  const user = await requirePageAccess('product.view');
 
   const [categories, counts] = await Promise.all([
     db.category.findMany({ where: { tenantId: user.tenantId }, orderBy: { path: 'asc' } }),

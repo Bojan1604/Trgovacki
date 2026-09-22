@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Check, Printer } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime, formatQty } from '@/lib/format';
@@ -22,7 +23,7 @@ export default async function StockTakeDetailPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const user = await requirePermission('stocktake.manage');
+  const user = await requirePageAccess('stocktake.manage');
 
   const take = await db.stockTake.findFirst({
     where: { id, tenantId: user.tenantId },

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Percent, Plus } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate } from '@/lib/format';
@@ -13,7 +14,7 @@ export const metadata = { title: 'Nivelacije' };
 export const dynamic = 'force-dynamic';
 
 export default async function PriceChangesPage() {
-  const user = await requirePermission('price.view');
+  const user = await requirePageAccess('price.view');
 
   const documents = await db.priceChangeDocument.findMany({
     where: { tenantId: user.tenantId },

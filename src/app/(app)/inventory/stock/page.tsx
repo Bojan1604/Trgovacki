@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Boxes, Download } from 'lucide-react';
-import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { formatAmount, formatQty } from '@/lib/format';
 import { Card, EmptyState, PageHeader } from '@/components/ui/primitives';
@@ -36,7 +37,7 @@ export default async function StockPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('stock.view');
+  const user = await requirePageAccess('stock.view');
   const page = Math.max(1, Number(params.page ?? 1) || 1);
 
   const allStores = await accessibleStoreIds(user);

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Package, Plus, Upload } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber, marginPct } from '@/lib/money';
 import { formatAmount, formatPercent, formatQty } from '@/lib/format';
@@ -37,7 +38,7 @@ export default async function ProductsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('product.view');
+  const user = await requirePageAccess('product.view');
   const page = Math.max(1, Number(params.page ?? 1) || 1);
 
   const where: Prisma.ProductWhereInput = {

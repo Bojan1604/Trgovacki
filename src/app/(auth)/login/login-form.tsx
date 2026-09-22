@@ -6,7 +6,7 @@ import { ArrowRight, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/field';
 
-export function LoginForm({ next = '/dashboard' }: { next?: string }) {
+export function LoginForm({ next = '/' }: { next?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

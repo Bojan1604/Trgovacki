@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { Download, Receipt } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime } from '@/lib/format';
@@ -26,7 +27,7 @@ export default async function SalesReceiptsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('sale.view');
+  const user = await requirePageAccess('sale.view');
   const page = Math.max(1, Number(params.page ?? 1) || 1);
   const preset = params.range ?? '30d';
   const range = resolveRange(preset);

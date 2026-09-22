@@ -108,6 +108,11 @@ Drugi port: `set PORT=3001` pa `npm run dev` (PowerShell: `$env:PORT=3001`).
 | Računovodstvo | `racunovodstvo@trgovacki.hr` | `demo1234` |
 | Blagajnik | `blagajna@trgovacki.hr` | `demo1234` |
 
+Nakon prijave svaki korisnik ide na prvu stranicu koju njegova rola smije
+vidjeti: vlasnik i voditelj na nadzornu ploču, blagajnik ravno na blagajnu
+(nema pravo `dashboard.view`). Pokuša li otvoriti stranicu bez prava, sustav ga
+vraća na njegovo odredište umjesto da prikaže grešku.
+
 Demo skup sadrži 9 lokacija, 22 blagajne, ~295 artikala s barkodovima i
 cjenicima, 180 kupaca s programom vjernosti te 60 dana povijesti prodaje
 (~11 000 računa) — dovoljno da svi izvještaji i nadzorna ploča imaju smisla.

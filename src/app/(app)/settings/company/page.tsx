@@ -1,5 +1,6 @@
 import { Building2, Plus } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatDate, formatPercent } from '@/lib/format';
@@ -11,7 +12,7 @@ export const metadata = { title: 'Tvrtka i porezi' };
 export const dynamic = 'force-dynamic';
 
 export default async function CompanySettingsPage() {
-  const user = await requirePermission('settings.manage');
+  const user = await requirePageAccess('settings.manage');
 
   const [tenant, companies, taxRates, units, reasonCodes] = await Promise.all([
     db.tenant.findUnique({ where: { id: user.tenantId } }),

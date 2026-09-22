@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PackageSearch, ShoppingCart } from 'lucide-react';
-import { requirePermission, accessibleStoreIds } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { formatAmount, formatQty } from '@/lib/format';
 import { replenishmentSuggestions } from '@/lib/services/inventory';
@@ -19,7 +20,7 @@ export default async function ReplenishmentPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('stock.view');
+  const user = await requirePageAccess('stock.view');
   const storeIds = await accessibleStoreIds(user);
 
   const stores = await db.store.findMany({

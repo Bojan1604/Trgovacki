@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds } from '@/lib/auth';
 import { resolveRange } from '@/lib/ranges';
 import { abcAnalysis } from '@/lib/services/analytics';
 import { formatAmount, formatDate, formatPercent, formatQty } from '@/lib/format';
@@ -19,7 +20,7 @@ export default async function AbcReportPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('report.stock');
+  const user = await requirePageAccess('report.stock');
   const preset = params.range ?? '90d';
   const range = resolveRange(preset);
   const allStores = await accessibleStoreIds(user);

@@ -1,5 +1,6 @@
 import { AlertTriangle, Plug } from 'lucide-react';
-import { requirePermission } from '@/lib/auth';
+
+import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { env } from '@/lib/env';
 import { formatDateTime } from '@/lib/format';
@@ -31,7 +32,7 @@ const TYPE_DESCRIPTION: Record<string, string> = {
 };
 
 export default async function IntegrationsPage() {
-  const user = await requirePermission('integration.manage');
+  const user = await requirePageAccess('integration.manage');
   const config = env();
 
   const integrations = await db.integrationConfig.findMany({

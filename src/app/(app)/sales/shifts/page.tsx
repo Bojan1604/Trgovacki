@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Wallet } from 'lucide-react';
-import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
+import { requirePageAccess } from '@/lib/page-auth';
+import { accessibleStoreIds, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime } from '@/lib/format';
@@ -21,7 +22,7 @@ export default async function ShiftsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const user = await requirePermission('sale.view');
+  const user = await requirePageAccess('sale.view');
   const preset = params.range ?? '30d';
   const range = resolveRange(preset);
   const allStores = await accessibleStoreIds(user);
