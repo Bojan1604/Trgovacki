@@ -40,7 +40,13 @@ Preduvjeti:
    zapamtite lozinku koju postavite za korisnika `postgres`
 
 > Nakon instalacije **otvorite novi Command Prompt** — stari ne vidi nove
-> programe u `PATH`-u. Provjera: `node -v` i `psql --version`.
+> programe u `PATH`-u. Provjera: `node -v`.
+
+> **`psql` nije prepoznat ne znači da PostgreSQL nije instaliran.** Windows
+> instalacija ne dodaje svoju mapu `bin` u `PATH`. Aplikaciji `psql` ionako ne
+> treba — spaja se preko mreže. Za ručni pristup bazi koristite prečac
+> **SQL Shell (psql)** iz izbornika Start. Radi li poslužitelj, provjerite s
+> `npm run doctor` ili u `services.msc` (servis `postgresql-x64-…`).
 
 U mapi projekta:
 

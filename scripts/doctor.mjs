@@ -8,8 +8,9 @@
  * Prisma klijent — i za svaki ispisuje što konkretno napraviti.
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { createConnection } from 'node:net';
+import path from 'node:path';
 import process from 'node:process';
 
 const ok = (text, detail = '') => console.log(`  \x1b[32m✓\x1b[0m ${text}${detail ? ` — ${detail}` : ''}`);
@@ -97,15 +98,49 @@ async function portOpen(host, port, timeout = 2500) {
   });
 }
 
+/**
+ * Traži instalaciju PostgreSQL-a na uobičajenim mjestima.
+ *
+ * Windows instalacija ne dodaje `bin` u PATH, pa `psql` u Command Promptu nije
+ * prepoznat iako je poslužitelj uredno instaliran i pokrenut. Razlika između
+ * "nije instaliran" i "instaliran, ali ne radi" mijenja sljedeći korak.
+ */
+function findInstallation() {
+  const roots =
+    process.platform === 'win32'
+      ? ['C:\\Program Files\\PostgreSQL', 'C:\\Program Files (x86)\\PostgreSQL']
+      : ['/usr/lib/postgresql', '/usr/local/pgsql', '/opt/homebrew/opt'];
+
+  for (const root of roots) {
+    if (!existsSync(root)) continue;
+    for (const entry of readdirSync(root).sort().reverse()) {
+      const bin = path.join(root, entry, 'bin');
+      if (existsSync(bin)) return { version: entry, bin };
+    }
+  }
+  return null;
+}
+
 if (url) {
   const host = url.hostname;
   const port = Number(url.port || 5432);
+
   if (await portOpen(host, port)) {
     ok('PostgreSQL sluša', `${host}:${port}`);
   } else {
-    fail('PostgreSQL nije dostupan', `${host}:${port}`,
-      'Windows: otvorite services.msc i pokrenite servis "postgresql-x64-…"',
-      'Docker: docker compose up -d');
+    const install = findInstallation();
+    if (install) {
+      fail('PostgreSQL je instaliran, ali ne prima veze', `${host}:${port}`,
+        `Pronađena instalacija: verzija ${install.version} u ${install.bin}`,
+        process.platform === 'win32'
+          ? 'Pokrenite servis: otvorite services.msc, nađite "postgresql-x64-…" i kliknite Start'
+          : 'Pokrenite servis PostgreSQL-a.',
+        'Napomena: aplikaciji psql ne treba — spaja se preko mreže.');
+    } else {
+      fail('PostgreSQL nije pronađen', `${host}:${port}`,
+        'Instalirajte ga: https://www.postgresql.org/download/windows/',
+        'Ili podignite bazu Dockerom: docker compose up -d');
+    }
   }
 }
 
@@ -146,7 +181,7 @@ if (clientReady && url) {
     if (message.includes('P1000') || message.toLowerCase().includes('authentication')) {
       fail('Lozinka nije prihvaćena', 'P1000',
         ...passwordNotes.flat(),
-        'Provjerite lozinku izravno: psql -U postgres -h localhost -d postgres',
+        'Provjerite lozinku kroz "SQL Shell (psql)" iz izbornika Start.',
         'Ako i ondje ne prolazi, lozinka u .env nije ona koju PostgreSQL očekuje.');
     } else if (message.includes('P1001')) {
       fail('Poslužitelj baze nije dostupan', 'P1001', 'Provjerite radi li PostgreSQL servis.');
