@@ -1,3 +1,7 @@
+// Uz konfiguracijsku datoteku Prisma CLI više ne učitava `.env` sam,
+// pa ga moramo učitati prije nego se pročita `env("DATABASE_URL")`.
+import 'dotenv/config';
+
 import path from 'node:path';
 import { defineConfig } from 'prisma/config';
 
