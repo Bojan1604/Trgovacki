@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Trgovacki - Enterprise Retail Management Platform (POS + Back Office)",
+  "engines": {
+    "node": ">=20.9"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
