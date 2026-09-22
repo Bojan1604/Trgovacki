@@ -174,10 +174,35 @@ serija uvijek nose i izravne oznake — identitet nikad ne ovisi samo o boji.
 
 ---
 
+## Testovi
+
+```bash
+npm test             # svi testovi (44) — zahtijeva napunjenu bazu
+npm run test:unit    # samo jedinični, bez baze
+```
+
+- **Jedinični** (`money`, `pricing-math`, `promotions`): novčana aritmetika i
+  zaokruživanje, razrez iznosa bez gubitka centi, kalkulacija marže i RUC-a te
+  cijeli motor akcija — postotni i fiksni popust, kupi X dobij Y, svaki N-ti
+  artikl, prag košarice, ekskluzivne akcije, kuponi, popust razine vjernosti i
+  vremenski prozori.
+- **Integracijski** (`checkout`): radi protiv stvarne baze i provjerava ono što
+  se jedinično ne može — knjiženje računa i izlaza sa zalihe u jednoj
+  transakciji, slaganje zbroja stavki i rekapitulacije PDV-a s ukupnim iznosom,
+  idempotentnost naplate, odbijanje prodaje iznad zalihe i nedostatnog
+  plaćanja, povrat s vraćanjem robe te praćenje prometa smjene. Test za sobom
+  čisti dokumente koje je kreirao.
+
+Testovi se pokreću s `--conditions=react-server`, čime paket `server-only`
+postaje prazan modul i poslužiteljski servisi se mogu pozvati izravno iz Node-a.
+
+---
+
 ## Naredbe
 
 ```bash
 npm run dev          # razvojni poslužitelj
+npm test             # testovi
 npm run build        # produkcijski build (uključuje prisma generate)
 npm run start        # pokretanje builda
 npm run typecheck    # provjera tipova
@@ -203,3 +228,5 @@ Namjerno izvan opsega ove faze, uz pripremljene temelje:
   ali lokalna pohrana košarice i sinkronizacija nisu implementirane.
 - **Uređivanje kroz sučelje** — dio šifrarnika (poslovnice, role, akcije) za
   sada se popunjava kroz punjenje podataka; obrasci za izmjenu su sljedeći korak.
+- **Testovi sučelja** — pokriveni su domenska logika i tok naplate; nema
+  automatiziranih testova samih ekrana.

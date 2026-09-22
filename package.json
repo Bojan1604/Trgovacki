@@ -14,7 +14,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma db push --force-reset && npm run db:seed"
+    "db:reset": "prisma db push --force-reset && npm run db:seed",
+    "test": "tsx --conditions=react-server --test tests/*.test.ts",
+    "test:unit": "tsx --conditions=react-server --test tests/money.test.ts tests/pricing-math.test.ts tests/promotions.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
