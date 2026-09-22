@@ -18,7 +18,7 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma db push --force-reset && npm run db:seed",
-    "test": "tsx --conditions=react-server --test tests/*.test.ts",
+    "test": "tsx --conditions=react-server --test \"tests/**/*.test.ts\"",
     "test:unit": "tsx --conditions=react-server --test tests/money.test.ts tests/pricing-math.test.ts tests/promotions.test.ts",
     "e2e": "node scripts/e2e.mjs",
     "manual": "node scripts/build-manual.mjs"

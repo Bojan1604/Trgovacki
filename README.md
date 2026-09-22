@@ -28,6 +28,47 @@ npm run dev                   # http://localhost:3000
                               # drugi port: PORT=3001 npm run dev
 ```
 
+### Windows — korak po korak
+
+Bez Gita: preuzmite [ZIP grane](https://github.com/Bojan1604/Trgovacki/archive/refs/heads/claude/retail-pos-web-app-953bv5.zip)
+i raspakirajte ga. Mapa će se zvati `Trgovacki-claude-retail-pos-web-app-953bv5`.
+
+Preduvjeti:
+
+1. **Node.js LTS** — <https://nodejs.org> (verzija 20.9 ili novija)
+2. **PostgreSQL** — <https://www.postgresql.org/download/windows/>;
+   zapamtite lozinku koju postavite za korisnika `postgres`
+
+> Nakon instalacije **otvorite novi Command Prompt** — stari ne vidi nove
+> programe u `PATH`-u. Provjera: `node -v` i `psql --version`.
+
+U mapi projekta:
+
+```bat
+copy .env.example .env
+```
+
+Otvorite `.env` u Notepadu i u `DATABASE_URL` upišite svoju lozinku:
+
+```
+DATABASE_URL="postgresql://postgres:VASA_LOZINKA@localhost:5432/trgovacki?schema=public"
+```
+
+Zatim:
+
+```bat
+npm install
+npm run db:push     :: kreira bazu i tablice
+npm run db:seed     :: demo podaci
+npm run dev
+```
+
+Bazu ne morate ručno kreirati — `db:push` to napravi sam.
+
+Drugi port: `set PORT=3001` pa `npm run dev` (PowerShell: `$env:PORT=3001`).
+
+---
+
 ### Demo pristup
 
 | Uloga | E-pošta | Lozinka |
