@@ -6,7 +6,7 @@ import { ArrowRight, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/field';
 
-export function LoginForm() {
+export function LoginForm({ next = '/dashboard' }: { next?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +28,7 @@ export function LoginForm() {
         setError(data.error ?? 'Prijava nije uspjela.');
         return;
       }
-      router.push('/dashboard');
+      router.push(next);
       router.refresh();
     } catch {
       setError('Poslužitelj nije dostupan. Pokušajte ponovno.');

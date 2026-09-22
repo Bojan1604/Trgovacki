@@ -7,8 +7,9 @@ import { db } from './db';
 import { env } from './env';
 import { hasPermission } from './permissions';
 
-export const SESSION_COOKIE = 'tg_session';
-export const STORE_COOKIE = 'tg_store';
+import { SESSION_COOKIE, STORE_COOKIE } from './auth-constants';
+
+export { SESSION_COOKIE, STORE_COOKIE };
 
 export interface SessionUser {
   id: string;

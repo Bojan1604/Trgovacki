@@ -180,7 +180,7 @@ export default async function DashboardPage({
         <Card>
           <CardHeader
             title="Poslovnice"
-            subtitle="Promet u razdoblju"
+            subtitle="Cijeli lanac — promet u razdoblju"
             actions={
               <Link href="/reports/stores" className="text-sm text-accent hover:underline">
                 Detaljnije

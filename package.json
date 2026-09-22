@@ -16,9 +16,6 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma db push --force-reset && npm run db:seed"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@prisma/client": "^6.1.0",
     "@tanstack/react-query": "^5.62.0",

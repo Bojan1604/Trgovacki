@@ -14,7 +14,10 @@ if (!url || !out) {
   process.exit(1);
 }
 
-const browser = await chromium.launch();
+// PLAYWRIGHT_CHROMIUM_PATH omogućuje korištenje preglednika izvan npm predmemorije.
+const browser = await chromium.launch({
+  executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined,
+});
 const context = await browser.newContext({
   viewport: { width: Number(width), height: Number(height) },
   deviceScaleFactor: 2,

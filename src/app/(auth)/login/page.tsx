@@ -4,9 +4,16 @@ import { LoginForm } from './login-form';
 
 export const metadata = { title: 'Prijava' };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const params = await searchParams;
   const user = await getSessionUser();
-  if (user) redirect('/dashboard');
+  // Samo interne putanje — vanjski URL u parametru ne smije preusmjeriti korisnika.
+  const next = params.next?.startsWith('/') && !params.next.startsWith('//') ? params.next : '/dashboard';
+  if (user) redirect(next);
 
   const demo = process.env.NODE_ENV !== 'production';
 
@@ -78,7 +85,7 @@ export default async function LoginPage() {
           <h2 className="text-lg font-semibold tracking-tight">Prijava</h2>
           <p className="mt-0.5 mb-5 text-sm text-ink-3">Unesite podatke za pristup sustavu.</p>
 
-          <LoginForm />
+          <LoginForm next={next} />
 
           {demo && (
             <div className="mt-6 rounded-lg bg-surface-2 p-2.5 text-sm">
