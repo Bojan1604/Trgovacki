@@ -1,0 +1,2238 @@
+// =============================================================================
+//  TRGOVAČKI — Enterprise Retail Management Platform
+//  Prisma schema · PostgreSQL
+//
+//  Struktura:
+//    1. Tenancy & organizacija      6. Nabava (PO / primka / kalkulacija)
+//    2. Korisnici, role, prava      7. Prodaja & POS
+//    3. Katalog artikala            8. Kupci & lojalnost
+//    4. Cijene, akcije, kuponi      9. Financije & blagajna
+//    5. Skladište & zalihe         10. Sustav (audit, brojači, integracije)
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+//  ENUMS
+// =============================================================================
+
+enum TenantPlan {
+  TRIAL
+  STANDARD
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  CANCELLED
+}
+
+enum StoreType {
+  RETAIL // maloprodajna trgovina
+  WHOLESALE // veleprodaja
+  WAREHOUSE // centralno skladište
+  ONLINE // web shop
+  FRANCHISE // franšizna lokacija
+  POPUP // privremena lokacija
+}
+
+enum StoreStatus {
+  ACTIVE
+  INACTIVE
+  IN_PREPARATION
+  CLOSED
+}
+
+enum WarehouseType {
+  SALES_FLOOR // prodajni prostor
+  BACK_STORE // skladište trgovine
+  CENTRAL // centralno skladište
+  TRANSIT // roba u tranzitu
+  QUARANTINE // karantena / reklamacije
+  CONSIGNMENT // konsignacija
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  SUSPENDED
+  ARCHIVED
+}
+
+enum ProductType {
+  STOCK // standardni artikl sa zalihom
+  WEIGHTED // artikl na vagu (kg)
+  SERVICE // usluga, bez zalihe
+  BUNDLE // set / paket artikala
+  GIFT_CARD // poklon kartica
+  DEPOSIT // povratna naknada (ambalaža)
+  VARIABLE // nadređeni artikl s varijantama
+}
+
+enum ProductStatus {
+  ACTIVE
+  DISCONTINUED // u rasprodaji
+  ARCHIVED
+  DRAFT
+}
+
+enum BarcodeType {
+  EAN13
+  EAN8
+  UPCA
+  CODE128
+  CODE39
+  QR
+  INTERNAL
+  WEIGHT_EMBEDDED // interni barkod s ugrađenom težinom/cijenom
+}
+
+enum PriceListType {
+  RETAIL // maloprodajni cjenik
+  WHOLESALE // veleprodajni cjenik
+  CUSTOMER_GROUP
+  CONTRACT
+  CAMPAIGN
+}
+
+enum PriceChangeStatus {
+  DRAFT
+  APPROVED
+  APPLIED
+  CANCELLED
+}
+
+enum PromotionType {
+  PERCENT_OFF
+  AMOUNT_OFF
+  FIXED_PRICE
+  BUY_X_GET_Y
+  BUNDLE_PRICE
+  NTH_ITEM_DISCOUNT
+  BASKET_THRESHOLD
+  LOYALTY_MULTIPLIER
+  FREE_SHIPPING
+}
+
+enum PromotionStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  EXPIRED
+  CANCELLED
+}
+
+enum StockMovementType {
+  PURCHASE_RECEIPT // primka
+  SALE // prodaja
+  SALE_RETURN // povrat od kupca
+  SUPPLIER_RETURN // povrat dobavljaču
+  TRANSFER_OUT // izlaz na drugo skladište
+  TRANSFER_IN // ulaz s drugog skladišta
+  ADJUSTMENT_IN // korekcija +
+  ADJUSTMENT_OUT // korekcija -
+  WRITE_OFF // otpis
+  STOCKTAKE // inventurna korekcija
+  PRODUCTION_IN // proizvodnja / sastavljanje seta
+  PRODUCTION_OUT // rastavljanje seta
+  OWN_CONSUMPTION // vlastita potrošnja
+  INITIAL // početno stanje
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  POSTED // proknjiženo (nepromjenjivo)
+  CANCELLED
+  REJECTED
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT
+  CONFIRMED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+  CLOSED
+}
+
+enum TransferStatus {
+  DRAFT
+  REQUESTED
+  APPROVED
+  DISPATCHED // otpremljeno (roba u tranzitu)
+  RECEIVED
+  PARTIALLY_RECEIVED
+  CANCELLED
+  DISPUTED
+}
+
+enum StockTakeStatus {
+  DRAFT
+  COUNTING
+  REVIEW
+  APPROVED
+  POSTED
+  CANCELLED
+}
+
+enum SaleStatus {
+  OPEN // otvoren račun na POS-u
+  SUSPENDED // parkiran
+  COMPLETED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+  QUOTE // ponuda
+  ON_HOLD
+}
+
+enum SaleChannel {
+  POS
+  WEB
+  PHONE
+  B2B
+  MARKETPLACE
+  SELF_CHECKOUT
+  MOBILE_POS
+}
+
+enum DocumentKind {
+  RECEIPT // maloprodajni račun
+  INVOICE // R1 račun
+  PROFORMA // ponuda / predračun
+  CREDIT_NOTE // odobrenje
+  DELIVERY_NOTE // otpremnica
+}
+
+enum PaymentMethodType {
+  CASH
+  CARD
+  BANK_TRANSFER
+  GIFT_CARD
+  VOUCHER
+  LOYALTY_POINTS
+  ON_ACCOUNT // na odgodu
+  MOBILE // Apple/Google Pay, KEKS, Aircash
+  CHECK
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  VOIDED
+}
+
+enum FiscalStatus {
+  NOT_REQUIRED
+  PENDING
+  QUEUED
+  SENT
+  CONFIRMED
+  FAILED
+  SUBSEQUENTLY_SENT // naknadno dostavljeno
+}
+
+enum ShiftStatus {
+  OPEN
+  CLOSED
+  RECONCILED
+}
+
+enum CashMovementType {
+  OPENING_FLOAT // početni saldo
+  DEPOSIT // polog
+  WITHDRAWAL // podizanje / odvod u sef
+  SALE_CASH
+  REFUND_CASH
+  EXPENSE // sitni trošak
+  CORRECTION
+  CLOSING
+}
+
+enum CustomerType {
+  RETAIL // fizička osoba
+  BUSINESS // pravna osoba
+  EMPLOYEE
+}
+
+enum LoyaltyTransactionType {
+  EARN
+  REDEEM
+  EXPIRE
+  ADJUSTMENT
+  REFUND_REVERSAL
+  BONUS
+}
+
+enum DiscountScope {
+  LINE
+  ORDER
+}
+
+enum DiscountOrigin {
+  MANUAL
+  PROMOTION
+  COUPON
+  LOYALTY
+  PRICE_LIST
+  CONTRACT
+  EMPLOYEE
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  APPROVE
+  POST
+  CANCEL
+  PRICE_OVERRIDE
+  DISCOUNT_OVERRIDE
+  VOID
+  REFUND
+  DRAWER_OPEN
+  EXPORT
+  IMPORT
+}
+
+enum IntegrationType {
+  FISCALIZATION
+  E_INVOICE
+  PAYMENT_TERMINAL
+  ACCOUNTING
+  ECOMMERCE
+  ERP
+  SCALE
+  LABEL_PRINTER
+  LOYALTY_EXTERNAL
+  BI_EXPORT
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  FAILED
+  DEAD
+}
+
+// =============================================================================
+//  1. TENANCY & ORGANIZACIJA
+// =============================================================================
+
+/// Najviša razina izolacije — jedan trgovački lanac / klijent.
+model Tenant {
+  id           String       @id @default(cuid())
+  slug         String       @unique
+  name         String
+  legalName    String?
+  plan         TenantPlan   @default(PROFESSIONAL)
+  status       TenantStatus @default(ACTIVE)
+  locale       String       @default("hr")
+  timezone     String       @default("Europe/Zagreb")
+  baseCurrency String       @default("EUR")
+  logoUrl      String?
+  primaryColor String       @default("#0A84FF")
+  maxStores    Int          @default(100)
+  maxUsers     Int          @default(1000)
+  featureFlags Json         @default("{}")
+  trialEndsAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  companies       Company[]
+  stores          Store[]
+  users           User[]
+  roles           Role[]
+  categories      Category[]
+  brands          Brand[]
+  suppliers       Supplier[]
+  products        Product[]
+  attributes      Attribute[]
+  taxRates        TaxRate[]
+  priceLists      PriceList[]
+  promotions      Promotion[]
+  coupons         Coupon[]
+  customers       Customer[]
+  customerGroups  CustomerGroup[]
+  loyaltyPrograms LoyaltyProgram[]
+  giftCards       GiftCard[]
+  paymentMethods  PaymentMethod[]
+  purchaseOrders  PurchaseOrder[]
+  goodsReceipts   GoodsReceipt[]
+  transfers       StockTransfer[]
+  stockTakes      StockTake[]
+  writeOffs       WriteOff[]
+  sales           Sale[]
+  shifts          Shift[]
+  priceChanges    PriceChangeDocument[]
+  auditLogs       AuditLog[]
+  settings        Setting[]
+  numberSequences NumberSequence[]
+  integrations    IntegrationConfig[]
+  outboxEvents    OutboxEvent[]
+  notifications   Notification[]
+  savedReports    SavedReport[]
+  dailyKpis       DailyKpi[]
+  reasonCodes     ReasonCode[]
+  units           UnitOfMeasure[]
+
+  @@index([status])
+  @@map("tenants")
+}
+
+/// Pravna osoba unutar lanca (izdavatelj računa, OIB, PDV obveznik).
+model Company {
+  id             String   @id @default(cuid())
+  tenantId       String
+  code           String
+  name           String
+  legalName      String
+  vatId          String // OIB / VAT ID
+  registrationNo String?
+  iban           String?
+  bankName       String?
+  addressLine    String?
+  city           String?
+  postalCode     String?
+  country        String   @default("HR")
+  email          String?
+  phone          String?
+  website        String?
+  vatRegistered  Boolean  @default(true)
+  fiscalOperator String? // OIB operatera za fiskalizaciju
+  invoiceFooter  String?
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  stores Store[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("companies")
+}
+
+/// Prodajno mjesto / poslovnica / skladište.
+model Store {
+  id                 String      @id @default(cuid())
+  tenantId           String
+  companyId          String
+  code               String // oznaka poslovnog prostora za fiskalizaciju
+  name               String
+  type               StoreType   @default(RETAIL)
+  status             StoreStatus @default(ACTIVE)
+  addressLine        String?
+  city               String?
+  postalCode         String?
+  country            String      @default("HR")
+  region             String? // regija / cluster za izvještavanje
+  phone              String?
+  email              String?
+  managerName        String?
+  latitude           Float?
+  longitude          Float?
+  openingHours       Json        @default("{}")
+  squareMeters       Float?
+  costCenter         String?
+  priceListId        String?
+  allowNegativeStock Boolean     @default(false)
+  fiscalEnabled      Boolean     @default(true)
+  openedAt           DateTime?
+  closedAt           DateTime?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  tenant          Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  company         Company               @relation(fields: [companyId], references: [id])
+  priceList       PriceList?            @relation("StorePriceList", fields: [priceListId], references: [id])
+  warehouses      Warehouse[]
+  registers       Register[]
+  userAccess      UserStoreAccess[]
+  sales           Sale[]
+  shifts          Shift[]
+  purchaseOrders  PurchaseOrder[]
+  goodsReceipts   GoodsReceipt[]
+  transfersFrom   StockTransfer[]       @relation("TransferFrom")
+  transfersTo     StockTransfer[]       @relation("TransferTo")
+  stockTakes      StockTake[]
+  writeOffs       WriteOff[]
+  reorderRules    ReorderRule[]
+  cashMovements   CashMovement[]
+  dailyKpis       DailyKpi[]
+  priceChanges    PriceChangeDocument[]
+  numberSequences NumberSequence[]
+  settings        Setting[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status])
+  @@index([companyId])
+  @@map("stores")
+}
+
+/// Skladišna lokacija unutar poslovnice (prodajni prostor, skladište, tranzit…).
+model Warehouse {
+  id         String        @id @default(cuid())
+  storeId    String
+  code       String
+  name       String
+  type       WarehouseType @default(SALES_FLOOR)
+  isDefault  Boolean       @default(false)
+  isSellable Boolean       @default(true)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  store         Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  stockItems    StockItem[]
+  movements     StockMovement[]
+  goodsReceipts GoodsReceipt[]
+  transfersFrom StockTransfer[] @relation("WhTransferFrom")
+  transfersTo   StockTransfer[] @relation("WhTransferTo")
+  stockTakes    StockTake[]
+  writeOffs     WriteOff[]
+
+  @@unique([storeId, code])
+  @@index([storeId])
+  @@map("warehouses")
+}
+
+/// Naplatni uređaj (POS blagajna) — nosi broj uređaja za fiskalizaciju.
+model Register {
+  id             String    @id @default(cuid())
+  storeId        String
+  code           String // oznaka naplatnog uređaja (npr. "1")
+  name           String
+  deviceId       String? // hardverski otisak / serijski broj
+  ipAddress      String?
+  printerConfig  Json      @default("{}")
+  terminalConfig Json      @default("{}")
+  scaleConfig    Json      @default("{}")
+  isActive       Boolean   @default(true)
+  lastSeenAt     DateTime?
+  appVersion     String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  store  Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  shifts Shift[]
+  sales  Sale[]
+
+  @@unique([storeId, code])
+  @@index([storeId])
+  @@map("registers")
+}
+
+// =============================================================================
+//  2. KORISNICI, ROLE I PRAVA
+// =============================================================================
+
+model User {
+  id                 String     @id @default(cuid())
+  tenantId           String
+  email              String
+  passwordHash       String
+  firstName          String
+  lastName           String
+  phone              String?
+  avatarUrl          String?
+  status             UserStatus @default(ACTIVE)
+  isSuperAdmin       Boolean    @default(false)
+  locale             String     @default("hr")
+  /// PIN za brzu prijavu na POS-u (bcrypt hash)
+  posPinHash         String?
+  employeeCode       String?
+  defaultStoreId     String?
+  maxDiscountPct     Decimal    @default(0) @db.Decimal(5, 2)
+  mustChangePassword Boolean    @default(false)
+  failedLoginCount   Int        @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  roles         UserRole[]
+  storeAccess   UserStoreAccess[]
+  sessions      Session[]
+  sales         Sale[]
+  shifts        Shift[]
+  auditLogs     AuditLog[]
+  cashMovements CashMovement[]
+  notifications Notification[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId, status])
+  @@map("users")
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  storeId   String?
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+/// Rola s granularnim pravima (permission string npr. "product.update").
+model Role {
+  id          String   @id @default(cuid())
+  tenantId    String
+  code        String
+  name        String
+  description String?
+  isSystem    Boolean  @default(false)
+  permissions String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users  UserRole[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("roles")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+/// Pristup korisnika pojedinoj poslovnici (npr. voditelj regije = više poslovnica).
+model UserStoreAccess {
+  userId    String
+  storeId   String
+  canSell   Boolean @default(true)
+  canManage Boolean @default(false)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, storeId])
+  @@map("user_store_access")
+}
+
+// =============================================================================
+//  3. KATALOG ARTIKALA
+// =============================================================================
+
+model Category {
+  id              String   @id @default(cuid())
+  tenantId        String
+  parentId        String?
+  code            String
+  name            String
+  description     String?
+  path            String // materijalizirana putanja npr. "/1/14/56" za brzo stablo
+  level           Int      @default(0)
+  sortOrder       Int      @default(0)
+  imageUrl        String?
+  isActive        Boolean  @default(true)
+  /// Ciljana marža u % za kategoriju (koristi se u kalkulaciji)
+  targetMarginPct Decimal? @db.Decimal(5, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, parentId])
+  @@index([tenantId, path])
+  @@map("categories")
+}
+
+model Brand {
+  id        String   @id @default(cuid())
+  tenantId  String
+  code      String
+  name      String
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([tenantId, code])
+  @@map("brands")
+}
+
+model UnitOfMeasure {
+  id        String   @id @default(cuid())
+  tenantId  String
+  code      String // kom, kg, l, m, pak
+  name      String
+  /// Broj decimala dozvoljen pri unosu količine (0 = samo cijeli komadi)
+  precision Int      @default(0)
+  isWeight  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([tenantId, code])
+  @@map("units_of_measure")
+}
+
+model TaxRate {
+  id         String    @id @default(cuid())
+  tenantId   String
+  code       String // PDV25, PDV13, PDV5, PDV0
+  name       String
+  rate       Decimal   @db.Decimal(6, 3)
+  isDefault  Boolean   @default(false)
+  /// Oznaka za fiskalizaciju / knjigovodstvo
+  fiscalCode String?
+  validFrom  DateTime  @default(now())
+  validTo    DateTime?
+  createdAt  DateTime  @default(now())
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([tenantId, code])
+  @@map("tax_rates")
+}
+
+model Attribute {
+  id        String   @id @default(cuid())
+  tenantId  String
+  code      String // boja, velicina, materijal
+  name      String
+  /// list | color | text | number
+  inputType String   @default("list")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  tenant Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  values AttributeValue[]
+
+  @@unique([tenantId, code])
+  @@map("attributes")
+}
+
+model AttributeValue {
+  id          String  @id @default(cuid())
+  attributeId String
+  code        String
+  value       String
+  colorHex    String?
+  sortOrder   Int     @default(0)
+
+  attribute Attribute               @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  variants  VariantAttributeValue[]
+
+  @@unique([attributeId, code])
+  @@map("attribute_values")
+}
+
+/// Artikl (nadređeni zapis). Svaka prodajna jedinica je ProductVariant.
+model Product {
+  id              String        @id @default(cuid())
+  tenantId        String
+  sku             String
+  name            String
+  shortName       String? // naziv za POS gumb / račun (max ~24 znaka)
+  description     String?
+  type            ProductType   @default(STOCK)
+  status          ProductStatus @default(ACTIVE)
+  categoryId      String?
+  brandId         String?
+  unitId          String?
+  taxRateId       String?
+  /// Povratna naknada / naknada na ambalažu po jedinici
+  depositAmount   Decimal       @default(0) @db.Decimal(12, 4)
+  /// Obavezni unos serijskog broja / lota kod prodaje
+  trackSerial     Boolean       @default(false)
+  trackLot        Boolean       @default(false)
+  trackExpiry     Boolean       @default(false)
+  hasVariants     Boolean       @default(false)
+  isSoldByWeight  Boolean       @default(false)
+  ageRestriction  Int? // minimalna dob kupca (alkohol, duhan)
+  allowDiscount   Boolean       @default(true)
+  allowPriceEdit  Boolean       @default(false)
+  commissionPct   Decimal?      @db.Decimal(5, 2)
+  countryOfOrigin String?
+  customsCode     String? // tarifna oznaka
+  imageUrl        String?
+  images          String[]      @default([])
+  tags            String[]      @default([])
+  attributes      Json          @default("{}")
+  seoSlug         String?
+  publishedWeb    Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  archivedAt      DateTime?
+
+  tenant      Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category    Category?         @relation(fields: [categoryId], references: [id])
+  brand       Brand?            @relation(fields: [brandId], references: [id])
+  unit        UnitOfMeasure?    @relation(fields: [unitId], references: [id])
+  taxRate     TaxRate?          @relation(fields: [taxRateId], references: [id])
+  variants    ProductVariant[]
+  suppliers   ProductSupplier[]
+  bundleItems BundleItem[]      @relation("BundleParent")
+
+  @@unique([tenantId, sku])
+  @@index([tenantId, status])
+  @@index([tenantId, categoryId])
+  @@index([tenantId, brandId])
+  @@index([tenantId, name])
+  @@map("products")
+}
+
+/// Prodajna jedinica — ono što ima barkod, cijenu i zalihu.
+model ProductVariant {
+  id          String   @id @default(cuid())
+  productId   String
+  sku         String
+  name        String
+  /// Faktor pakiranja u odnosu na osnovnu jedinicu (npr. transportno pakiranje 12/1)
+  packSize    Decimal  @default(1) @db.Decimal(12, 4)
+  weightGrams Decimal? @db.Decimal(12, 3)
+  volumeMl    Decimal? @db.Decimal(12, 3)
+  dimensions  String?
+  imageUrl    String?
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  /// Preporučena maloprodajna cijena proizvođača
+  msrp        Decimal? @db.Decimal(12, 4)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product          Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  barcodes         Barcode[]
+  attributeValues  VariantAttributeValue[]
+  stockItems       StockItem[]
+  movements        StockMovement[]
+  priceItems       PriceListItem[]
+  saleLines        SaleLine[]
+  poLines          PurchaseOrderLine[]
+  receiptLines     GoodsReceiptLine[]
+  transferLines    StockTransferLine[]
+  stockTakeLines   StockTakeLine[]
+  writeOffLines    WriteOffLine[]
+  reorderRules     ReorderRule[]
+  bundleParts      BundleItem[]            @relation("BundleComponent")
+  lots             StockLot[]
+  priceChangeLines PriceChangeLine[]
+  promotionTargets PromotionTarget[]
+
+  @@unique([productId, sku])
+  @@index([sku])
+  @@map("product_variants")
+}
+
+model VariantAttributeValue {
+  variantId        String
+  attributeValueId String
+
+  variant        ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  @@id([variantId, attributeValueId])
+  @@map("variant_attribute_values")
+}
+
+model Barcode {
+  id        String      @id @default(cuid())
+  variantId String
+  code      String
+  type      BarcodeType @default(EAN13)
+  isPrimary Boolean     @default(false)
+  /// Količina koju barkod predstavlja (transportno pakiranje = 12)
+  quantity  Decimal     @default(1) @db.Decimal(12, 4)
+  createdAt DateTime    @default(now())
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([code])
+  @@index([variantId])
+  @@map("barcodes")
+}
+
+/// Sastavnica seta / paketa.
+model BundleItem {
+  id            String   @id @default(cuid())
+  parentId      String
+  componentId   String
+  quantity      Decimal  @default(1) @db.Decimal(12, 4)
+  /// Udio u cijeni seta za razrez prihoda (%)
+  priceSharePct Decimal? @db.Decimal(5, 2)
+
+  parent    Product        @relation("BundleParent", fields: [parentId], references: [id], onDelete: Cascade)
+  component ProductVariant @relation("BundleComponent", fields: [componentId], references: [id])
+
+  @@unique([parentId, componentId])
+  @@map("bundle_items")
+}
+
+model Supplier {
+  id            String   @id @default(cuid())
+  tenantId      String
+  code          String
+  name          String
+  legalName     String?
+  vatId         String?
+  contactPerson String?
+  email         String?
+  phone         String?
+  addressLine   String?
+  city          String?
+  postalCode    String?
+  country       String   @default("HR")
+  iban          String?
+  /// Rok plaćanja u danima
+  paymentTerms  Int      @default(30)
+  /// Prosječno vrijeme isporuke u danima
+  leadTimeDays  Int      @default(3)
+  minOrderValue Decimal  @default(0) @db.Decimal(12, 2)
+  discountPct   Decimal  @default(0) @db.Decimal(5, 2)
+  currency      String   @default("EUR")
+  deliveryDays  String[] @default([]) // ["MON","WED","FRI"]
+  isActive      Boolean  @default(true)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products       ProductSupplier[]
+  purchaseOrders PurchaseOrder[]
+  goodsReceipts  GoodsReceipt[]
+  reorderRules   ReorderRule[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isActive])
+  @@map("suppliers")
+}
+
+model ProductSupplier {
+  id            String    @id @default(cuid())
+  productId     String
+  supplierId    String
+  supplierSku   String?
+  purchasePrice Decimal   @db.Decimal(12, 4)
+  discountPct   Decimal   @default(0) @db.Decimal(5, 2)
+  currency      String    @default("EUR")
+  minOrderQty   Decimal   @default(1) @db.Decimal(12, 4)
+  packQty       Decimal   @default(1) @db.Decimal(12, 4)
+  leadTimeDays  Int?
+  isPrimary     Boolean   @default(false)
+  validFrom     DateTime  @default(now())
+  validTo       DateTime?
+  updatedAt     DateTime  @updatedAt
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, supplierId])
+  @@index([supplierId])
+  @@map("product_suppliers")
+}
+
+// =============================================================================
+//  4. CIJENE, AKCIJE I KUPONI
+// =============================================================================
+
+model PriceList {
+  id               String        @id @default(cuid())
+  tenantId         String
+  code             String
+  name             String
+  type             PriceListType @default(RETAIL)
+  currency         String        @default("EUR")
+  /// Cijene su unesene s PDV-om (maloprodaja) ili bez (veleprodaja)
+  pricesIncludeTax Boolean       @default(true)
+  priority         Int           @default(0)
+  validFrom        DateTime      @default(now())
+  validTo          DateTime?
+  isActive         Boolean       @default(true)
+  isDefault        Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items          PriceListItem[]
+  stores         Store[]         @relation("StorePriceList")
+  customerGroups CustomerGroup[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isActive])
+  @@map("price_lists")
+}
+
+model PriceListItem {
+  id             String    @id @default(cuid())
+  priceListId    String
+  variantId      String
+  price          Decimal   @db.Decimal(12, 4)
+  /// Cijena prije akcije (za prikaz "bilo / sada")
+  comparePrice   Decimal?  @db.Decimal(12, 4)
+  /// Najniža cijena u zadnjih 30 dana (EU Omnibus direktiva)
+  lowestPrice30d Decimal?  @db.Decimal(12, 4)
+  minQty         Decimal   @default(1) @db.Decimal(12, 4)
+  validFrom      DateTime  @default(now())
+  validTo        DateTime?
+  updatedAt      DateTime  @updatedAt
+
+  priceList PriceList      @relation(fields: [priceListId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([priceListId, variantId, minQty])
+  @@index([variantId])
+  @@map("price_list_items")
+}
+
+/// Dokument promjene cijene (nivelacija) — zakonski trag promjene MPC.
+model PriceChangeDocument {
+  id              String            @id @default(cuid())
+  tenantId        String
+  storeId         String?
+  number          String
+  status          PriceChangeStatus @default(DRAFT)
+  reason          String?
+  effectiveAt     DateTime
+  /// Ukupna razlika vrijednosti zalihe zbog promjene cijene
+  stockValueDelta Decimal           @default(0) @db.Decimal(14, 2)
+  createdById     String?
+  approvedById    String?
+  approvedAt      DateTime?
+  appliedAt       DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  tenant Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store  Store?            @relation(fields: [storeId], references: [id])
+  lines  PriceChangeLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@map("price_change_documents")
+}
+
+model PriceChangeLine {
+  id         String  @id @default(cuid())
+  documentId String
+  variantId  String
+  oldPrice   Decimal @db.Decimal(12, 4)
+  newPrice   Decimal @db.Decimal(12, 4)
+  stockQty   Decimal @default(0) @db.Decimal(14, 4)
+  valueDelta Decimal @default(0) @db.Decimal(14, 2)
+
+  document PriceChangeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  variant  ProductVariant      @relation(fields: [variantId], references: [id])
+
+  @@index([documentId])
+  @@map("price_change_lines")
+}
+
+model Promotion {
+  id                String          @id @default(cuid())
+  tenantId          String
+  code              String
+  name              String
+  description       String?
+  type              PromotionType
+  status            PromotionStatus @default(DRAFT)
+  priority          Int             @default(0)
+  /// Sprječava kombiniranje s drugim akcijama
+  exclusive         Boolean         @default(false)
+  /// Vrijednost akcije: % popusta, iznos popusta ili fiksna cijena
+  value             Decimal         @default(0) @db.Decimal(12, 4)
+  /// BUY_X_GET_Y parametri
+  buyQty            Decimal?        @db.Decimal(12, 4)
+  getQty            Decimal?        @db.Decimal(12, 4)
+  /// Minimalna vrijednost/količina košarice
+  minBasketAmount   Decimal?        @db.Decimal(12, 2)
+  minQty            Decimal?        @db.Decimal(12, 4)
+  maxDiscountAmount Decimal?        @db.Decimal(12, 2)
+  /// Ograničenja korištenja
+  usageLimit        Int?
+  usagePerCustomer  Int?
+  usageCount        Int             @default(0)
+  requiresCoupon    Boolean         @default(false)
+  /// Vremenski prozor (happy hour): "MON-FRI 15:00-17:00"
+  dayOfWeekMask     Int? // bitmask 1=Pon … 64=Ned
+  startTime         String?
+  endTime           String?
+  startsAt          DateTime
+  endsAt            DateTime?
+  channels          SaleChannel[]   @default([POS, WEB])
+  storeIds          String[]        @default([])
+  customerGroupIds  String[]        @default([])
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  tenant    Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  targets   PromotionTarget[]
+  coupons   Coupon[]
+  discounts SaleDiscount[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status, startsAt])
+  @@map("promotions")
+}
+
+/// Na što se akcija odnosi: artikl, kategorija, brend ili sve.
+model PromotionTarget {
+  id           String  @id @default(cuid())
+  promotionId  String
+  variantId    String?
+  categoryId   String?
+  brandId      String?
+  supplierId   String?
+  /// true = artikl je isključen iz akcije
+  isExclusion  Boolean @default(false)
+  /// GET strana kod BUY_X_GET_Y
+  isRewardSide Boolean @default(false)
+
+  promotion Promotion       @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([promotionId])
+  @@index([variantId])
+  @@map("promotion_targets")
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  tenantId    String
+  promotionId String?
+  code        String
+  customerId  String?
+  usageLimit  Int       @default(1)
+  usageCount  Int       @default(0)
+  validFrom   DateTime  @default(now())
+  validTo     DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  promotion Promotion? @relation(fields: [promotionId], references: [id])
+  customer  Customer?  @relation(fields: [customerId], references: [id])
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isActive])
+  @@map("coupons")
+}
+
+// =============================================================================
+//  5. SKLADIŠTE I ZALIHE
+// =============================================================================
+
+/// Trenutno stanje zalihe po skladištu i varijanti (denormalizirano za brzinu).
+model StockItem {
+  id             String    @id @default(cuid())
+  warehouseId    String
+  variantId      String
+  quantity       Decimal   @default(0) @db.Decimal(16, 4)
+  /// Rezervirano (web narudžbe, parkirani računi, transferi u pripremi)
+  reserved       Decimal   @default(0) @db.Decimal(16, 4)
+  /// Naručeno kod dobavljača, još nije zaprimljeno
+  onOrder        Decimal   @default(0) @db.Decimal(16, 4)
+  /// Ponderirana prosječna nabavna cijena (WAC)
+  avgCost        Decimal   @default(0) @db.Decimal(14, 6)
+  lastCost       Decimal   @default(0) @db.Decimal(14, 6)
+  lastCountedAt  DateTime?
+  lastMovementAt DateTime?
+  updatedAt      DateTime  @updatedAt
+
+  warehouse Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, variantId])
+  @@index([variantId])
+  @@index([warehouseId, quantity])
+  @@map("stock_items")
+}
+
+/// Nepromjenjiva knjiga svih kretanja zalihe — izvor istine za revizijski trag.
+model StockMovement {
+  id           String            @id @default(cuid())
+  warehouseId  String
+  variantId    String
+  type         StockMovementType
+  /// Predznak već uključen: +ulaz / −izlaz
+  quantity     Decimal           @db.Decimal(16, 4)
+  unitCost     Decimal           @default(0) @db.Decimal(14, 6)
+  totalCost    Decimal           @default(0) @db.Decimal(16, 4)
+  /// Stanje nakon knjiženja (running balance)
+  balanceAfter Decimal           @default(0) @db.Decimal(16, 4)
+  avgCostAfter Decimal           @default(0) @db.Decimal(14, 6)
+  lotId        String?
+  serialNumber String?
+  /// Referenca na izvorni dokument
+  refType      String? // sale, goods_receipt, transfer, stock_take, write_off
+  refId        String?
+  refNumber    String?
+  reasonCodeId String?
+  note         String?
+  userId       String?
+  occurredAt   DateTime          @default(now())
+  createdAt    DateTime          @default(now())
+
+  warehouse  Warehouse      @relation(fields: [warehouseId], references: [id])
+  variant    ProductVariant @relation(fields: [variantId], references: [id])
+  lot        StockLot?      @relation(fields: [lotId], references: [id])
+  reasonCode ReasonCode?    @relation(fields: [reasonCodeId], references: [id])
+
+  @@index([warehouseId, variantId, occurredAt])
+  @@index([refType, refId])
+  @@index([occurredAt])
+  @@map("stock_movements")
+}
+
+/// Lot / serija / rok trajanja.
+model StockLot {
+  id             String    @id @default(cuid())
+  variantId      String
+  lotNumber      String
+  expiryDate     DateTime?
+  productionDate DateTime?
+  quantity       Decimal   @default(0) @db.Decimal(16, 4)
+  unitCost       Decimal   @default(0) @db.Decimal(14, 6)
+  supplierId     String?
+  createdAt      DateTime  @default(now())
+
+  variant   ProductVariant  @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  movements StockMovement[]
+
+  @@unique([variantId, lotNumber])
+  @@index([expiryDate])
+  @@map("stock_lots")
+}
+
+/// Šifrarnik razloga (otpis, korekcija, povrat…).
+model ReasonCode {
+  id           String  @id @default(cuid())
+  tenantId     String
+  code         String
+  name         String
+  /// write_off | adjustment | return | discount | void | drawer
+  scope        String
+  requiresNote Boolean @default(false)
+  /// Utječe li na trošak (KEPU / rashod)
+  affectsCost  Boolean @default(true)
+  isActive     Boolean @default(true)
+
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  movements StockMovement[]
+  writeOffs WriteOff[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, scope])
+  @@map("reason_codes")
+}
+
+model StockTransfer {
+  id              String         @id @default(cuid())
+  tenantId        String
+  number          String
+  fromStoreId     String
+  toStoreId       String
+  fromWarehouseId String
+  toWarehouseId   String
+  status          TransferStatus @default(DRAFT)
+  note            String?
+  totalCost       Decimal        @default(0) @db.Decimal(14, 2)
+  requestedById   String?
+  approvedById    String?
+  dispatchedAt    DateTime?
+  receivedAt      DateTime?
+  expectedAt      DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  fromStore     Store               @relation("TransferFrom", fields: [fromStoreId], references: [id])
+  toStore       Store               @relation("TransferTo", fields: [toStoreId], references: [id])
+  fromWarehouse Warehouse           @relation("WhTransferFrom", fields: [fromWarehouseId], references: [id])
+  toWarehouse   Warehouse           @relation("WhTransferTo", fields: [toWarehouseId], references: [id])
+  lines         StockTransferLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@map("stock_transfers")
+}
+
+model StockTransferLine {
+  id            String  @id @default(cuid())
+  transferId    String
+  variantId     String
+  requestedQty  Decimal @default(0) @db.Decimal(16, 4)
+  dispatchedQty Decimal @default(0) @db.Decimal(16, 4)
+  receivedQty   Decimal @default(0) @db.Decimal(16, 4)
+  unitCost      Decimal @default(0) @db.Decimal(14, 6)
+  note          String?
+
+  transfer StockTransfer  @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  variant  ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([transferId])
+  @@map("stock_transfer_lines")
+}
+
+model StockTake {
+  id           String          @id @default(cuid())
+  tenantId     String
+  storeId      String
+  warehouseId  String
+  number       String
+  name         String?
+  status       StockTakeStatus @default(DRAFT)
+  /// full = cijelo skladište, partial = odabrane kategorije/artikli, cyclic = ciklična
+  scope        String          @default("full")
+  categoryIds  String[]        @default([])
+  /// Blokira prodaju tijekom brojanja
+  freezeStock  Boolean         @default(false)
+  countedLines Int             @default(0)
+  totalLines   Int             @default(0)
+  surplusValue Decimal         @default(0) @db.Decimal(14, 2)
+  deficitValue Decimal         @default(0) @db.Decimal(14, 2)
+  startedAt    DateTime?
+  countedAt    DateTime?
+  approvedById String?
+  postedAt     DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store     Store           @relation(fields: [storeId], references: [id])
+  warehouse Warehouse       @relation(fields: [warehouseId], references: [id])
+  lines     StockTakeLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@map("stock_takes")
+}
+
+model StockTakeLine {
+  id            String    @id @default(cuid())
+  stockTakeId   String
+  variantId     String
+  /// Stanje u sustavu u trenutku snimanja
+  expectedQty   Decimal   @default(0) @db.Decimal(16, 4)
+  countedQty    Decimal?  @db.Decimal(16, 4)
+  differenceQty Decimal   @default(0) @db.Decimal(16, 4)
+  unitCost      Decimal   @default(0) @db.Decimal(14, 6)
+  valueDelta    Decimal   @default(0) @db.Decimal(14, 2)
+  countedById   String?
+  countedAt     DateTime?
+  note          String?
+  /// Broj skeniranja (za kontrolu dvostrukog brojanja)
+  scanCount     Int       @default(0)
+
+  stockTake StockTake      @relation(fields: [stockTakeId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@unique([stockTakeId, variantId])
+  @@index([stockTakeId])
+  @@map("stock_take_lines")
+}
+
+model WriteOff {
+  id           String         @id @default(cuid())
+  tenantId     String
+  storeId      String
+  warehouseId  String
+  number       String
+  status       DocumentStatus @default(DRAFT)
+  reasonCodeId String?
+  note         String?
+  totalCost    Decimal        @default(0) @db.Decimal(14, 2)
+  createdById  String?
+  approvedById String?
+  postedAt     DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store      Store          @relation(fields: [storeId], references: [id])
+  warehouse  Warehouse      @relation(fields: [warehouseId], references: [id])
+  reasonCode ReasonCode?    @relation(fields: [reasonCodeId], references: [id])
+  lines      WriteOffLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@map("write_offs")
+}
+
+model WriteOffLine {
+  id         String  @id @default(cuid())
+  writeOffId String
+  variantId  String
+  quantity   Decimal @db.Decimal(16, 4)
+  unitCost   Decimal @default(0) @db.Decimal(14, 6)
+  totalCost  Decimal @default(0) @db.Decimal(14, 2)
+  note       String?
+
+  writeOff WriteOff       @relation(fields: [writeOffId], references: [id], onDelete: Cascade)
+  variant  ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([writeOffId])
+  @@map("write_off_lines")
+}
+
+/// Pravilo automatske nadopune zalihe po poslovnici i artiklu.
+model ReorderRule {
+  id          String   @id @default(cuid())
+  storeId     String
+  variantId   String
+  supplierId  String?
+  minQty      Decimal  @default(0) @db.Decimal(16, 4)
+  maxQty      Decimal  @default(0) @db.Decimal(16, 4)
+  reorderQty  Decimal? @db.Decimal(16, 4)
+  /// Dani pokrivenosti koje želimo držati (alternativa min/max)
+  coverDays   Int?
+  isAutoOrder Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+
+  store    Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  variant  ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  supplier Supplier?      @relation(fields: [supplierId], references: [id])
+
+  @@unique([storeId, variantId])
+  @@index([storeId, isActive])
+  @@map("reorder_rules")
+}
+
+// =============================================================================
+//  6. NABAVA — narudžbenica, primka, kalkulacija
+// =============================================================================
+
+model PurchaseOrder {
+  id            String              @id @default(cuid())
+  tenantId      String
+  storeId       String
+  supplierId    String
+  number        String
+  status        PurchaseOrderStatus @default(DRAFT)
+  currency      String              @default("EUR")
+  exchangeRate  Decimal             @default(1) @db.Decimal(12, 6)
+  subtotal      Decimal             @default(0) @db.Decimal(14, 2)
+  discountTotal Decimal             @default(0) @db.Decimal(14, 2)
+  taxTotal      Decimal             @default(0) @db.Decimal(14, 2)
+  total         Decimal             @default(0) @db.Decimal(14, 2)
+  note          String?
+  orderedAt     DateTime?
+  expectedAt    DateTime?
+  createdById   String?
+  approvedById  String?
+  approvedAt    DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store    Store               @relation(fields: [storeId], references: [id])
+  supplier Supplier            @relation(fields: [supplierId], references: [id])
+  lines    PurchaseOrderLine[]
+  receipts GoodsReceipt[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@index([supplierId])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderLine {
+  id              String  @id @default(cuid())
+  purchaseOrderId String
+  variantId       String
+  quantity        Decimal @db.Decimal(16, 4)
+  receivedQty     Decimal @default(0) @db.Decimal(16, 4)
+  unitPrice       Decimal @db.Decimal(14, 6)
+  discountPct     Decimal @default(0) @db.Decimal(5, 2)
+  taxRate         Decimal @default(0) @db.Decimal(6, 3)
+  lineTotal       Decimal @default(0) @db.Decimal(14, 2)
+  note            String?
+
+  purchaseOrder PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([purchaseOrderId])
+  @@map("purchase_order_lines")
+}
+
+/// Primka / kalkulacija — ulaz robe s izračunom nabavne i prodajne cijene.
+model GoodsReceipt {
+  id              String         @id @default(cuid())
+  tenantId        String
+  storeId         String
+  warehouseId     String
+  supplierId      String
+  purchaseOrderId String?
+  number          String
+  status          DocumentStatus @default(DRAFT)
+  /// Broj i datum dobavljačeve otpremnice/računa
+  supplierDocNo   String?
+  supplierDocDate DateTime?
+  currency        String         @default("EUR")
+  exchangeRate    Decimal        @default(1) @db.Decimal(12, 6)
+  /// Nabavna vrijednost robe bez PDV-a
+  goodsValue      Decimal        @default(0) @db.Decimal(14, 2)
+  discountTotal   Decimal        @default(0) @db.Decimal(14, 2)
+  /// Zavisni troškovi (prijevoz, carina, špedicija) koji se razrezuju na artikle
+  shippingCost    Decimal        @default(0) @db.Decimal(14, 2)
+  customsCost     Decimal        @default(0) @db.Decimal(14, 2)
+  otherCost       Decimal        @default(0) @db.Decimal(14, 2)
+  /// Metoda razreza zavisnih troškova: value | quantity | weight
+  costAllocation  String         @default("value")
+  taxTotal        Decimal        @default(0) @db.Decimal(14, 2)
+  total           Decimal        @default(0) @db.Decimal(14, 2)
+  /// Ukupna maloprodajna vrijednost zaprimljene robe
+  retailValue     Decimal        @default(0) @db.Decimal(14, 2)
+  marginTotal     Decimal        @default(0) @db.Decimal(14, 2)
+  note            String?
+  createdById     String?
+  postedById      String?
+  postedAt        DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store         Store              @relation(fields: [storeId], references: [id])
+  warehouse     Warehouse          @relation(fields: [warehouseId], references: [id])
+  supplier      Supplier           @relation(fields: [supplierId], references: [id])
+  purchaseOrder PurchaseOrder?     @relation(fields: [purchaseOrderId], references: [id])
+  lines         GoodsReceiptLine[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@index([supplierId])
+  @@map("goods_receipts")
+}
+
+model GoodsReceiptLine {
+  id             String    @id @default(cuid())
+  goodsReceiptId String
+  variantId      String
+  quantity       Decimal   @db.Decimal(16, 4)
+  /// Fakturna cijena dobavljača po jedinici
+  invoicePrice   Decimal   @db.Decimal(14, 6)
+  discountPct    Decimal   @default(0) @db.Decimal(5, 2)
+  rebatePct      Decimal   @default(0) @db.Decimal(5, 2)
+  /// Neto nabavna cijena nakon rabata
+  netPrice       Decimal   @default(0) @db.Decimal(14, 6)
+  /// Pripadajući dio zavisnih troškova po jedinici
+  allocatedCost  Decimal   @default(0) @db.Decimal(14, 6)
+  /// Konačna nabavna cijena = netPrice + allocatedCost
+  landedCost     Decimal   @default(0) @db.Decimal(14, 6)
+  taxRate        Decimal   @default(0) @db.Decimal(6, 3)
+  /// Nova maloprodajna cijena s PDV-om
+  retailPrice    Decimal   @default(0) @db.Decimal(14, 4)
+  marginPct      Decimal   @default(0) @db.Decimal(6, 2)
+  marginAmount   Decimal   @default(0) @db.Decimal(14, 4)
+  lineTotal      Decimal   @default(0) @db.Decimal(14, 2)
+  lotNumber      String?
+  expiryDate     DateTime?
+  note           String?
+
+  goodsReceipt GoodsReceipt   @relation(fields: [goodsReceiptId], references: [id], onDelete: Cascade)
+  variant      ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@index([goodsReceiptId])
+  @@map("goods_receipt_lines")
+}
+
+// =============================================================================
+//  7. PRODAJA I POS
+// =============================================================================
+
+model Shift {
+  id             String      @id @default(cuid())
+  tenantId       String
+  storeId        String
+  registerId     String
+  userId         String
+  number         String
+  status         ShiftStatus @default(OPEN)
+  openingFloat   Decimal     @default(0) @db.Decimal(12, 2)
+  /// Očekivana gotovina = polog + gotovinska prodaja − povrati − odvodi
+  expectedCash   Decimal     @default(0) @db.Decimal(12, 2)
+  countedCash    Decimal?    @db.Decimal(12, 2)
+  cashDifference Decimal     @default(0) @db.Decimal(12, 2)
+  salesCount     Int         @default(0)
+  salesTotal     Decimal     @default(0) @db.Decimal(14, 2)
+  refundsTotal   Decimal     @default(0) @db.Decimal(14, 2)
+  cardTotal      Decimal     @default(0) @db.Decimal(14, 2)
+  cashTotal      Decimal     @default(0) @db.Decimal(14, 2)
+  otherTotal     Decimal     @default(0) @db.Decimal(14, 2)
+  discountTotal  Decimal     @default(0) @db.Decimal(14, 2)
+  voidCount      Int         @default(0)
+  note           String?
+  openedAt       DateTime    @default(now())
+  closedAt       DateTime?
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store         Store          @relation(fields: [storeId], references: [id])
+  register      Register       @relation(fields: [registerId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
+  sales         Sale[]
+  cashMovements CashMovement[]
+
+  @@unique([tenantId, number])
+  @@index([storeId, status])
+  @@index([registerId, status])
+  @@map("shifts")
+}
+
+model Sale {
+  id         String       @id @default(cuid())
+  tenantId   String
+  storeId    String
+  registerId String?
+  shiftId    String?
+  userId     String?
+  customerId String?
+  number     String // puni broj računa: 123/POSL1/1
+  sequenceNo Int          @default(0)
+  kind       DocumentKind @default(RECEIPT)
+  status     SaleStatus   @default(OPEN)
+  channel    SaleChannel  @default(POS)
+  currency   String       @default("EUR")
+
+  // --- Iznosi -------------------------------------------------------------
+  subtotal       Decimal @default(0) @db.Decimal(14, 2)
+  discountTotal  Decimal @default(0) @db.Decimal(14, 2)
+  taxTotal       Decimal @default(0) @db.Decimal(14, 2)
+  depositTotal   Decimal @default(0) @db.Decimal(14, 2)
+  roundingAmount Decimal @default(0) @db.Decimal(12, 2)
+  total          Decimal @default(0) @db.Decimal(14, 2)
+  paidTotal      Decimal @default(0) @db.Decimal(14, 2)
+  changeAmount   Decimal @default(0) @db.Decimal(12, 2)
+  /// Nabavna vrijednost prodane robe — za maržu
+  costTotal      Decimal @default(0) @db.Decimal(14, 2)
+  marginTotal    Decimal @default(0) @db.Decimal(14, 2)
+
+  // --- Fiskalizacija ------------------------------------------------------
+  fiscalStatus      FiscalStatus @default(NOT_REQUIRED)
+  fiscalJir         String? // Jedinstveni identifikator računa
+  fiscalZki         String? // Zaštitni kod izdavatelja
+  fiscalQrUrl       String?
+  fiscalSentAt      DateTime?
+  fiscalError       String?
+  fiscalRetries     Int          @default(0)
+  /// Oznaka slijednosti: N (naplatni uređaj) ili P (poslovni prostor)
+  fiscalSeqMark     String       @default("N")
+  /// Način plaćanja za fiskalizaciju: G,K,C,T,O
+  fiscalPaymentType String?
+
+  // --- Ostalo -------------------------------------------------------------
+  loyaltyPointsEarned Int       @default(0)
+  loyaltyPointsSpent  Int       @default(0)
+  note                String?
+  /// Vezani račun kod storna / povrata
+  originalSaleId      String?
+  refundReason        String?
+  /// Idempotencija POS → server (offline sinkronizacija)
+  clientUuid          String?   @unique
+  isOfflineSynced     Boolean   @default(false)
+  receiptPrinted      Boolean   @default(false)
+  receiptEmail        String?
+  issuedAt            DateTime  @default(now())
+  dueDate             DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  tenant       Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store        Store                @relation(fields: [storeId], references: [id])
+  register     Register?            @relation(fields: [registerId], references: [id])
+  shift        Shift?               @relation(fields: [shiftId], references: [id])
+  user         User?                @relation(fields: [userId], references: [id])
+  customer     Customer?            @relation(fields: [customerId], references: [id])
+  originalSale Sale?                @relation("SaleRefund", fields: [originalSaleId], references: [id])
+  refunds      Sale[]               @relation("SaleRefund")
+  lines        SaleLine[]
+  payments     Payment[]
+  discounts    SaleDiscount[]
+  taxLines     SaleTaxLine[]
+  fiscalLogs   FiscalLog[]
+  loyaltyTxns  LoyaltyTransaction[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, issuedAt])
+  @@index([storeId, issuedAt])
+  @@index([customerId])
+  @@index([shiftId])
+  @@index([status, fiscalStatus])
+  @@map("sales")
+}
+
+model SaleLine {
+  id             String  @id @default(cuid())
+  saleId         String
+  variantId      String
+  lineNo         Int     @default(0)
+  /// Snimljeni podaci artikla u trenutku prodaje (povijesna vjerodostojnost)
+  sku            String
+  name           String
+  quantity       Decimal @db.Decimal(16, 4)
+  unitPrice      Decimal @db.Decimal(14, 4)
+  /// Originalna cijena prije popusta / akcije
+  originalPrice  Decimal @db.Decimal(14, 4)
+  discountPct    Decimal @default(0) @db.Decimal(5, 2)
+  discountAmount Decimal @default(0) @db.Decimal(14, 4)
+  taxRate        Decimal @default(0) @db.Decimal(6, 3)
+  taxAmount      Decimal @default(0) @db.Decimal(14, 4)
+  depositAmount  Decimal @default(0) @db.Decimal(14, 4)
+  lineTotal      Decimal @default(0) @db.Decimal(14, 2)
+  unitCost       Decimal @default(0) @db.Decimal(14, 6)
+  costTotal      Decimal @default(0) @db.Decimal(14, 4)
+  marginAmount   Decimal @default(0) @db.Decimal(14, 4)
+  serialNumber   String?
+  lotNumber      String?
+  /// Količina već vraćena kroz povrat
+  refundedQty    Decimal @default(0) @db.Decimal(16, 4)
+  isVoided       Boolean @default(false)
+  voidReason     String?
+  note           String?
+  soldById       String?
+
+  sale      Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  discounts SaleDiscount[]
+
+  @@index([saleId])
+  @@index([variantId])
+  @@map("sale_lines")
+}
+
+model SaleDiscount {
+  id           String         @id @default(cuid())
+  saleId       String
+  saleLineId   String?
+  promotionId  String?
+  scope        DiscountScope  @default(LINE)
+  origin       DiscountOrigin @default(MANUAL)
+  code         String?
+  description  String
+  percent      Decimal?       @db.Decimal(5, 2)
+  amount       Decimal        @default(0) @db.Decimal(14, 4)
+  /// Tko je odobrio popust iznad limita
+  approvedById String?
+
+  sale      Sale       @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleLine  SaleLine?  @relation(fields: [saleLineId], references: [id], onDelete: Cascade)
+  promotion Promotion? @relation(fields: [promotionId], references: [id])
+
+  @@index([saleId])
+  @@map("sale_discounts")
+}
+
+/// Rekapitulacija PDV-a po stopama (obavezno na računu).
+model SaleTaxLine {
+  id         String  @id @default(cuid())
+  saleId     String
+  taxRate    Decimal @db.Decimal(6, 3)
+  taxName    String
+  baseAmount Decimal @default(0) @db.Decimal(14, 2)
+  taxAmount  Decimal @default(0) @db.Decimal(14, 2)
+
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@unique([saleId, taxRate])
+  @@map("sale_tax_lines")
+}
+
+model PaymentMethod {
+  id           String            @id @default(cuid())
+  tenantId     String
+  code         String
+  name         String
+  type         PaymentMethodType
+  /// Fiskalna oznaka načina plaćanja (G/K/C/T/O)
+  fiscalCode   String?
+  isActive     Boolean           @default(true)
+  opensDrawer  Boolean           @default(false)
+  allowsChange Boolean           @default(false)
+  requiresRef  Boolean           @default(false)
+  /// Naknada procesora u % (za izvještaj neto prihoda)
+  feePct       Decimal           @default(0) @db.Decimal(5, 3)
+  sortOrder    Int               @default(0)
+  icon         String?
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@unique([tenantId, code])
+  @@map("payment_methods")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  saleId          String
+  paymentMethodId String
+  amount          Decimal       @db.Decimal(14, 2)
+  /// Primljeni iznos (gotovina prije povrata ostatka)
+  tendered        Decimal?      @db.Decimal(14, 2)
+  changeGiven     Decimal       @default(0) @db.Decimal(12, 2)
+  status          PaymentStatus @default(CAPTURED)
+  currency        String        @default("EUR")
+  /// Referenca transakcije POS terminala
+  reference       String?
+  authCode        String?
+  cardBrand       String?
+  cardLast4       String?
+  terminalId      String?
+  giftCardId      String?
+  processedAt     DateTime      @default(now())
+
+  sale          Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  giftCard      GiftCard?     @relation(fields: [giftCardId], references: [id])
+
+  @@index([saleId])
+  @@map("payments")
+}
+
+/// Zapisnik komunikacije s Poreznom upravom (ili drugim fiskalnim servisom).
+model FiscalLog {
+  id           String       @id @default(cuid())
+  saleId       String
+  attempt      Int          @default(1)
+  status       FiscalStatus
+  requestXml   String?
+  responseXml  String?
+  jir          String?
+  zki          String?
+  errorCode    String?
+  errorMessage String?
+  durationMs   Int?
+  createdAt    DateTime     @default(now())
+
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@index([saleId])
+  @@index([status, createdAt])
+  @@map("fiscal_logs")
+}
+
+// =============================================================================
+//  8. KUPCI I LOJALNOST
+// =============================================================================
+
+model CustomerGroup {
+  id          String   @id @default(cuid())
+  tenantId    String
+  code        String
+  name        String
+  discountPct Decimal  @default(0) @db.Decimal(5, 2)
+  priceListId String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  priceList PriceList? @relation(fields: [priceListId], references: [id])
+  customers Customer[]
+
+  @@unique([tenantId, code])
+  @@map("customer_groups")
+}
+
+model Customer {
+  id             String       @id @default(cuid())
+  tenantId       String
+  groupId        String?
+  code           String
+  type           CustomerType @default(RETAIL)
+  firstName      String?
+  lastName       String?
+  companyName    String?
+  vatId          String? // OIB
+  email          String?
+  phone          String?
+  birthDate      DateTime?
+  gender         String?
+  addressLine    String?
+  city           String?
+  postalCode     String?
+  country        String       @default("HR")
+  /// B2B: odobreni kreditni limit i rok plaćanja
+  creditLimit    Decimal      @default(0) @db.Decimal(14, 2)
+  balance        Decimal      @default(0) @db.Decimal(14, 2)
+  paymentTerms   Int          @default(0)
+  discountPct    Decimal      @default(0) @db.Decimal(5, 2)
+  /// Statistika (denormalizirano za brzo pretraživanje)
+  totalSpent     Decimal      @default(0) @db.Decimal(14, 2)
+  orderCount     Int          @default(0)
+  avgBasket      Decimal      @default(0) @db.Decimal(12, 2)
+  lastPurchaseAt DateTime?
+  marketingOptIn Boolean      @default(false)
+  gdprConsentAt  DateTime?
+  notes          String?
+  tags           String[]     @default([])
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  tenant       Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  group        CustomerGroup?       @relation(fields: [groupId], references: [id])
+  sales        Sale[]
+  loyaltyCards LoyaltyCard[]
+  loyaltyTxns  LoyaltyTransaction[]
+  coupons      Coupon[]
+  giftCards    GiftCard[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, email])
+  @@index([tenantId, phone])
+  @@index([tenantId, vatId])
+  @@map("customers")
+}
+
+model LoyaltyProgram {
+  id              String   @id @default(cuid())
+  tenantId        String
+  code            String
+  name            String
+  /// Koliko bodova se dobiva po 1 EUR potrošnje
+  pointsPerUnit   Decimal  @default(1) @db.Decimal(10, 4)
+  /// Vrijednost 1 boda u valuti pri iskorištavanju
+  redeemValue     Decimal  @default(0.01) @db.Decimal(10, 4)
+  minRedeemPoints Int      @default(100)
+  /// Bodovi istječu nakon N mjeseci (null = ne istječu)
+  expiryMonths    Int?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tiers  LoyaltyTier[]
+  cards  LoyaltyCard[]
+
+  @@unique([tenantId, code])
+  @@map("loyalty_programs")
+}
+
+model LoyaltyTier {
+  id               String  @id @default(cuid())
+  programId        String
+  code             String
+  name             String
+  minSpend         Decimal @default(0) @db.Decimal(14, 2)
+  minPoints        Int     @default(0)
+  discountPct      Decimal @default(0) @db.Decimal(5, 2)
+  pointsMultiplier Decimal @default(1) @db.Decimal(6, 3)
+  color            String?
+  sortOrder        Int     @default(0)
+
+  program LoyaltyProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  cards   LoyaltyCard[]
+
+  @@unique([programId, code])
+  @@map("loyalty_tiers")
+}
+
+model LoyaltyCard {
+  id             String    @id @default(cuid())
+  programId      String
+  customerId     String
+  tierId         String?
+  cardNumber     String
+  points         Int       @default(0)
+  lifetimePoints Int       @default(0)
+  isActive       Boolean   @default(true)
+  issuedAt       DateTime  @default(now())
+  expiresAt      DateTime?
+
+  program      LoyaltyProgram       @relation(fields: [programId], references: [id], onDelete: Cascade)
+  customer     Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tier         LoyaltyTier?         @relation(fields: [tierId], references: [id])
+  transactions LoyaltyTransaction[]
+
+  @@unique([cardNumber])
+  @@index([customerId])
+  @@map("loyalty_cards")
+}
+
+model LoyaltyTransaction {
+  id           String                 @id @default(cuid())
+  cardId       String
+  customerId   String
+  saleId       String?
+  type         LoyaltyTransactionType
+  points       Int
+  balanceAfter Int                    @default(0)
+  description  String?
+  expiresAt    DateTime?
+  createdAt    DateTime               @default(now())
+
+  card     LoyaltyCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sale     Sale?       @relation(fields: [saleId], references: [id])
+
+  @@index([cardId, createdAt])
+  @@index([customerId])
+  @@map("loyalty_transactions")
+}
+
+model GiftCard {
+  id            String    @id @default(cuid())
+  tenantId      String
+  customerId    String?
+  code          String
+  initialAmount Decimal   @db.Decimal(12, 2)
+  balance       Decimal   @db.Decimal(12, 2)
+  currency      String    @default("EUR")
+  isActive      Boolean   @default(true)
+  issuedAt      DateTime  @default(now())
+  expiresAt     DateTime?
+  issuedSaleId  String?
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id])
+  payments Payment[]
+
+  @@unique([tenantId, code])
+  @@index([code])
+  @@map("gift_cards")
+}
+
+// =============================================================================
+//  9. FINANCIJE I BLAGAJNA
+// =============================================================================
+
+model CashMovement {
+  id           String           @id @default(cuid())
+  storeId      String
+  shiftId      String?
+  userId       String?
+  type         CashMovementType
+  amount       Decimal          @db.Decimal(12, 2)
+  balanceAfter Decimal          @default(0) @db.Decimal(12, 2)
+  reference    String?
+  note         String?
+  createdAt    DateTime         @default(now())
+
+  store Store  @relation(fields: [storeId], references: [id])
+  shift Shift? @relation(fields: [shiftId], references: [id])
+  user  User?  @relation(fields: [userId], references: [id])
+
+  @@index([storeId, createdAt])
+  @@index([shiftId])
+  @@map("cash_movements")
+}
+
+/// Dnevni agregat po poslovnici — brzi izvještaji bez skeniranja svih računa.
+model DailyKpi {
+  id              String   @id @default(cuid())
+  tenantId        String
+  storeId         String
+  date            DateTime @db.Date
+  salesCount      Int      @default(0)
+  itemsSold       Decimal  @default(0) @db.Decimal(16, 4)
+  grossSales      Decimal  @default(0) @db.Decimal(14, 2)
+  netSales        Decimal  @default(0) @db.Decimal(14, 2)
+  taxTotal        Decimal  @default(0) @db.Decimal(14, 2)
+  discountTotal   Decimal  @default(0) @db.Decimal(14, 2)
+  refundTotal     Decimal  @default(0) @db.Decimal(14, 2)
+  costTotal       Decimal  @default(0) @db.Decimal(14, 2)
+  marginTotal     Decimal  @default(0) @db.Decimal(14, 2)
+  avgBasket       Decimal  @default(0) @db.Decimal(12, 2)
+  avgItemsPerSale Decimal  @default(0) @db.Decimal(10, 3)
+  customerCount   Int      @default(0)
+  cashTotal       Decimal  @default(0) @db.Decimal(14, 2)
+  cardTotal       Decimal  @default(0) @db.Decimal(14, 2)
+  otherTotal      Decimal  @default(0) @db.Decimal(14, 2)
+  updatedAt       DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store  Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, date])
+  @@index([tenantId, date])
+  @@map("daily_kpis")
+}
+
+// =============================================================================
+//  10. SUSTAV — audit, brojači, integracije, obavijesti
+// =============================================================================
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  tenantId   String
+  userId     String?
+  storeId    String?
+  action     AuditAction
+  entityType String
+  entityId   String?
+  /// Kratki opis za listu (npr. "Cijena artikla 1234 · 4,99 → 5,49")
+  summary    String?
+  /// Prije/poslije vrijednosti za forenziku
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime    @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+/// Brojači dokumenata — po tenantu, poslovnici, tipu i godini.
+model NumberSequence {
+  id           String   @id @default(cuid())
+  tenantId     String
+  storeId      String?
+  /// sale, invoice, purchase_order, goods_receipt, transfer, stock_take, write_off, shift, price_change
+  documentType String
+  year         Int
+  prefix       String   @default("")
+  suffix       String   @default("")
+  padding      Int      @default(0)
+  currentValue Int      @default(0)
+  updatedAt    DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store  Store? @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, storeId, documentType, year])
+  @@map("number_sequences")
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  tenantId  String
+  storeId   String?
+  key       String
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  store  Store? @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, storeId, key])
+  @@index([tenantId])
+  @@map("settings")
+}
+
+model IntegrationConfig {
+  id         String          @id @default(cuid())
+  tenantId   String
+  type       IntegrationType
+  provider   String
+  name       String
+  isEnabled  Boolean         @default(false)
+  config     Json            @default("{}")
+  /// Šifrirane tajne (u produkciji: KMS / Vault referenca)
+  secretRef  String?
+  lastSyncAt DateTime?
+  lastError  String?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, type, provider])
+  @@map("integration_configs")
+}
+
+/// Transakcijski outbox — pouzdana isporuka događaja prema vanjskim sustavima.
+model OutboxEvent {
+  id            String       @id @default(cuid())
+  tenantId      String
+  eventType     String
+  aggregateType String
+  aggregateId   String
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  lastError     String?
+  availableAt   DateTime     @default(now())
+  processedAt   DateTime?
+  createdAt     DateTime     @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([status, availableAt])
+  @@index([tenantId, aggregateType, aggregateId])
+  @@map("outbox_events")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  tenantId  String
+  userId    String?
+  /// info | warning | critical
+  level     String    @default("info")
+  category  String // stock, fiscal, price, shift, system
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId, readAt])
+  @@map("notifications")
+}
+
+model SavedReport {
+  id          String   @id @default(cuid())
+  tenantId    String
+  code        String
+  name        String
+  reportType  String
+  filters     Json     @default("{}")
+  columns     Json     @default("[]")
+  schedule    String? // cron izraz za automatsko slanje
+  recipients  String[] @default([])
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, code])
+  @@map("saved_reports")
+}

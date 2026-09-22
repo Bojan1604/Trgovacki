@@ -1,0 +1,279 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   TRGOVAČKI — dizajn sustav
+   Gust, tipografski precizan raspored inspiriran macOS/iOS sučeljima:
+   bazna tipografija 13px, kompaktni razmaci, mekane sjene i jasne granice.
+   ========================================================================== */
+
+@theme {
+  /* --- Tipografija ------------------------------------------------------ */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI',
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, 'Menlo', monospace;
+
+  --text-2xs: 0.625rem;   /* 10px  — oznake, badge */
+  --text-2xs--line-height: 0.875rem;
+  --text-xs: 0.6875rem;   /* 11px  — zaglavlja tablica */
+  --text-xs--line-height: 0.9375rem;
+  --text-sm: 0.75rem;     /* 12px  — sekundarni tekst */
+  --text-sm--line-height: 1.0625rem;
+  --text-base: 0.8125rem; /* 13px  — osnovni tekst sučelja */
+  --text-base--line-height: 1.125rem;
+  --text-md: 0.875rem;    /* 14px  — istaknuti redak */
+  --text-md--line-height: 1.1875rem;
+  --text-lg: 1rem;        /* 16px  — naslov ekrana */
+  --text-lg--line-height: 1.375rem;
+  --text-xl: 1.25rem;     /* 20px  — KPI */
+  --text-xl--line-height: 1.625rem;
+  --text-2xl: 1.625rem;   /* 26px  — veliki KPI */
+  --text-2xl--line-height: 1.875rem;
+  --text-3xl: 2.125rem;   /* 34px  — POS ukupno */
+  --text-3xl--line-height: 2.375rem;
+
+  /* --- Radijusi --------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 13px;
+  --radius-2xl: 18px;
+
+  /* --- Paleta (svijetla tema) ------------------------------------------ */
+  --color-accent: #0a84ff;
+  --color-accent-hover: #0071e3;
+  --color-accent-soft: #e8f2ff;
+
+  --color-positive: #1c9e5a;
+  --color-positive-soft: #e3f6ec;
+  --color-warning: #c77700;
+  --color-warning-soft: #fdf1dd;
+  --color-negative: #d7263d;
+  --color-negative-soft: #fdeaec;
+  --color-info: #5856d6;
+  --color-info-soft: #eceafc;
+
+  --color-canvas: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-2: #fafafc;
+  --color-surface-3: #f0f0f4;
+  --color-sidebar: #f7f7f9;
+  --color-hairline: #e3e3e8;
+  --color-hairline-strong: #d0d0d7;
+
+  --color-ink: #1c1c1e;
+  --color-ink-2: #55555c;
+  --color-ink-3: #8a8a92;
+  --color-ink-4: #aeaeb6;
+
+  /* --- Sjene ------------------------------------------------------------ */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  --shadow-raised: 0 4px 14px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  --shadow-overlay: 0 18px 48px rgba(0, 0, 0, 0.18), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+
+  /* --- Mjere sučelja ---------------------------------------------------- */
+  --spacing-sidebar: 216px;
+  --spacing-topbar: 44px;
+  --spacing-row: 30px;
+}
+
+/* --- Tamna tema ---------------------------------------------------------- */
+:root[data-theme='dark'] {
+  --color-accent: #0a84ff;
+  --color-accent-hover: #339cff;
+  --color-accent-soft: #10243c;
+
+  --color-positive: #32d074;
+  --color-positive-soft: #10281a;
+  --color-warning: #ffb340;
+  --color-warning-soft: #2e2211;
+  --color-negative: #ff5f6d;
+  --color-negative-soft: #331317;
+  --color-info: #8e8cff;
+  --color-info-soft: #1c1b33;
+
+  --color-canvas: #0b0b0d;
+  --color-surface: #16161a;
+  --color-surface-2: #1c1c21;
+  --color-surface-3: #25252b;
+  --color-sidebar: #111114;
+  --color-hairline: #2a2a31;
+  --color-hairline-strong: #3a3a43;
+
+  --color-ink: #f2f2f5;
+  --color-ink-2: #b0b0ba;
+  --color-ink-3: #82828d;
+  --color-ink-4: #5e5e68;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+  --shadow-raised: 0 6px 18px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.07);
+  --shadow-overlay: 0 22px 52px rgba(0, 0, 0, 0.7), 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   Osnovni stilovi
+   ========================================================================== */
+
+@layer base {
+  * {
+    border-color: var(--color-hairline);
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'tnum' 0;
+    overscroll-behavior: none;
+  }
+
+  /* Brojke u tablicama uvijek tabularne — stupci se poravnavaju. */
+  .tnum,
+  table td,
+  table th {
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 590;
+    letter-spacing: -0.01em;
+  }
+
+  input, select, textarea, button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Uklanjanje strelica na brojčanim poljima — POS koristi vlastitu tipkovnicu. */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 24%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+    outline-offset: 1px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* --- Klizači u stilu macOS-a -------------------------------------------- */
+@layer utilities {
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-hairline-strong) transparent;
+  }
+  .scroll-thin::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background-color: var(--color-hairline-strong);
+    border-radius: 9px;
+    border: 2.5px solid transparent;
+    background-clip: content-box;
+  }
+  .scroll-thin::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-ink-4);
+  }
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Poluprozirna traka s zamućenjem — prepoznatljiv Apple detalj. */
+  .glass {
+    background-color: color-mix(in srgb, var(--color-surface) 78%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  .hairline-b {
+    box-shadow: inset 0 -0.5px 0 var(--color-hairline);
+  }
+  .hairline-t {
+    box-shadow: inset 0 0.5px 0 var(--color-hairline);
+  }
+
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .drag-none {
+    -webkit-user-drag: none;
+  }
+
+  .animate-in-fast {
+    animation: tg-fade-scale 0.14s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .animate-sheet {
+    animation: tg-sheet 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .animate-row {
+    animation: tg-row 0.18s ease-out;
+  }
+}
+
+@keyframes tg-fade-scale {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tg-sheet {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes tg-row {
+  from { opacity: 0; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Ispis računa i izvještaja. */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; font-size: 11px; }
+}
+
+/* ==========================================================================
+   Boje grafikona — validirana paleta, zasebni koraci za tamnu podlogu.
+   ========================================================================== */
+:root {
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-1-soft: color-mix(in srgb, #2a78d6 14%, transparent);
+}
+
+:root[data-theme='dark'] {
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-1-soft: color-mix(in srgb, #3987e5 20%, transparent);
+}
