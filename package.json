@@ -4,9 +4,9 @@
   "private": true,
   "description": "Trgovacki - Enterprise Retail Management Platform (POS + Back Office)",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev",
     "build": "prisma generate && next build",
-    "start": "next start -p 3000",
+    "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",

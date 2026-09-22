@@ -25,6 +25,7 @@ npm run db:seed
 
 # 4. Razvojni poslužitelj
 npm run dev                   # http://localhost:3000
+                              # drugi port: PORT=3001 npm run dev
 ```
 
 ### Demo pristup
