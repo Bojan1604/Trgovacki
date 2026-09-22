@@ -1,25 +1,9 @@
 import 'server-only';
 import { db, type Tx } from '../db';
+import { SEQUENCE_DEFAULTS, type DocumentType } from '../document-numbers';
 
-export type DocumentType =
-  | 'sale' | 'invoice' | 'proforma' | 'credit_note'
-  | 'purchase_order' | 'goods_receipt' | 'transfer' | 'stock_take'
-  | 'write_off' | 'shift' | 'price_change' | 'customer';
-
-const DEFAULTS: Record<DocumentType, { prefix: string; padding: number }> = {
-  sale: { prefix: '', padding: 0 },
-  invoice: { prefix: 'R', padding: 5 },
-  proforma: { prefix: 'P', padding: 5 },
-  credit_note: { prefix: 'O', padding: 5 },
-  purchase_order: { prefix: 'NAR', padding: 5 },
-  goods_receipt: { prefix: 'PR', padding: 5 },
-  transfer: { prefix: 'MS', padding: 5 },
-  stock_take: { prefix: 'INV', padding: 4 },
-  write_off: { prefix: 'OT', padding: 4 },
-  shift: { prefix: 'SM', padding: 5 },
-  price_change: { prefix: 'NIV', padding: 4 },
-  customer: { prefix: 'K', padding: 6 },
-};
+export { SEQUENCE_DEFAULTS };
+export type { DocumentType };
 
 /**
  * Atomarno dohvaća sljedeći redni broj dokumenta.
@@ -34,14 +18,15 @@ export async function nextSequenceValue(
 ): Promise<{ value: number; year: number; prefix: string; padding: number }> {
   const client = options.tx ?? db;
   const year = options.year ?? new Date().getFullYear();
-  const storeId = options.storeId ?? null;
+  // Prazan niz označava brojač na razini cijele organizacije.
+  const scope = options.storeId ?? '';
   const base = documentType.split(':')[0] as DocumentType;
-  const defaults = DEFAULTS[base] ?? { prefix: '', padding: 0 };
+  const defaults = SEQUENCE_DEFAULTS[base] ?? { prefix: '', padding: 0 };
 
   const rows = await client.$queryRaw<{ currentValue: number; prefix: string; padding: number }[]>`
-    INSERT INTO number_sequences ("id", "tenantId", "storeId", "documentType", "year", "prefix", "suffix", "padding", "currentValue", "updatedAt")
-    VALUES (gen_random_uuid()::text, ${tenantId}, ${storeId}, ${documentType}, ${year}, ${defaults.prefix}, '', ${defaults.padding}, 1, NOW())
-    ON CONFLICT ("tenantId", "storeId", "documentType", "year")
+    INSERT INTO number_sequences ("id", "tenantId", "scope", "documentType", "year", "prefix", "suffix", "padding", "currentValue", "updatedAt")
+    VALUES (gen_random_uuid()::text, ${tenantId}, ${scope}, ${documentType}, ${year}, ${defaults.prefix}, '', ${defaults.padding}, 1, NOW())
+    ON CONFLICT ("tenantId", "scope", "documentType", "year")
     DO UPDATE SET "currentValue" = number_sequences."currentValue" + 1, "updatedAt" = NOW()
     RETURNING "currentValue" AS "currentValue", "prefix", "padding"
   `;

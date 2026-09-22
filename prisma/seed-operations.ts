@@ -6,6 +6,7 @@
 
 import { Prisma, type PrismaClient } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
+import { SEQUENCE_DEFAULTS } from '../src/lib/document-numbers';
 
 let seed = 77777;
 function rnd() {
@@ -49,6 +50,47 @@ async function insertChunked<T>(items: T[], fn: (batch: T[]) => Promise<unknown>
   }
 }
 
+
+/**
+ * Usklađivanje brojača dokumenata s generiranim podacima.
+ *
+ * Punjenje upisuje brojeve dokumenata izravno, pa brojači u `number_sequences`
+ * moraju krenuti od zadnjeg iskorištenog broja — inače bi prvi dokument
+ * kreiran kroz aplikaciju pao na jedinstvenom ograničenju broja.
+ */
+async function syncNumberSequences(
+  db: PrismaClient,
+  tenantId: string,
+  counters: { documentType: string; scope: string; value: number }[],
+) {
+  const year = new Date().getFullYear();
+  for (const counter of counters) {
+    if (counter.value <= 0) continue;
+    const base = counter.documentType.split(':')[0] as keyof typeof SEQUENCE_DEFAULTS;
+    const defaults = SEQUENCE_DEFAULTS[base] ?? { prefix: '', padding: 0 };
+    await db.numberSequence.upsert({
+      where: {
+        tenantId_scope_documentType_year: {
+          tenantId,
+          scope: counter.scope,
+          documentType: counter.documentType,
+          year,
+        },
+      },
+      create: {
+        tenantId,
+        scope: counter.scope,
+        documentType: counter.documentType,
+        year,
+        prefix: defaults.prefix,
+        padding: defaults.padding,
+        currentValue: counter.value,
+      },
+      update: { currentValue: counter.value, prefix: defaults.prefix, padding: defaults.padding },
+    });
+  }
+}
+
 export async function seedOperations(db: PrismaClient, ctx: SeedContext) {
   const { tenant, stores, catalog, suppliers, customers, cashiers } = ctx;
   const retailStores = stores.filter((s) => s.type === 'RETAIL');
@@ -74,7 +116,9 @@ export async function seedOperations(db: PrismaClient, ctx: SeedContext) {
     for (const product of catalog) {
       // Manje poslovnice ne drže cijeli asortiman.
       if (!isCentral && !chance(0.88)) continue;
-      const qty = isCentral ? intBetween(120, 900) : intBetween(6, 180);
+      // Početno stanje mora pokriti 60 dana generirane prodaje i ostaviti
+      // realnu zalihu na kraju razdoblja.
+      const qty = isCentral ? intBetween(600, 2400) : intBetween(90, 420);
       const cost = round2(product.cost * between(0.97, 1.03));
 
       stockItems.push({
@@ -653,6 +697,28 @@ export async function seedOperations(db: PrismaClient, ctx: SeedContext) {
     JOIN warehouses w ON w."storeId" = sold."storeId" AND w."isSellable" = true
     WHERE si."variantId" = sold."variantId" AND si."warehouseId" = w."id"
   `;
+
+  // =========================================================================
+  //  Brojači dokumenata
+  // =========================================================================
+  console.log('▸ Usklađivanje brojača dokumenata…');
+
+  const saleCounters = Array.from(sequenceByRegister.entries()).map(([key, value]) => {
+    const [storeKey, registerCode] = key.split(':');
+    return { documentType: `sale:${registerCode}`, scope: storeKey, value };
+  });
+
+  await syncNumberSequences(db, tenant.id, [
+    { documentType: 'shift', scope: '', value: shiftCounter },
+    { documentType: 'purchase_order', scope: '', value: poCounter },
+    { documentType: 'goods_receipt', scope: '', value: grCounter },
+    { documentType: 'transfer', scope: '', value: 26 },
+    { documentType: 'stock_take', scope: '', value: 6 },
+    { documentType: 'write_off', scope: '', value: 22 },
+    { documentType: 'price_change', scope: '', value: 1 },
+    { documentType: 'customer', scope: '', value: customers.length },
+    ...saleCounters,
+  ]);
 
   // =========================================================================
   //  Obavijesti i revizijski trag

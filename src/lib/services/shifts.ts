@@ -31,7 +31,8 @@ export async function openShift(args: {
     );
   }
 
-  const numbering = await nextDocumentNumber(args.tenantId, 'shift', { storeId: args.storeId });
+  // Broj smjene je jedinstven na razini organizacije, a ne poslovnice.
+  const numbering = await nextDocumentNumber(args.tenantId, 'shift');
 
   const shift = await db.$transaction(async (tx) => {
     const created = await tx.shift.create({

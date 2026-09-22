@@ -390,7 +390,6 @@ model Tenant {
   priceChanges    PriceChangeDocument[]
   auditLogs       AuditLog[]
   settings        Setting[]
-  numberSequences NumberSequence[]
   integrations    IntegrationConfig[]
   outboxEvents    OutboxEvent[]
   notifications   Notification[]
@@ -398,6 +397,7 @@ model Tenant {
   dailyKpis       DailyKpi[]
   reasonCodes     ReasonCode[]
   units           UnitOfMeasure[]
+  numberSequences NumberSequence[]
 
   @@index([status])
   @@map("tenants")
@@ -466,26 +466,25 @@ model Store {
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
 
-  tenant          Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  company         Company               @relation(fields: [companyId], references: [id])
-  priceList       PriceList?            @relation("StorePriceList", fields: [priceListId], references: [id])
-  warehouses      Warehouse[]
-  registers       Register[]
-  userAccess      UserStoreAccess[]
-  sales           Sale[]
-  shifts          Shift[]
-  purchaseOrders  PurchaseOrder[]
-  goodsReceipts   GoodsReceipt[]
-  transfersFrom   StockTransfer[]       @relation("TransferFrom")
-  transfersTo     StockTransfer[]       @relation("TransferTo")
-  stockTakes      StockTake[]
-  writeOffs       WriteOff[]
-  reorderRules    ReorderRule[]
-  cashMovements   CashMovement[]
-  dailyKpis       DailyKpi[]
-  priceChanges    PriceChangeDocument[]
-  numberSequences NumberSequence[]
-  settings        Setting[]
+  tenant         Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  company        Company               @relation(fields: [companyId], references: [id])
+  priceList      PriceList?            @relation("StorePriceList", fields: [priceListId], references: [id])
+  warehouses     Warehouse[]
+  registers      Register[]
+  userAccess     UserStoreAccess[]
+  sales          Sale[]
+  shifts         Shift[]
+  purchaseOrders PurchaseOrder[]
+  goodsReceipts  GoodsReceipt[]
+  transfersFrom  StockTransfer[]       @relation("TransferFrom")
+  transfersTo    StockTransfer[]       @relation("TransferTo")
+  stockTakes     StockTake[]
+  writeOffs      WriteOff[]
+  reorderRules   ReorderRule[]
+  cashMovements  CashMovement[]
+  dailyKpis      DailyKpi[]
+  priceChanges   PriceChangeDocument[]
+  settings       Setting[]
 
   @@unique([tenantId, code])
   @@index([tenantId, status])
@@ -2117,14 +2116,21 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-/// Brojači dokumenata — po tenantu, poslovnici, tipu i godini.
+/// Brojači dokumenata — po organizaciji, opsegu, tipu i godini.
 model NumberSequence {
-  id           String   @id @default(cuid())
-  tenantId     String
-  storeId      String?
-  /// sale, invoice, purchase_order, goods_receipt, transfer, stock_take, write_off, shift, price_change
+  id       String @id @default(cuid())
+  tenantId String
+
+  /// Opseg brojača: prazan niz = cijela organizacija, inače id poslovnice.
+  /// Namjerno običan stupac, a ne relacija — jedinstveni indeks u PostgreSQL-u
+  /// tretira NULL vrijednosti kao različite, pa bi brojač s NULL opsegom
+  /// pri svakom pozivu kreirao novi red umjesto da uveća postojeći.
+  scope        String @default("")
+  /// sale, sale:<uređaj>, invoice, purchase_order, goods_receipt, transfer,
+  /// stock_take, write_off, shift, price_change, customer
   documentType String
   year         Int
+
   prefix       String   @default("")
   suffix       String   @default("")
   padding      Int      @default(0)
@@ -2132,9 +2138,8 @@ model NumberSequence {
   updatedAt    DateTime @updatedAt
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  store  Store? @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  @@unique([tenantId, storeId, documentType, year])
+  @@unique([tenantId, scope, documentType, year])
   @@map("number_sequences")
 }
 

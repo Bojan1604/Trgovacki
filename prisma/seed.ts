@@ -40,7 +40,16 @@ function ean13(body: string) {
 
 async function main() {
   console.log('▸ Brisanje postojećih demo podataka…');
-  await db.tenant.deleteMany({ where: { slug: 'delta-retail' } });
+  // Knjiga kretanja zalihe namjerno nema kaskadno brisanje (nepromjenjiv trag),
+  // pa se pri ponovnom punjenju sve tablice prazne izravno.
+  const tables = await db.$queryRaw<{ tablename: string }[]>`
+    SELECT tablename FROM pg_tables
+    WHERE schemaname = 'public' AND tablename NOT LIKE '_prisma%'
+  `;
+  if (tables.length > 0) {
+    const list = tables.map((t) => `"public"."${t.tablename}"`).join(', ');
+    await db.$executeRawUnsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`);
+  }
 
   // =========================================================================
   //  Organizacija

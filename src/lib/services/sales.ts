@@ -286,10 +286,7 @@ export async function checkout(input: CheckoutInput) {
             registerCode: register?.code ?? '1',
             tx,
           })
-        : await nextDocumentNumber(input.tenantId, kind === 'INVOICE' ? 'invoice' : 'proforma', {
-            storeId: store.id,
-            tx,
-          });
+        : await nextDocumentNumber(input.tenantId, kind === 'INVOICE' ? 'invoice' : 'proforma', { tx });
 
     const costTotal = roundAmount(
       quote.lines.reduce((acc, l) => acc + (variantCosts.get(l.variantId) ?? 0) * l.quantity, 0),
@@ -454,27 +451,31 @@ export async function checkout(input: CheckoutInput) {
     if (input.shiftId) {
       const cashAmount = await cashPortion(tx, input.tenantId, input.payments);
       const cardAmount = await cardPortion(tx, input.tenantId, input.payments);
+      // Ostatak se uvijek vraća u gotovini, pa je neto gotovinski promet
+      // umanjen za vraćeni iznos — i u izvještaju i u saldu ladice.
+      const cashNet = roundAmount(cashAmount - changeAmount);
+
       await tx.shift.update({
         where: { id: input.shiftId },
         data: {
           salesCount: { increment: 1 },
           salesTotal: { increment: new Prisma.Decimal(total) },
-          cashTotal: { increment: new Prisma.Decimal(cashAmount) },
+          cashTotal: { increment: new Prisma.Decimal(cashNet) },
           cardTotal: { increment: new Prisma.Decimal(cardAmount) },
-          otherTotal: { increment: new Prisma.Decimal(roundAmount(total - cashAmount - cardAmount)) },
+          otherTotal: { increment: new Prisma.Decimal(roundAmount(total - cashNet - cardAmount)) },
           discountTotal: { increment: new Prisma.Decimal(quote.discountTotal) },
-          expectedCash: { increment: new Prisma.Decimal(roundAmount(cashAmount - changeAmount)) },
+          expectedCash: { increment: new Prisma.Decimal(cashNet) },
         },
       });
 
-      if (cashAmount > 0) {
+      if (cashNet !== 0) {
         await tx.cashMovement.create({
           data: {
             storeId: store.id,
             shiftId: input.shiftId,
             userId: input.userId,
             type: 'SALE_CASH',
-            amount: new Prisma.Decimal(roundAmount(cashAmount - changeAmount)),
+            amount: new Prisma.Decimal(cashNet),
             reference: created.number,
           },
         });
