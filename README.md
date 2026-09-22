@@ -58,12 +58,28 @@ Zatim:
 
 ```bat
 npm install
+npm run doctor      :: provjera je li sve spremno
 npm run db:push     :: kreira bazu i tablice
 npm run db:seed     :: demo podaci
 npm run dev
 ```
 
 Bazu ne morate ručno kreirati — `db:push` to napravi sam.
+
+Ako nešto zapne, `npm run doctor` provjerava verziju Node-a, `.env`, lozinku u
+`DATABASE_URL`, dostupnost PostgreSQL-a, generirani Prisma klijent i stanje
+baze, pa za svaki problem ispisuje što konkretno napraviti.
+
+**Najčešća greška: `P1000 Authentication failed`** — lozinka u `.env` nije ona
+koju PostgreSQL očekuje. Provjerite je izravno:
+
+```bat
+psql -U postgres -h localhost -d postgres
+```
+
+Ako ni ondje ne prolazi, lozinka nije ta. Ako prolazi, prepišite je točno u
+`.env`. Znakovi `/`, `#`, `?` i razmak u lozinci moraju biti kodirani
+(`/` → `%2F`, `#` → `%23`, `?` → `%3F`, razmak → `%20`).
 
 Drugi port: `set PORT=3001` pa `npm run dev` (PowerShell: `$env:PORT=3001`).
 
@@ -265,6 +281,7 @@ se u dodatku PDF-a. Tako upute i slike ne mogu zastarjeti u odnosu na kod.
 ```bash
 npm run dev          # razvojni poslužitelj
 npm test             # testovi
+npm run doctor       # provjera okoline prije prvog pokretanja
 npm run e2e          # funkcionalni prolaz + snimke zaslona
 npm run manual       # izrada PDF priručnika
 npm run build        # produkcijski build (uključuje prisma generate)

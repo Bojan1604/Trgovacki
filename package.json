@@ -8,6 +8,8 @@
   },
   "scripts": {
     "dev": "next dev",
+    "postinstall": "prisma generate",
+    "doctor": "node scripts/doctor.mjs",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
