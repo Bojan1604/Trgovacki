@@ -1,0 +1,470 @@
+{
+  "pokrenuto": "2026-09-22T15:34:37.089Z",
+  "ukupno": 77,
+  "proslo": 77,
+  "greskeUKonzoli": [],
+  "provjere": [
+    {
+      "section": "Prijava",
+      "name": "Zaslon prijave se prikazuje",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Prijava",
+      "name": "Poslužitelj prihvaća prijavu",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "section": "Prijava",
+      "name": "Prijava vodi na nadzornu ploču",
+      "ok": true,
+      "detail": "http://localhost:3000/dashboard"
+    },
+    {
+      "section": "Nadzorna ploča",
+      "name": "Prikazani ključni pokazatelji",
+      "ok": true,
+      "detail": "6 pokazatelja"
+    },
+    {
+      "section": "Nadzorna ploča",
+      "name": "Promet je izračunat",
+      "ok": true,
+      "detail": "69.099 €"
+    },
+    {
+      "section": "Nadzorna ploča",
+      "name": "Prebacivanje na cijeli lanac mijenja brojke",
+      "ok": true,
+      "detail": "614.961 €"
+    },
+    {
+      "section": "Globalna pretraga",
+      "name": "Pretraga vraća rezultate",
+      "ok": true,
+      "detail": "5 pogodaka"
+    },
+    {
+      "section": "Katalog artikala",
+      "name": "Popis artikala je popunjen",
+      "ok": true,
+      "detail": "40 redaka na stranici"
+    },
+    {
+      "section": "Katalog artikala",
+      "name": "Pretraga filtrira popis",
+      "ok": true,
+      "detail": "6 redaka"
+    },
+    {
+      "section": "Katalog artikala",
+      "name": "Detalj artikla prikazuje zalihu po lokacijama",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Katalog artikala",
+      "name": "Detalj artikla prikazuje karticu kretanja",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Novi artikl s kalkulacijom",
+      "name": "Generiran ispravan EAN-13",
+      "ok": true,
+      "detail": "3850911597413"
+    },
+    {
+      "section": "Novi artikl s kalkulacijom",
+      "name": "Kalkulacija: 4,20 € uz 30 % marže i PDV 25 % daje 7,50 €",
+      "ok": true,
+      "detail": "Maloprodajna cijena 7,50 €"
+    },
+    {
+      "section": "Novi artikl s kalkulacijom",
+      "name": "Novi artikl je spremljen i otvoren",
+      "ok": true,
+      "detail": "cmucu241q009v7dclszvn2yhr"
+    },
+    {
+      "section": "Cijene i akcije",
+      "name": "Popis akcija je popunjen",
+      "ok": true,
+      "detail": "8 akcija"
+    },
+    {
+      "section": "Cijene i akcije",
+      "name": "Tablica prikazuje različite tipove akcija",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Cijene i akcije",
+      "name": "Popis nivelacija je popunjen",
+      "ok": true,
+      "detail": "1 dokument"
+    },
+    {
+      "section": "Cijene i akcije",
+      "name": "Detalj nivelacije prikazuje razliku vrijednosti zalihe",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Skladište",
+      "name": "Izračunata vrijednost zalihe po nabavnoj cijeni",
+      "ok": true,
+      "detail": "5.016.350 €"
+    },
+    {
+      "section": "Skladište",
+      "name": "Popis međuskladišnica je popunjen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Skladište",
+      "name": "Detalj međuskladišnice prikazuje otpremu i zaprimanje",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Skladište",
+      "name": "Popis inventura je popunjen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Skladište",
+      "name": "Detalj inventure prikazuje manjak i višak",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Skladište",
+      "name": "Prijedlog nabave je izračunat",
+      "ok": true,
+      "detail": "11 artikala ispod minimuma"
+    },
+    {
+      "section": "Nabava",
+      "name": "Popis primki je popunjen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Nabava",
+      "name": "Kalkulacija prikazuje razrez zavisnih troškova",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Nabava",
+      "name": "Kalkulacija prikazuje konačnu nabavnu cijenu i maržu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Nabava",
+      "name": "Popis narudžbenica je popunjen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Nabava",
+      "name": "Detalj narudžbenice prati zaprimanje",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Pregled izvještaja nudi sve izvještaje",
+      "ok": true,
+      "detail": "12 izvještaja"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Promet po danima",
+      "ok": true,
+      "detail": "30 redaka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Prodaja po artiklima",
+      "ok": true,
+      "detail": "294 retka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Usporedba poslovnica",
+      "ok": true,
+      "detail": "9 redaka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Marža i RUC",
+      "ok": true,
+      "detail": "6 redaka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Vrijednost zaliha",
+      "ok": true,
+      "detail": "9 redaka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: ABC analiza",
+      "ok": true,
+      "detail": "295 redaka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Učinak prodavača",
+      "ok": true,
+      "detail": "5 redaka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Rekapitulacija PDV-a",
+      "ok": true,
+      "detail": "4 retka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Načini plaćanja",
+      "ok": true,
+      "detail": "2 retka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Promet po satima",
+      "ok": true,
+      "detail": "14 redaka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Artikli bez obrtaja",
+      "ok": true,
+      "detail": "prazno stanje"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Izvještaj: Knjiga popisa",
+      "ok": true,
+      "detail": "22 retka"
+    },
+    {
+      "section": "Izvještaji",
+      "name": "Promjena razdoblja mijenja rezultat",
+      "ok": true,
+      "detail": "7 dana 13.822 € · 90 dana 133.761 €"
+    },
+    {
+      "section": "Kupci i program vjernosti",
+      "name": "Popis kupaca je popunjen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Kupci i program vjernosti",
+      "name": "Detalj kupca prikazuje povijest kupnji",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Kupci i program vjernosti",
+      "name": "Izračunata obveza po bodovima vjernosti",
+      "ok": true,
+      "detail": "2.467 €"
+    },
+    {
+      "section": "Kupci i program vjernosti",
+      "name": "Prikazane razine programa",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Kupci i program vjernosti",
+      "name": "Popis poklon kartica je popunjen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Postavke",
+      "name": "Popis poslovnica je popunjen",
+      "ok": true,
+      "detail": "9 lokacija"
+    },
+    {
+      "section": "Postavke",
+      "name": "Popis korisnika je popunjen",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Postavke",
+      "name": "Matrica prava prikazuje sve role",
+      "ok": true,
+      "detail": "7 rola"
+    },
+    {
+      "section": "Postavke",
+      "name": "Revizijski trag bilježi radnje",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Postavke",
+      "name": "Prikazane integracije i status fiskalizacije",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Postavke",
+      "name": "Zaslon fiskalizacije prikazuje status računa",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Blagajna — otvaranje smjene",
+      "name": "Smjena je otvorena i blagajna je spremna",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Blagajna — košarica",
+      "name": "Mreža artikala je popunjena",
+      "ok": true,
+      "detail": "40 artikala"
+    },
+    {
+      "section": "Blagajna — košarica",
+      "name": "Dodavanje artikla puni košaricu",
+      "ok": true,
+      "detail": "1.22 €"
+    },
+    {
+      "section": "Blagajna — košarica",
+      "name": "Povećanje količine udvostručuje iznos",
+      "ok": true,
+      "detail": "1.22 → 2.44 €"
+    },
+    {
+      "section": "Blagajna — košarica",
+      "name": "Skeniranje barkoda dodaje artikl",
+      "ok": true,
+      "detail": "barkod 3851082365597"
+    },
+    {
+      "section": "Blagajna — popust i kupac",
+      "name": "Ručni popust umanjuje iznos",
+      "ok": true,
+      "detail": "3.66 → 2.93 €"
+    },
+    {
+      "section": "Blagajna — popust i kupac",
+      "name": "Kupac s razinom vjernosti dobiva dodatni popust",
+      "ok": true,
+      "detail": "2.93 → 2.75 €"
+    },
+    {
+      "section": "Blagajna — parkiranje računa",
+      "name": "Parkiranje prazni košaricu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Blagajna — parkiranje računa",
+      "name": "Parkirani račun je na popisu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Blagajna — parkiranje računa",
+      "name": "Vraćanje parkiranog računa vraća stavke",
+      "ok": true,
+      "detail": "parkirano 2.75 € → vraćeno 2.75 €"
+    },
+    {
+      "section": "Blagajna — naplata gotovinom",
+      "name": "Račun je izdan s brojem i fiskalnim podacima",
+      "ok": true,
+      "detail": "broj 189/1/1"
+    },
+    {
+      "section": "Blagajna — naplata gotovinom",
+      "name": "Potvrda prikazuje povrat ostatka",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Blagajna — naplata karticom",
+      "name": "Naplata karticom prolazi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Blagajna — povrat robe",
+      "name": "Račun za povrat je pronađen po broju",
+      "ok": true,
+      "detail": "189/1/1"
+    },
+    {
+      "section": "Blagajna — povrat robe",
+      "name": "Povrat je proveden",
+      "ok": true,
+      "detail": "Povrat je proveden  Dokument 191/1/1"
+    },
+    {
+      "section": "Blagajna — zatvaranje smjene",
+      "name": "Obračun prikazuje očekivanu gotovinu",
+      "ok": true,
+      "detail": "Očekivano u ladici 152,75 €"
+    },
+    {
+      "section": "Blagajna — zatvaranje smjene",
+      "name": "Z-izvještaj prikazuje promet i razliku",
+      "ok": true,
+      "detail": "Smjena je zatvorena  Z-izvještaj za smjenu SM-00489/2026  Promet smjene 9,43 € Broj računa"
+    },
+    {
+      "section": "Prodaja — evidencija",
+      "name": "Izdani računi su vidljivi u evidenciji",
+      "ok": true,
+      "detail": "50 dokumenata"
+    },
+    {
+      "section": "Prodaja — evidencija",
+      "name": "Povrat je evidentiran kao odobrenje uz izvorni račun",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Prodaja — evidencija",
+      "name": "Detalj računa prikazuje rekapitulaciju PDV-a i plaćanje",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Prodaja — evidencija",
+      "name": "Popis smjena prikazuje razlike u blagajni",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Prodaja — evidencija",
+      "name": "Z-izvještaj smjene je dostupan u back officeu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Tamna tema",
+      "name": "Tamna tema se primjenjuje",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

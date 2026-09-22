@@ -1,0 +1,469 @@
+/* Inter — isti font koji koristi aplikacija, ugrađen kako bi priručnik
+   izgledao jednako neovisno o fontovima instaliranima na računalu.
+   Podskup latin-ext nosi č, ć, ž, š i đ. */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url('fonts/inter-latin.woff2') format('woff2');
+  unicode-range: u+0000-00ff, u+0131, u+0152-0153, u+02bb-02bc, u+02c6, u+02da,
+    u+02dc, u+0304, u+0308, u+0329, u+2000-206f, u+20ac, u+2122, u+2191, u+2193,
+    u+2212, u+2215, u+feff, u+fffd;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url('fonts/inter-latin-ext.woff2') format('woff2');
+  unicode-range: u+0100-02ba, u+02bd-02c5, u+02c7-02cc, u+02ce-02d7, u+02dd-02ff,
+    u+1d00-1dbf, u+1e00-1e9f, u+1ef2-1eff, u+2020, u+20a0-20ab, u+20ad-20c0,
+    u+2113, u+2c60-2c7f, u+a720-a7ff;
+}
+
+/* ==========================================================================
+   Priručnik — stil za ispis (A4).
+   Tipografija je krupnija nego u aplikaciji jer se dokument čita na papiru
+   i u čitaču PDF-a, ali zadržava isti vizualni jezik: tanke linije,
+   plava naglasna boja i tablične brojke.
+   ========================================================================== */
+
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm 16mm;
+}
+
+@page :first {
+  margin: 0;
+}
+
+:root {
+  --accent: #0a6fd8;
+  --accent-soft: #eaf2fd;
+  --ink: #17181b;
+  --ink-2: #4a4d55;
+  --ink-3: #74777f;
+  --ink-4: #9a9da5;
+  --hairline: #e2e3e8;
+  --hairline-strong: #c9cbd2;
+  --surface-2: #f6f7f9;
+  --positive: #1a7f47;
+  --warning: #9a6200;
+  --negative: #b3202f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 10.5pt;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  line-height: 1.5;
+  font-feature-settings: 'tnum' 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* --- Naslovnica ---------------------------------------------------------- */
+
+.cover {
+  height: 297mm;
+  padding: 34mm 24mm 24mm;
+  background: linear-gradient(150deg, #0b1929 0%, #10314f 55%, #0a2740 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  break-after: page;
+}
+
+.cover-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  display: grid;
+  place-items: center;
+  margin-bottom: 26mm;
+}
+
+.cover h1 {
+  font-size: 40pt;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  margin: 0 0 6mm;
+}
+
+.cover .lead {
+  font-size: 13pt;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 120mm;
+  margin: 0 0 auto;
+}
+
+.cover-meta {
+  display: flex;
+  gap: 14mm;
+  padding-top: 8mm;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 9.5pt;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.cover-meta b {
+  display: block;
+  color: #fff;
+  font-weight: 500;
+  font-size: 11pt;
+  margin-bottom: 1mm;
+}
+
+/* --- Sadržaj ------------------------------------------------------------- */
+
+.toc {
+  break-after: page;
+}
+
+.toc h2 {
+  border: 0;
+  padding: 0;
+  margin: 0 0 6mm;
+}
+
+.toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: chapter;
+}
+
+.toc li {
+  display: flex;
+  align-items: baseline;
+  gap: 2mm;
+  padding: 1.4mm 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.toc li.sub {
+  padding-left: 9mm;
+  border-bottom: 0;
+  padding-top: 0.6mm;
+  padding-bottom: 0.6mm;
+  font-size: 9.5pt;
+  color: var(--ink-2);
+}
+
+.toc .num {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  min-width: 8mm;
+}
+
+.toc .title {
+  font-weight: 500;
+}
+
+.toc li.sub .title {
+  font-weight: 400;
+}
+
+.toc .dots {
+  flex: 1;
+  border-bottom: 1px dotted var(--hairline-strong);
+  transform: translateY(-2px);
+}
+
+.toc .page {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+/* --- Naslovi ------------------------------------------------------------- */
+
+h2 {
+  font-size: 19pt;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 4mm;
+  padding-bottom: 3mm;
+  border-bottom: 2px solid var(--accent);
+  break-after: avoid;
+}
+
+h2 .kicker {
+  display: block;
+  font-size: 9pt;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2mm;
+}
+
+h3 {
+  font-size: 13pt;
+  font-weight: 600;
+  margin: 7mm 0 2.5mm;
+  break-after: avoid;
+}
+
+h4 {
+  font-size: 11pt;
+  font-weight: 600;
+  margin: 5mm 0 1.5mm;
+  break-after: avoid;
+}
+
+.chapter {
+  break-before: page;
+}
+
+p {
+  margin: 0 0 3mm;
+}
+
+ul, ol {
+  margin: 0 0 3mm;
+  padding-left: 5mm;
+}
+
+li {
+  margin-bottom: 1.2mm;
+}
+
+strong {
+  font-weight: 600;
+}
+
+code {
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  font-size: 9pt;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  padding: 0.3mm 1.2mm;
+}
+
+pre {
+  background: #14161a;
+  color: #e8eaed;
+  border-radius: 5px;
+  padding: 3.5mm 4mm;
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  font-size: 8.8pt;
+  line-height: 1.6;
+  overflow: hidden;
+  margin: 0 0 4mm;
+  break-inside: avoid;
+}
+
+pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+/* --- Snimke zaslona ------------------------------------------------------ */
+
+figure {
+  margin: 4mm 0 5mm;
+  break-inside: avoid;
+}
+
+figure img {
+  width: 100%;
+  display: block;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 4px;
+}
+
+figcaption {
+  margin-top: 1.8mm;
+  font-size: 8.8pt;
+  color: var(--ink-3);
+  line-height: 1.45;
+}
+
+figcaption b {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+/* --- Tablice ------------------------------------------------------------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.3pt;
+  margin: 0 0 4mm;
+  /* Kratke tablice ostaju na jednoj stranici; duge nose klasu .long. */
+  break-inside: avoid;
+}
+
+table.long {
+  break-inside: auto;
+}
+
+/* Zaglavlje se ponavlja na svakoj stranici preko koje se tablica prelama. */
+table.long thead {
+  display: table-header-group;
+}
+
+table.long tr {
+  break-inside: avoid;
+}
+
+thead th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 8.4pt;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 1.6mm 2mm;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+tbody td {
+  padding: 1.6mm 2mm;
+  border-bottom: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+td.num, th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Istaknuti okviri ---------------------------------------------------- */
+
+.note {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 3mm 4mm;
+  border-radius: 0 4px 4px 0;
+  margin: 0 0 4mm;
+  font-size: 9.6pt;
+  break-inside: avoid;
+}
+
+.note.warn {
+  border-left-color: var(--warning);
+  background: #fdf5e6;
+}
+
+.note.tip {
+  border-left-color: var(--positive);
+  background: #eaf6ef;
+}
+
+.note p:last-child {
+  margin-bottom: 0;
+}
+
+.note .label {
+  display: block;
+  font-size: 8.4pt;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1mm;
+}
+
+.note.warn .label { color: var(--warning); }
+.note.tip .label { color: var(--positive); }
+
+/* --- Koraci -------------------------------------------------------------- */
+
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 4mm;
+}
+
+.steps > li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 8mm;
+  margin-bottom: 2.5mm;
+  break-inside: avoid;
+}
+
+.steps > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.2mm;
+  width: 5.2mm;
+  height: 5.2mm;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 8pt;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+
+/* --- Tipke --------------------------------------------------------------- */
+
+kbd {
+  font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+  font-size: 8.4pt;
+  border: 1px solid var(--hairline-strong);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  padding: 0.2mm 1.4mm;
+  background: #fff;
+  white-space: nowrap;
+}
+
+/* --- Oznake -------------------------------------------------------------- */
+
+.tag {
+  display: inline-block;
+  font-size: 8pt;
+  font-weight: 600;
+  padding: 0.3mm 1.6mm;
+  border-radius: 3px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.tag.ok { background: #e6f4ec; color: var(--positive); }
+.tag.no { background: #fdeaec; color: var(--negative); }
+
+.lead-in {
+  font-size: 11.5pt;
+  color: var(--ink-2);
+  line-height: 1.55;
+  margin-bottom: 5mm;
+}
+
+.cols-2 {
+  column-count: 2;
+  column-gap: 8mm;
+}
+
+.cols-2 > * {
+  break-inside: avoid;
+}

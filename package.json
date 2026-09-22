@@ -19,7 +19,9 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma db push --force-reset && npm run db:seed",
     "test": "tsx --conditions=react-server --test tests/*.test.ts",
-    "test:unit": "tsx --conditions=react-server --test tests/money.test.ts tests/pricing-math.test.ts tests/promotions.test.ts"
+    "test:unit": "tsx --conditions=react-server --test tests/money.test.ts tests/pricing-math.test.ts tests/promotions.test.ts",
+    "e2e": "node scripts/e2e.mjs",
+    "manual": "node scripts/build-manual.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",
@@ -43,8 +45,10 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "dotenv": "^18.0.2",
+    "pdfjs-dist": "^6.3.289",
     "playwright": "^1.63.0",
     "prisma": "^6.1.0",
+    "sharp": "^0.35.4",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"

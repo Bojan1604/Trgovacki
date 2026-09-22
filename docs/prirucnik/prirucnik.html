@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<title>Trgovački — priručnik za korisnike</title>
+<link rel="stylesheet" href="stil.css">
+</head>
+<body>
+
+<!-- ====================================================================== -->
+<!-- Naslovnica                                                              -->
+<!-- ====================================================================== -->
+<section class="cover">
+  <div class="cover-mark">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 6h18l-1.6 9.2a2 2 0 0 1-2 1.8H6.6a2 2 0 0 1-2-1.8Z"/>
+      <path d="M8 6V4.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2V6"/>
+    </svg>
+  </div>
+
+  <h1>Trgovački<br>priručnik za korisnike</h1>
+  <p class="lead">
+    Maloprodajni sustav za trgovačke lance — blagajna, zalihe, nabava, cijene,
+    akcije, program vjernosti i izvještaji. Upute su pisane uz snimke zaslona
+    iz radne aplikacije.
+  </p>
+
+  <div class="cover-meta">
+    <div><b>Verzija</b>1.0</div>
+    <div><b>Izdanje</b>Rujan 2026.</div>
+    <div><b>Opseg</b>Blagajna i back office</div>
+    <div><b>Jezik</b>Hrvatski</div>
+  </div>
+</section>
+
+<!-- ====================================================================== -->
+<!-- Sadržaj                                                                 -->
+<!-- ====================================================================== -->
+<section class="toc">
+  <h2>Sadržaj</h2>
+  <ol id="toc-list"></ol>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-uvod">
+<h2><span class="kicker">Poglavlje 1</span>Uvod</h2>
+
+<p class="lead-in">
+  Trgovački je sustav za vođenje maloprodaje — od jedne trgovine do lanca sa
+  stotinama poslovnica. Pokriva put robe od narudžbe kod dobavljača, preko
+  primke i kalkulacije cijene, do prodaje na blagajni i izvještaja o ostvarenoj
+  marži.
+</p>
+
+<h3>Dva načina rada</h3>
+
+<p>
+  Aplikacija ima dva odvojena sučelja koja dijele iste podatke:
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:28%">Sučelje</th><th>Za koga i čemu služi</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Blagajna</b><br><code>/pos</code></td>
+      <td>
+        Prodavač na prodajnom mjestu. Otvara smjenu, prodaje, naplaćuje,
+        radi povrate i zatvara smjenu s obračunom gotovine. Sučelje je
+        prilagođeno dodirnom zaslonu i radu s čitačem barkoda.
+      </td>
+    </tr>
+    <tr>
+      <td><b>Back office</b><br>ostatak aplikacije</td>
+      <td>
+        Voditelj poslovnice, nabava, računovodstvo i uprava. Katalog, cijene i
+        akcije, zalihe, nabava, kupci, izvještaji i postavke.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Moduli</h3>
+
+<table>
+  <thead>
+    <tr><th style="width:24%">Modul</th><th>Sadrži</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><b>Katalog</b></td><td>Artikli s varijantama i barkodovima, kategorije, brendovi, dobavljači</td></tr>
+    <tr><td><b>Cijene</b></td><td>Cjenici, akcije, dokumenti promjene cijene (nivelacije)</td></tr>
+    <tr><td><b>Skladište</b></td><td>Stanje zaliha, kartica artikla, međuskladišnice, inventure, otpisi, prijedlog nabave</td></tr>
+    <tr><td><b>Nabava</b></td><td>Narudžbenice, primke s kalkulacijom maloprodajne cijene</td></tr>
+    <tr><td><b>Prodaja</b></td><td>Računi, smjene i blagajna, status fiskalizacije</td></tr>
+    <tr><td><b>Kupci</b></td><td>Kupci, program vjernosti s razinama, poklon kartice</td></tr>
+    <tr><td><b>Izvještaji</b></td><td>Dvanaest izvještaja: promet, marža, zalihe, ABC, PDV, prodavači…</td></tr>
+    <tr><td><b>Postavke</b></td><td>Poslovnice, korisnici, role i prava, porezi, integracije, revizijski trag</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <span class="label">Prava pristupa</span>
+  <p>
+    Svaki korisnik vidi samo ono za što ima pravo. Ako u izborniku ne vidite
+    stavku opisanu u ovom priručniku, vaša rola nema to pravo — obratite se
+    voditelju. Popis prava po roli nalazi se u poglavlju
+    <b>Postavke i prava</b>.
+  </p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-pokretanje">
+<h2><span class="kicker">Poglavlje 2</span>Prvo pokretanje</h2>
+
+<p class="lead-in">
+  Ovo poglavlje je za osobu koja postavlja sustav. Ako vam je aplikacija već
+  pripremljena, preskočite na poglavlje <b>Snalaženje u sučelju</b>.
+</p>
+
+<h3>Preduvjeti</h3>
+<ul>
+  <li><b>Node.js 20.9</b> ili noviji</li>
+  <li><b>PostgreSQL 14</b> ili noviji — najlakše kroz Docker</li>
+</ul>
+
+<h3>Instalacija</h3>
+
+<ol class="steps">
+  <li>Preuzmite izvorni kod i instalirajte ovisnosti.</li>
+  <li>Kopirajte <code>.env.example</code> u <code>.env</code>. Ako koristite priloženi Docker, ništa ne treba mijenjati.</li>
+  <li>Podignite bazu, kreirajte tablice i napunite demo podatke.</li>
+  <li>Pokrenite poslužitelj i otvorite <code>http://localhost:3000</code>.</li>
+</ol>
+
+<pre><code>git clone -b claude/retail-pos-web-app-953bv5 \
+    https://github.com/Bojan1604/Trgovacki.git
+cd Trgovacki
+npm install
+
+cp .env.example .env          # Windows: copy .env.example .env
+docker compose up -d          # PostgreSQL na portu 5432
+
+npm run db:push               # kreira tablice
+npm run db:seed               # puni demo podatke (~30 s)
+npm run dev                   # http://localhost:3000</code></pre>
+
+<div class="note warn">
+  <span class="label">Ako je port 3000 zauzet</span>
+  <p>
+    Pokrenite s <code>PORT=3001 npm run dev</code>. U PowerShellu:
+    <code>$env:PORT=3001; npm run dev</code>.
+  </p>
+</div>
+
+<h3>Demo korisnici</h3>
+
+<p>
+  Punjenje demo podacima kreira lanac <b>Delta Retail</b>: devet lokacija,
+  22 blagajne, oko 295 artikala, 180 kupaca i 60 dana povijesti prodaje.
+  Lozinka je za sve račune <code>demo1234</code>.
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:22%">Rola</th><th style="width:34%">E-pošta</th><th>Što vidi</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Vlasnik</td><td><code>vlasnik@trgovacki.hr</code></td><td>Sve, uključujući postavke i revizijski trag</td></tr>
+    <tr><td>Voditelj lanca</td><td><code>voditelj@trgovacki.hr</code></td><td>Sve osim sistemskih postavki i rola</td></tr>
+    <tr><td>Nabava</td><td><code>nabava@trgovacki.hr</code></td><td>Katalog, cijene, dobavljači, narudžbenice, primke</td></tr>
+    <tr><td>Računovodstvo</td><td><code>racunovodstvo@trgovacki.hr</code></td><td>Izvještaji, financije, revizijski trag — bez izmjena</td></tr>
+    <tr><td>Blagajnik</td><td><code>blagajna@trgovacki.hr</code></td><td>Blagajna, artikli i zalihe za uvid</td></tr>
+  </tbody>
+</table>
+
+<div class="note tip">
+  <span class="label">Vraćanje demo podataka</span>
+  <p>
+    Nakon isprobavanja možete vratiti početno stanje s
+    <code>npm run db:seed</code>. Naredba prazni sve tablice i ponovno puni
+    demo skup.
+  </p>
+</div>
+
+<figure>
+  <img src="../screenshots-web/01-prijava.jpg" alt="Zaslon prijave">
+  <figcaption><b>Prijava.</b> U razvojnom načinu rada demo pristupni podaci prikazani su ispod obrasca. Nakon osam neuspjelih pokušaja račun se privremeno zaključava.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-sucelje">
+<h2><span class="kicker">Poglavlje 3</span>Snalaženje u sučelju</h2>
+
+<p class="lead-in">
+  Sučelje je namjerno gusto: više podataka stane na ekran, a manje se skrola.
+  Raspored je uvijek isti — bočni izbornik lijevo, traka s alatima gore,
+  sadržaj u sredini.
+</p>
+
+<figure>
+  <img src="../screenshots-web/02-nadzorna-ploca.jpg" alt="Nadzorna ploča s označenim dijelovima sučelja">
+  <figcaption><b>Osnovni raspored.</b> Lijevo je izbornik grupiran po modulima, gore traka s odabirom poslovnice i pretragom, u sredini sadržaj. Crni gumb <b>Blagajna</b> na dnu izbornika otvara prodajno sučelje.</figcaption>
+</figure>
+
+<h3>Bočni izbornik</h3>
+<ul>
+  <li>Stavke su grupirane po modulima (Pregled, Katalog, Cijene, Skladište, Nabava, Prodaja, Kupci, Postavke).</li>
+  <li>Polje <b>Traži u izborniku</b> filtrira stavke — brže nego traženje očima.</li>
+  <li>Strelica u zaglavlju skuplja izbornik na uske ikone kad vam treba više prostora.</li>
+</ul>
+
+<h3>Gornja traka</h3>
+<ul>
+  <li><b>Odabir poslovnice</b> — određuje na koje se podatke odnose ekrani koji rade s jednom lokacijom. Odabir se pamti.</li>
+  <li><b>Pretraga</b> (<kbd>Ctrl</kbd>+<kbd>K</kbd> ili <kbd>⌘</kbd>+<kbd>K</kbd>) — artikli, kupci i računi na jednom mjestu.</li>
+  <li><b>Zvono</b> — obavijesti: niska zaliha, razlike u blagajni, nivelacije koje čekaju odobrenje.</li>
+  <li><b>Mjesec/sunce</b> — svijetla i tamna tema.</li>
+  <li><b>Inicijali</b> — profil i odjava.</li>
+</ul>
+
+<figure>
+  <img src="../screenshots-web/04-globalna-pretraga.jpg" alt="Globalna pretraga">
+  <figcaption><b>Globalna pretraga.</b> Upišite naziv artikla, barkod, ime kupca ili broj računa. Kretanje strelicama, otvaranje tipkom <kbd>Enter</kbd>.</figcaption>
+</figure>
+
+<h3>Poslovnica ili cijeli lanac</h3>
+
+<p>
+  Ekrani s analitikom imaju preklopnik <b>Poslovnica / Lanac</b>. U načinu
+  <b>Poslovnica</b> brojke se odnose na lokaciju odabranu u gornjoj traci, a u
+  načinu <b>Lanac</b> na sve lokacije kojima imate pristup.
+</p>
+
+<figure>
+  <img src="../screenshots-web/03-nadzorna-ploca-lanac.jpg" alt="Nadzorna ploča za cijeli lanac">
+  <figcaption><b>Prikaz za cijeli lanac.</b> Iste kartice, drugi opseg podataka. Usporedba poslovnica uvijek prikazuje sve lokacije, neovisno o preklopniku.</figcaption>
+</figure>
+
+<h3>Filtri i adresa stranice</h3>
+
+<p>
+  Svi filtri i odabrano razdoblje zapisuju se u adresu stranice. To znači da
+  osvježavanje ne gubi filtre, a poveznicu na točno određeni prikaz možete
+  poslati kolegi.
+</p>
+
+<h3>Tamna tema</h3>
+
+<figure>
+  <img src="../screenshots-web/47-tamna-tema.jpg" alt="Nadzorna ploča u tamnoj temi">
+  <figcaption><b>Tamna tema.</b> Korisna je na blagajnama u slabije osvijetljenim prostorima. Boje grafikona imaju zasebne, provjerene vrijednosti za tamnu podlogu.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-blagajna">
+<h2><span class="kicker">Poglavlje 4</span>Blagajna</h2>
+
+<p class="lead-in">
+  Blagajna je odvojen, cjelovit zaslon bez izbornika back officea. Otvara se
+  crnim gumbom na dnu izbornika ili izravno na adresi <code>/pos</code>.
+  Cijeli tok — od otvaranja smjene do Z-izvještaja — opisan je ovdje redom
+  kojim se i radi.
+</p>
+
+<h3>4.1 Otvaranje smjene</h3>
+
+<p>
+  Blagajna ne radi dok smjena nije otvorena. Time se svaki račun veže uz
+  prodavača i uređaj, a na kraju dana gotovina u ladici može se usporediti s
+  onim što sustav očekuje.
+</p>
+
+<ol class="steps">
+  <li>Odaberite blagajnu (naplatni uređaj) na kojoj radite.</li>
+  <li>Prebrojite gotovinu u ladici i upišite početni saldo.</li>
+  <li>Pritisnite <b>Otvori smjenu</b>.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/33-blagajna-otvaranje-smjene.jpg" alt="Otvaranje smjene">
+  <figcaption><b>Otvaranje smjene.</b> Numerička tipkovnica namijenjena je radu prstom. Na jednoj blagajni može biti otvorena samo jedna smjena — ako je netko drugi ostavio smjenu otvorenu, sustav će to javiti.</figcaption>
+</figure>
+
+<h3>4.2 Dodavanje artikala u košaricu</h3>
+
+<p>Artikl se u račun dodaje na tri načina:</p>
+
+<table>
+  <thead>
+    <tr><th style="width:28%">Način</th><th>Kako</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Čitač barkoda</b></td>
+      <td>Skenirajte — polje je uvijek u fokusu. Artikl se dodaje odmah. Interni barkod s ugrađenom težinom (prefiks 21/22) automatski postavlja i količinu.</td>
+    </tr>
+    <tr>
+      <td><b>Upis naziva ili šifre</b></td>
+      <td>Upišite dio naziva i odaberite s popisa, ili upišite šifru i pritisnite <kbd>Enter</kbd>.</td>
+    </tr>
+    <tr>
+      <td><b>Pločice</b></td>
+      <td>Dodirnite artikl u mreži. Vrpca iznad mreže filtrira po kategoriji.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Svaka pločica prikazuje naziv, šifru, cijenu i trenutnu zalihu. Zaliha nula
+  ili manje ispisana je crveno, a pri dodavanju takvog artikla dobit ćete
+  upozorenje — prodaja nije blokirana, ali znate da stanje nije uredno.
+</p>
+
+<figure>
+  <img src="../screenshots-web/36-blagajna-kosarica.jpg" alt="Blagajna s popunjenom košaricom">
+  <figcaption><b>Košarica.</b> Desna ploča prikazuje stavke, uštedu, ukupan iznos i gumbe za naplatu. Klikom na stavku otvaraju se radnje: količina, popust i brisanje.</figcaption>
+</figure>
+
+<h4>Promjena količine</h4>
+<ul>
+  <li>Kliknite stavku, pa <b>−</b> ili <b>+</b>. Za artikle na vagu korak je 0,1.</li>
+  <li>Za točan unos kliknite broj između tipki i upišite količinu na tipkovnici.</li>
+  <li>Smanjivanje ispod jedan uklanja stavku. Isto radi i ikona koša, odnosno tipka <kbd>Delete</kbd> na odabranoj stavci.</li>
+</ul>
+
+<h3>4.3 Popusti</h3>
+
+<p>
+  Akcije se primjenjuju same — čim artikl uđe u košaricu, motor akcija provjeri
+  sva aktivna pravila i prikaže uštedu. Ručni popust odobrava prodavač, unutar
+  svoje granice.
+</p>
+
+<ol class="steps">
+  <li>Kliknite stavku u košarici.</li>
+  <li>Pritisnite <b>Popust</b> (ili <kbd>F4</kbd>).</li>
+  <li>Odaberite brzu vrijednost ili upišite postotak, pa <b>Primijeni</b>.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/34-blagajna-popust.jpg" alt="Unos popusta na stavku">
+  <figcaption><b>Ručni popust.</b> U zaglavlju dijaloga piše granica vaše role. Popust iznad granice sustav odbija — potrebno je odobrenje voditelja.</figcaption>
+</figure>
+
+<div class="note">
+  <span class="label">Redoslijed popusta</span>
+  <p>
+    Prvo se primjenjuje ručni popust na stavku, zatim akcije po prioritetu, i
+    na kraju popust razine vjernosti na preostali iznos. Zbroj popusta nikad ne
+    može spustiti stavku ispod nule.
+  </p>
+</div>
+
+<h3>4.4 Kupac i program vjernosti</h3>
+
+<p>
+  Dodavanje kupca na račun omogućuje prikupljanje bodova, popust njegove razine
+  i evidenciju kupnje u njegovoj kartici.
+</p>
+
+<ol class="steps">
+  <li>Pritisnite polje <b>Bez kupca</b> na vrhu desne ploče ili <kbd>F3</kbd>.</li>
+  <li>Upišite ime, telefon, e-poštu ili broj kartice vjernosti.</li>
+  <li>Odaberite kupca s popisa. Ako kupca nema, <b>Novi kupac</b> ga kreira u dva polja.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/35-blagajna-kupac.jpg" alt="Odabir kupca">
+  <figcaption><b>Odabir kupca.</b> Uz svakog kupca vidi se razina (Bronca, Srebro, Zlato, Platina), stanje bodova i popust koji mu pripada. Odabirom se ukupan iznos odmah preračuna.</figcaption>
+</figure>
+
+<h3>4.5 Parkiranje računa</h3>
+
+<p>
+  Kad kupac nešto zaboravi ili treba otići po novac, račun se parkira i
+  blagajna je odmah slobodna za sljedećeg kupca.
+</p>
+
+<ul>
+  <li><b>Parkiraj</b> (<kbd>F5</kbd>) sprema košaricu i prazni zaslon.</li>
+  <li><b>Parkirani</b> u gornjoj traci prikazuje spremljene račune s brojem stavki i iznosom.</li>
+  <li>Odabirom se stavke vraćaju u košaricu, a privremeni dokument se briše.</li>
+</ul>
+
+<figure>
+  <img src="../screenshots-web/37-blagajna-parkirani.jpg" alt="Popis parkiranih računa">
+  <figcaption><b>Parkirani računi.</b> Parkiranje ne knjiži zalihu ni promet — to je samo spremljena košarica.</figcaption>
+</figure>
+
+<h3>4.6 Naplata</h3>
+
+<ol class="steps">
+  <li>Pritisnite zeleni gumb <b>Naplati</b> ili <kbd>F8</kbd>.</li>
+  <li>Odaberite način plaćanja. Bez upisanog iznosa naplaćuje se cijeli preostali iznos.</li>
+  <li>Za dijeljeno plaćanje upišite iznos, odaberite prvo sredstvo, pa ponovite za ostatak.</li>
+  <li>Kad je <b>Preostalo</b> nula, pritisnite <b>Zaključi račun</b>.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/38-blagajna-naplata.jpg" alt="Zaslon naplate">
+  <figcaption><b>Naplata.</b> Tri brojke uvijek su vidljive: za naplatu, preostalo i povrat. Brzi iznosi desno nude točan iznos i sljedeće okrugle novčanice.</figcaption>
+</figure>
+
+<div class="note">
+  <span class="label">Zaokruživanje gotovine</span>
+  <p>
+    Kad se cijeli račun plaća gotovinom, ukupan iznos zaokružuje se na najbližih
+    pet centi. Račun od 15,77 € naplaćuje se kao 15,75 €, a razlika se bilježi
+    kao zaokruživanje. Kod kartice zaokruživanja nema.
+  </p>
+</div>
+
+<figure>
+  <img src="../screenshots-web/39-blagajna-racun.jpg" alt="Potvrda o izdanom računu">
+  <figcaption><b>Račun je izdan.</b> Potvrda prikazuje iznos, povrat, broj računa i fiskalne podatke. Dok fiskalizacija nije aktivirana, umjesto JIR-a i ZKI-ja stoji napomena.</figcaption>
+</figure>
+
+<h3>4.7 Povrat robe</h3>
+
+<p>
+  Povrat se uvijek radi po izvornom računu, u cijelosti ili djelomično.
+  Sustav pamti koliko je od svake stavke već vraćeno i ne dopušta povrat veće
+  količine od kupljene.
+</p>
+
+<ol class="steps">
+  <li>U gornjoj traci pritisnite <b>Povrat</b>.</li>
+  <li>Upišite broj računa (npr. <code>189/1/1</code>) i pritisnite <b>Pronađi</b>.</li>
+  <li>Označite stavke i po potrebi smanjite količinu.</li>
+  <li>Odaberite razlog i način povrata novca, pa <b>Provedi povrat</b>.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/40-blagajna-povrat.jpg" alt="Dijalog povrata robe">
+  <figcaption><b>Povrat.</b> Stupac <b>Raspoloživo</b> pokazuje koliko se još može vratiti. Nastaje dokument odobrenja s negativnim iznosom, roba se vraća na zalihu, a bodovi vjernosti se storniraju.</figcaption>
+</figure>
+
+<h3>4.8 Zatvaranje smjene i Z-izvještaj</h3>
+
+<ol class="steps">
+  <li>Pritisnite <b>Zatvori smjenu</b> u gornjoj traci.</li>
+  <li>Prebrojite gotovinu u ladici i upišite iznos.</li>
+  <li>Sustav odmah prikazuje razliku u odnosu na očekivano stanje.</li>
+  <li>Potvrdite — dobivate Z-izvještaj smjene.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/41-blagajna-zatvaranje.jpg" alt="Obračun gotovine pri zatvaranju smjene">
+  <figcaption><b>Obračun gotovine.</b> Očekivano stanje je početni saldo uvećan za gotovinsku prodaju i umanjen za povrate i odvode. Boja okvira odmah pokazuje je li razlika prihvatljiva.</figcaption>
+</figure>
+
+<figure>
+  <img src="../screenshots-web/42-blagajna-z-izvjestaj.jpg" alt="Z-izvještaj smjene">
+  <figcaption><b>Z-izvještaj.</b> Promet, broj računa, očekivana i prebrojana gotovina te razlika. Razlika veća od pet eura automatski kreira obavijest voditelju.</figcaption>
+</figure>
+
+<h3>4.9 Tipkovnički prečaci</h3>
+
+<table>
+  <thead>
+    <tr><th style="width:22%">Tipka</th><th>Radnja</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><kbd>F2</kbd></td><td>Fokus na polje za barkod i pretragu</td></tr>
+    <tr><td><kbd>F3</kbd></td><td>Odabir kupca</td></tr>
+    <tr><td><kbd>F4</kbd></td><td>Popust na odabranu stavku</td></tr>
+    <tr><td><kbd>F5</kbd></td><td>Parkiranje računa</td></tr>
+    <tr><td><kbd>F8</kbd></td><td>Naplata</td></tr>
+    <tr><td><kbd>Delete</kbd></td><td>Brisanje odabrane stavke</td></tr>
+    <tr><td><kbd>Esc</kbd></td><td>Poništavanje odabira stavke, zatvaranje dijaloga</td></tr>
+    <tr><td><kbd>Enter</kbd></td><td>Potvrda unosa u polju za barkod</td></tr>
+  </tbody>
+</table>
+
+<figure>
+  <img src="../screenshots-web/48-blagajna-tamna-tema.jpg" alt="Blagajna u tamnoj temi">
+  <figcaption><b>Blagajna u tamnoj temi.</b> Ista funkcionalnost, manje zamora oka u slabije osvijetljenom prostoru.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-katalog">
+<h2><span class="kicker">Poglavlje 5</span>Katalog</h2>
+
+<p class="lead-in">
+  Katalog je temelj svega ostalog: bez artikla nema ni cijene, ni zalihe, ni
+  prodaje. Jedan artikl može imati više prodajnih varijanti, a svaka varijanta
+  svoje barkodove i cijenu.
+</p>
+
+<h3>5.1 Popis artikala</h3>
+
+<figure>
+  <img src="../screenshots-web/05-katalog-artikli.jpg" alt="Popis artikala">
+  <figcaption><b>Artikli.</b> Za svaki artikl vidite šifru, barkod, kategoriju, brend, zalihu u dostupnim poslovnicama, nabavnu i maloprodajnu cijenu te ostvarenu maržu. Marža ispod 20 % obojana je narančasto.</figcaption>
+</figure>
+
+<p>Popis se sužava kombinacijom filtara:</p>
+<ul>
+  <li><b>Pretraga</b> — naziv, šifra ili barkod.</li>
+  <li><b>Kategorija</b>, <b>Brend</b>, <b>Dobavljač</b>, <b>Status</b>.</li>
+  <li><b>Očisti</b> uklanja sve filtre odjednom.</li>
+</ul>
+
+<figure>
+  <img src="../screenshots-web/06-katalog-pretraga.jpg" alt="Filtrirani popis artikala">
+  <figcaption><b>Pretraga.</b> Rezultati se osvježavaju dok tipkate. Filtri ostaju u adresi stranice, pa osvježavanje ne gubi odabir.</figcaption>
+</figure>
+
+<h3>5.2 Detalj artikla</h3>
+
+<p>
+  Klik na naziv otvara sve o artiklu na jednom mjestu: cijenu, nabavnu cijenu,
+  maržu, zalihu po lokacijama, kretanja, prodaju i dobavljače.
+</p>
+
+<figure>
+  <img src="../screenshots-web/07-artikl-detalj.jpg" alt="Detalj artikla">
+  <figcaption><b>Detalj artikla.</b> Gore su ključne brojke, u sredini zaliha po lokacijama i kartica kretanja, desno podaci, cijene po cjenicima, barkodovi i dobavljači.</figcaption>
+</figure>
+
+<h4>Kartica artikla</h4>
+<p>
+  Popis svih kretanja s količinom, stanjem nakon knjiženja i nabavnom cijenom.
+  Svaki redak nosi referencu na dokument koji ga je stvorio — primku, račun,
+  međuskladišnicu, inventuru ili otpis. Kartica se ne može mijenjati; to je
+  revizijski trag zalihe.
+</p>
+
+<h3>5.3 Novi artikl i kalkulacija cijene</h3>
+
+<ol class="steps">
+  <li><b>Katalog → Artikli → Novi artikl</b>.</li>
+  <li>Upišite šifru i naziv. Barkod možete upisati ili pritisnuti <b>Generiraj</b> za ispravan EAN-13.</li>
+  <li>Odaberite kategoriju, jedinicu mjere i poreznu stopu.</li>
+  <li>Upišite nabavnu cijenu, pa <b>maržu</b> ili izravno <b>maloprodajnu cijenu</b> — sustav računa ono drugo.</li>
+  <li>Spremite.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/08-novi-artikl-kalkulacija.jpg" alt="Obrazac novog artikla s kalkulacijom">
+  <figcaption><b>Kalkulacija.</b> Nabavna cijena 4,20 € uz maržu 30 % i PDV 25 % daje maloprodajnu cijenu 7,50 €. Okvir ispod prikazuje neto cijenu, PDV, iznos marže i razliku u cijeni na nabavnu.</figcaption>
+</figure>
+
+<div class="note">
+  <span class="label">Marža i RUC nisu isto</span>
+  <p>
+    <b>Marža</b> se računa na prodajnu cijenu bez PDV-a, a <b>razlika u cijeni
+    (RUC)</b> na nabavnu. Za nabavnu 80 € i neto prodajnu 100 € marža je 20 %,
+    a RUC 25 %. Ako kategorija ima definiranu ciljanu maržu, gumb u zaglavlju
+    je preuzima.
+  </p>
+</div>
+
+<h3>5.4 Kategorije, brendovi i dobavljači</h3>
+
+<ul>
+  <li><b>Kategorije</b> su stablo s dvije razine. Svaka može imati ciljanu maržu koja se nudi pri kalkulaciji.</li>
+  <li><b>Brendovi</b> prikazuju promet i maržu po brendu u zadnjih 90 dana.</li>
+  <li><b>Dobavljači</b> nose komercijalne uvjete: rok plaćanja, rok isporuke, rabat, minimalnu vrijednost narudžbe i dane isporuke. Detalj dobavljača prikazuje narudžbenice, primke i njegov asortiman s nabavnim cijenama.</li>
+</ul>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-cijene">
+<h2><span class="kicker">Poglavlje 6</span>Cijene i akcije</h2>
+
+<h3>6.1 Cjenici i njihov redoslijed</h3>
+
+<p>
+  Artikl može biti u više cjenika. Kad blagajna treba cijenu, ide ovim redom i
+  uzima prvu koju nađe:
+</p>
+
+<ol class="steps">
+  <li><b>Cjenik grupe kupaca</b> — ako je kupac na računu i njegova grupa ima cjenik.</li>
+  <li><b>Cjenik poslovnice</b> — ako je poslovnici dodijeljen poseban cjenik.</li>
+  <li><b>Zadani cjenik</b> — maloprodajni cjenik cijelog lanca.</li>
+</ol>
+
+<p>
+  Maloprodajni cjenici drže cijene <b>s PDV-om</b>, veleprodajni <b>bez PDV-a</b>.
+  Uz cijenu se čuva i najniža cijena u posljednjih 30 dana, koja se prikazuje uz
+  akcijsku cijenu prema EU direktivi o objavi sniženja.
+</p>
+
+<h3>6.2 Akcije</h3>
+
+<figure>
+  <img src="../screenshots-web/09-akcije.jpg" alt="Popis akcija">
+  <figcaption><b>Akcije.</b> Za svaku akciju vidi se tip, uvjet, vremenski prozor, prioritet i koliko je puta primijenjena na računima.</figcaption>
+</figure>
+
+<table>
+  <thead>
+    <tr><th style="width:30%">Tip akcije</th><th>Kako djeluje</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Postotni popust</td><td>Umanjuje cijenu za postotak</td></tr>
+    <tr><td>Popust u iznosu</td><td>Umanjuje cijenu za fiksni iznos po komadu</td></tr>
+    <tr><td>Fiksna cijena</td><td>Postavlja cijenu na zadanu vrijednost</td></tr>
+    <tr><td>Kupi X dobij Y</td><td>Na svakih X komada Y je gratis; gratis dobiva najjeftiniji artikl</td></tr>
+    <tr><td>Cijena paketa</td><td>Određeni broj komada po ukupnoj cijeni</td></tr>
+    <tr><td>Svaki N-ti artikl</td><td>Popust na svaki n-ti komad</td></tr>
+    <tr><td>Popust na košaricu</td><td>Popust kad ukupan iznos prijeđe prag</td></tr>
+  </tbody>
+</table>
+
+<p>Svaka akcija može se ograničiti:</p>
+<ul>
+  <li><b>Na što se odnosi</b> — artikl, kategorija ili brend; pojedini artikli mogu se izuzeti.</li>
+  <li><b>Vremenski prozor</b> — dani u tjednu i sati (npr. pekara −30 % nakon 19 h).</li>
+  <li><b>Gdje vrijedi</b> — poslovnice, kanali prodaje, grupe kupaca.</li>
+  <li><b>Kupon</b> — akcija se primjenjuje tek kad se unese kod.</li>
+  <li><b>Ekskluzivnost</b> — sprječava kombiniranje s drugim akcijama na istoj stavci.</li>
+</ul>
+
+<div class="note tip">
+  <span class="label">Prioritet</span>
+  <p>
+    Akcije se obrađuju od najvišeg prioriteta prema nižem. Ekskluzivna akcija
+    zaključa stavku, pa je ostale ne mogu dodatno sniziti.
+  </p>
+</div>
+
+<h3>6.3 Nivelacije</h3>
+
+<p>
+  Promjena maloprodajne cijene zalihe koja je već u trgovini evidentira se
+  dokumentom nivelacije. Dokument bilježi staru i novu cijenu, količinu na
+  zalihi i razliku u vrijednosti — trag koji traži zakon i koji ulazi u knjigu
+  popisa.
+</p>
+
+<figure>
+  <img src="../screenshots-web/10-nivelacija-detalj.jpg" alt="Detalj nivelacije">
+  <figcaption><b>Nivelacija.</b> Po stavci se vidi stara i nova cijena, postotna promjena, zaliha i razlika u vrijednosti. Zbroj na dnu je ukupan učinak na vrijednost zalihe.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-skladiste">
+<h2><span class="kicker">Poglavlje 7</span>Skladište</h2>
+
+<p class="lead-in">
+  Zaliha se vodi kao knjiga: svako kretanje je zapis koji se ne mijenja.
+  Trenutno stanje je zbroj te knjige, a nabavna cijena je ponderirani prosjek
+  svih ulaza.
+</p>
+
+<h3>7.1 Stanje zaliha</h3>
+
+<figure>
+  <img src="../screenshots-web/11-stanje-zaliha.jpg" alt="Stanje zaliha">
+  <figcaption><b>Stanje zaliha.</b> Po artiklu: broj lokacija, stanje, rezervirano, raspoloživo, nabavna i maloprodajna cijena te vrijednost. Kartice gore daju ukupnu vrijednost po nabavnoj i po maloprodajnoj cijeni.</figcaption>
+</figure>
+
+<p>Filtar <b>Sve zalihe</b> izdvaja dva stanja koja traže pažnju:</p>
+<ul>
+  <li><b>Negativna zaliha</b> — prodano je više nego što je zaprimljeno; obično znači da primka nije proknjižena.</li>
+  <li><b>Bez zalihe</b> — artikli koji su na nuli.</li>
+</ul>
+
+<h3>7.2 Kartica artikla</h3>
+<p>
+  <b>Skladište → Kartica artikla</b> prikazuje kretanja svih artikala s
+  filtrima po poslovnici i vrsti kretanja. Koristi se kad treba odgovoriti na
+  pitanje „kamo je otišla roba".
+</p>
+
+<h3>7.3 Međuskladišnice</h3>
+
+<p>Prijenos robe između lokacija prolazi kroz statuse:</p>
+<ol class="steps">
+  <li><b>Nacrt</b> i <b>Zatražena</b> — priprema i zahtjev.</li>
+  <li><b>Odobrena</b> — voditelj je potvrdio.</li>
+  <li><b>U tranzitu</b> — roba je skinuta s izvorne lokacije.</li>
+  <li><b>Zaprimljena</b> — roba je knjižena na odredištu po nabavnoj cijeni izvorne poslovnice.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/12-medjuskladisnica.jpg" alt="Detalj međuskladišnice">
+  <figcaption><b>Međuskladišnica.</b> Stupci zatraženo / otpremljeno / zaprimljeno omogućuju uočavanje manjka u prijevozu. Odstupanje se označava u zaglavlju dokumenta.</figcaption>
+</figure>
+
+<h3>7.4 Inventure</h3>
+
+<figure>
+  <img src="../screenshots-web/13-inventura.jpg" alt="Detalj inventure">
+  <figcaption><b>Inventura.</b> Za svaku stavku knjigovodstveno stanje, prebrojana količina, razlika i vrijednost razlike po nabavnoj cijeni. Prekidač <b>Samo razlike</b> skraćuje popis na ono što treba objasniti.</figcaption>
+</figure>
+
+<p>
+  Inventura može biti potpuna ili djelomična (odabrane kategorije). Knjiženjem
+  sustav automatski kreira korekcije zalihe za sve razlike, a manjak i višak
+  ulaze u izvještaje kao rashod odnosno prihod.
+</p>
+
+<h3>7.5 Otpisi</h3>
+<p>
+  Otpis evidentira rashod robe uz obavezan razlog iz šifrarnika — lom,
+  istekao rok, neispravna roba, manjak, degustacija. Vrijednost se računa po
+  nabavnoj cijeni. Otpisi koji čekaju odobrenje vidljivi su na popisu, a
+  raspodjela po razlozima prikazana je grafikonom.
+</p>
+
+<h3>7.6 Prijedlog nabave</h3>
+
+<figure>
+  <img src="../screenshots-web/14-prijedlog-nabave.jpg" alt="Prijedlog nabave">
+  <figcaption><b>Prijedlog nabave.</b> Artikli na ili ispod minimalne zalihe, s predloženom količinom do maksimuma i procijenjenom vrijednošću narudžbe. Artikli bez zalihe označeni su crveno.</figcaption>
+</figure>
+
+<p>
+  Prijedlog nastaje iz pravila nadopune (minimum i maksimum po artiklu i
+  poslovnici). Filtriranjem po dobavljaču dobiva se narudžba za jednog
+  dobavljača.
+</p>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-nabava">
+<h2><span class="kicker">Poglavlje 8</span>Nabava</h2>
+
+<h3>8.1 Narudžbenice</h3>
+
+<figure>
+  <img src="../screenshots-web/17-narudzbenica.jpg" alt="Detalj narudžbenice">
+  <figcaption><b>Narudžbenica.</b> Po stavci: naručeno, zaprimljeno i preostalo. Traka <b>Zaprimanje</b> desno pokazuje koliko je narudžbe ispunjeno.</figcaption>
+</figure>
+
+<p>Statusi prate život dokumenta: nacrt → poslana → potvrđena → djelomično zaprimljena → zaprimljena.</p>
+
+<h3>8.2 Primke i kalkulacija</h3>
+
+<p>
+  Primka je najvažniji dokument nabave: njome roba ulazi na zalihu i njome se
+  određuje nabavna i maloprodajna cijena.
+</p>
+
+<figure>
+  <img src="../screenshots-web/15-primke.jpg" alt="Popis primki">
+  <figcaption><b>Primke.</b> Kartice gore zbrajaju nabavnu i maloprodajnu vrijednost te planiranu maržu za proknjižene primke.</figcaption>
+</figure>
+
+<h4>Kako se računa nabavna cijena</h4>
+
+<ol class="steps">
+  <li><b>Fakturna cijena</b> — cijena s dobavljačeve fakture.</li>
+  <li><b>Rabat</b> — umanjenje u postotku daje <b>neto nabavnu cijenu</b>.</li>
+  <li><b>Zavisni troškovi</b> — prijevoz, carina i ostalo razrezuju se na stavke po vrijednosti, količini ili težini.</li>
+  <li><b>Konačna nabavna cijena</b> = neto nabavna + pripadajući zavisni trošak.</li>
+  <li><b>Maloprodajna cijena i marža</b> računaju se iz konačne nabavne cijene.</li>
+</ol>
+
+<figure>
+  <img src="../screenshots-web/16-primka-kalkulacija.jpg" alt="Kalkulacija na primci">
+  <figcaption><b>Kalkulacija.</b> Svaki korak izračuna ima svoj stupac, pa se vidi kako se od fakturne cijene došlo do maloprodajne. Desno je rekapitulacija s ukupnom maržom.</figcaption>
+</figure>
+
+<div class="note warn">
+  <span class="label">Knjiženje je konačno</span>
+  <p>
+    Dok je primka u statusu <b>Nacrt</b>, može se mijenjati. Knjiženjem ulazi
+    na zalihu i mijenja prosječnu nabavnu cijenu artikla — ispravak se tada
+    radi novim dokumentom, ne izmjenom postojećeg.
+  </p>
+</div>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-prodaja">
+<h2><span class="kicker">Poglavlje 9</span>Prodaja i evidencija</h2>
+
+<h3>9.1 Računi</h3>
+
+<figure>
+  <img src="../screenshots-web/43-racuni.jpg" alt="Evidencija računa">
+  <figcaption><b>Računi.</b> Svi dokumenti prodaje u odabranom razdoblju, s prodavačem, kupcem, načinom plaćanja, popustom, PDV-om, statusom fiskalizacije i statusom računa.</figcaption>
+</figure>
+
+<p>Filtri: razdoblje, poslovnica, status računa, status fiskalizacije i prodavač.</p>
+
+<figure>
+  <img src="../screenshots-web/44-racun-detalj.jpg" alt="Detalj računa">
+  <figcaption><b>Detalj računa.</b> Stavke s cijenom i popustom, rekapitulacija PDV-a po stopama, plaćanja, fiskalni podaci (JIR i ZKI) i podaci izdavatelja. Povrati vezani uz račun prikazani su na dnu.</figcaption>
+</figure>
+
+<h3>9.2 Smjene i blagajna</h3>
+
+<figure>
+  <img src="../screenshots-web/45-smjene.jpg" alt="Popis smjena">
+  <figcaption><b>Smjene.</b> Po smjeni: prodavač, vrijeme otvaranja i zatvaranja, broj računa, promet, gotovina, kartice i razlika u blagajni. Kartice gore izdvajaju smjene s odstupanjem.</figcaption>
+</figure>
+
+<figure>
+  <img src="../screenshots-web/46-smjena-z-izvjestaj.jpg" alt="Z-izvještaj smjene u back officeu">
+  <figcaption><b>Z-izvještaj smjene.</b> Isti obračun koji prodavač vidi na blagajni, dopunjen najprodavanijim artiklima, kronologijom gotovinskih kretanja i rekapitulacijom PDV-a.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-kupci">
+<h2><span class="kicker">Poglavlje 10</span>Kupci i program vjernosti</h2>
+
+<h3>10.1 Kupci</h3>
+
+<figure>
+  <img src="../screenshots-web/23-kupci.jpg" alt="Popis kupaca">
+  <figcaption><b>Kupci.</b> Fizičke i pravne osobe s grupom, razinom vjernosti, bodovima, popustom, brojem kupnji i ukupnom potrošnjom.</figcaption>
+</figure>
+
+<p>
+  <b>Grupe kupaca</b> nose popust ili vlastiti cjenik. Poslovni kupci dodatno
+  imaju OIB, kreditni limit i rok plaćanja.
+</p>
+
+<figure>
+  <img src="../screenshots-web/24-kupac-detalj.jpg" alt="Detalj kupca">
+  <figcaption><b>Detalj kupca.</b> Povijest kupnji s brojem računa i prikupljenim bodovima, najčešće kupovani artikli, kartica vjernosti i promet bodova.</figcaption>
+</figure>
+
+<h3>10.2 Program vjernosti</h3>
+
+<figure>
+  <img src="../screenshots-web/25-program-vjernosti.jpg" alt="Program vjernosti">
+  <figcaption><b>Delta klub.</b> Četiri razine s pragom potrošnje, popustom i množiteljem bodova. Kartica <b>Obveza po bodovima</b> pokazuje vrijednost neiskorištenih bodova — to je stvarna obveza prema kupcima.</figcaption>
+</figure>
+
+<p>Pravila programa:</p>
+<ul>
+  <li>Bodovi se prikupljaju po eurima potrošnje, pomnoženi množiteljem razine.</li>
+  <li>Razina se određuje prema ukupnoj potrošnji kupca.</li>
+  <li>Popust razine primjenjuje se na blagajni automatski, nakon akcija.</li>
+  <li>Povrat robe razmjerno stornira prikupljene bodove.</li>
+</ul>
+
+<h3>10.3 Poklon kartice</h3>
+
+<figure>
+  <img src="../screenshots-web/26-poklon-kartice.jpg" alt="Poklon kartice">
+  <figcaption><b>Poklon kartice.</b> Izdani iznos, preostalo stanje i iskorišteno. Zbroj preostalih stanja je obveza prema imateljima kartica.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-izvjestaji">
+<h2><span class="kicker">Poglavlje 11</span>Izvještaji</h2>
+
+<p class="lead-in">
+  Svi izvještaji imaju isti okvir: odabir razdoblja, preklopnik poslovnica ili
+  lanac i gumb za izvoz. Promjena razdoblja odmah preračunava sve brojke.
+</p>
+
+<figure>
+  <img src="../screenshots-web/18-izvjestaji-pregled.jpg" alt="Pregled izvještaja">
+  <figcaption><b>Pregled izvještaja.</b> Dvanaest izvještaja podijeljenih po namjeni. Prikazuju se samo oni za koje imate pravo.</figcaption>
+</figure>
+
+<table>
+  <thead>
+    <tr><th style="width:30%">Izvještaj</th><th>Odgovara na pitanje</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Promet po danima</td><td>Kako se kreće promet, koliko je računa i kolika je prosječna košarica</td></tr>
+    <tr><td>Prodaja po artiklima</td><td>Što se prodaje i koliko na tome zarađujemo</td></tr>
+    <tr><td>Usporedba poslovnica</td><td>Koja lokacija raste, a koja pada u odnosu na prethodno razdoblje</td></tr>
+    <tr><td>Marža i RUC</td><td>Gdje nastaje zarada po kategorijama</td></tr>
+    <tr><td>Vrijednost zaliha</td><td>Koliko novca stoji na zalihi i gdje</td></tr>
+    <tr><td>ABC analiza</td><td>Kojih 20 % artikala nosi 80 % prometa</td></tr>
+    <tr><td>Učinak prodavača</td><td>Tko koliko prodaje i koliko popusta odobrava</td></tr>
+    <tr><td>Rekapitulacija PDV-a</td><td>Osnovica i PDV po stopama za obračunsko razdoblje</td></tr>
+    <tr><td>Načini plaćanja</td><td>Struktura naplate i trošak naknada za kartice</td></tr>
+    <tr><td>Promet po satima</td><td>Kada su gužve — osnova za raspored smjena</td></tr>
+    <tr><td>Artikli bez obrtaja</td><td>Koja roba stoji i koliko novca je u njoj vezano</td></tr>
+    <tr><td>Knjiga popisa (KEPU)</td><td>Dnevno zaduženje i razduženje robe po maloprodajnoj vrijednosti</td></tr>
+  </tbody>
+</table>
+
+<h3>11.1 Promet po danima</h3>
+
+<figure>
+  <img src="../screenshots-web/22-izvjestaj-promet.jpg" alt="Izvještaj prometa po danima">
+  <figcaption><b>Promet po danima.</b> Kartice uspoređuju razdoblje s prethodnim jednako dugim. Grafikon prikazuje kretanje, a tablica dnevne brojke s udjelom u razdoblju.</figcaption>
+</figure>
+
+<h3>11.2 Marža i RUC</h3>
+
+<figure>
+  <img src="../screenshots-web/19-izvjestaj-marza.jpg" alt="Izvještaj marže">
+  <figcaption><b>Marža po kategorijama.</b> Uz iznos marže prikazan je i postotak na neto prodaju te RUC na nabavnu cijenu. Stupac <b>Udio marže</b> pokazuje koja kategorija najviše doprinosi zaradi.</figcaption>
+</figure>
+
+<h3>11.3 ABC analiza</h3>
+
+<figure>
+  <img src="../screenshots-web/20-izvjestaj-abc.jpg" alt="ABC analiza">
+  <figcaption><b>ABC analiza.</b> Klasa A čini do 80 % kumulativnog prometa, B do 95 %, C ostatak. Klasa A traži stalnu raspoloživost, klasa C je kandidat za smanjenje asortimana.</figcaption>
+</figure>
+
+<h3>11.4 Rekapitulacija PDV-a</h3>
+
+<figure>
+  <img src="../screenshots-web/21-izvjestaj-pdv.jpg" alt="Rekapitulacija PDV-a">
+  <figcaption><b>PDV po stopama.</b> Osnovica i porez po stopama te razrada po poslovnicama. Obuhvaćeni su dovršeni računi i odobrenja u razdoblju.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-postavke">
+<h2><span class="kicker">Poglavlje 12</span>Postavke i prava</h2>
+
+<h3>12.1 Poslovnice</h3>
+
+<figure>
+  <img src="../screenshots-web/27-postavke-poslovnice.jpg" alt="Postavke poslovnica">
+  <figcaption><b>Poslovnice.</b> Oznaka poslovnog prostora koristi se u broju računa i u fiskalizaciji. Svaka lokacija ima svoja skladišta, blagajne i može imati vlastiti cjenik.</figcaption>
+</figure>
+
+<h3>12.2 Korisnici</h3>
+
+<figure>
+  <img src="../screenshots-web/28-postavke-korisnici.jpg" alt="Postavke korisnika">
+  <figcaption><b>Korisnici.</b> Uz rolu se vidi pristup poslovnicama, granica popusta koju korisnik smije odobriti i vrijeme posljednje prijave.</figcaption>
+</figure>
+
+<h3>12.3 Role i prava</h3>
+
+<p>
+  Prava su granularna i imaju oblik <code>modul.akcija</code>, primjerice
+  <code>pos.discount</code> ili <code>receipt.post</code>. Rola je imenovani
+  skup prava; korisnik može imati više rola.
+</p>
+
+<figure>
+  <img src="../screenshots-web/29-postavke-role.jpg" alt="Matrica prava">
+  <figcaption><b>Matrica prava.</b> Redci su prava grupirana po modulima, stupci su role. Zelena kvačica znači da rola ima pravo.</figcaption>
+</figure>
+
+<table>
+  <thead>
+    <tr><th style="width:26%">Rola</th><th>Namjena</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Vlasnik</td><td>Puni pristup</td></tr>
+    <tr><td>Voditelj lanca</td><td>Operativa svih poslovnica, bez sistemskih postavki</td></tr>
+    <tr><td>Voditelj poslovnice</td><td>Vođenje lokacije, nabava i zalihe</td></tr>
+    <tr><td>Prodavač / blagajnik</td><td>Rad na blagajni i osnovni uvid</td></tr>
+    <tr><td>Nabava</td><td>Dobavljači, kalkulacije i cjenici</td></tr>
+    <tr><td>Računovodstvo</td><td>Financije, izvještaji i revizijski trag</td></tr>
+    <tr><td>Kontrola</td><td>Pristup samo za čitanje</td></tr>
+  </tbody>
+</table>
+
+<h3>12.4 Revizijski trag</h3>
+
+<figure>
+  <img src="../screenshots-web/30-revizijski-trag.jpg" alt="Revizijski trag">
+  <figcaption><b>Revizijski trag.</b> Tko je, kada i s koje adrese napravio koju radnju. Filtri po radnji, korisniku i vrsti objekta. Zapisi se ne mogu mijenjati ni brisati kroz sučelje.</figcaption>
+</figure>
+
+<h3>12.5 Integracije</h3>
+
+<figure>
+  <img src="../screenshots-web/31-integracije.jpg" alt="Integracije">
+  <figcaption><b>Integracije.</b> Fiskalizacija, POS terminali, knjigovodstvo, web shop i vage. Svaka se uključuje neovisno.</figcaption>
+</figure>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-fiskalizacija">
+<h2><span class="kicker">Poglavlje 13</span>Fiskalizacija</h2>
+
+<figure>
+  <img src="../screenshots-web/32-fiskalizacija.jpg" alt="Zaslon fiskalizacije">
+  <figcaption><b>Fiskalizacija.</b> Broj fiskaliziranih računa, greške, red čekanja i zapisnik komunikacije sa servisom s trajanjem svakog poziva.</figcaption>
+</figure>
+
+<h3>Kako je izvedena</h3>
+
+<p>
+  Fiskalizacija je odvojena od ostatka sustava kroz adapter, pa sustav ne ovisi
+  o zemlji ni o konkretnom servisu. Postavlja se varijablom
+  <code>FISCAL_ADAPTER</code>:
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:26%">Vrijednost</th><th>Ponašanje</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>none</code></td><td>Zadano. Računi se izdaju bez slanja; status <b>Nije potrebna</b>.</td></tr>
+    <tr><td><code>hr-demo</code></td><td>Reproducira tok hrvatske fiskalizacije (ZKI, JIR, QR, XML zahtjev) bez certifikata.</td></tr>
+    <tr><td><code>hr-production</code></td><td>Mjesto za spajanje na servis Porezne uprave; zahtijeva FINA certifikat.</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <span class="label">Zašto naplata ne pada kad mreža padne</span>
+  <p>
+    Račun se prvo zaključi i proknjiži u bazi, pa tek onda šalje servisu. Ako
+    slanje ne uspije, račun je i dalje izdan i naplaćen, a ostaje u redu za
+    ponovni pokušaj. Svaki pokušaj bilježi se sa zahtjevom, odgovorom i
+    trajanjem.
+  </p>
+</div>
+
+<h3>Broj računa</h3>
+<p>
+  Broj ima oblik <b>redni broj / oznaka poslovnog prostora / oznaka naplatnog
+  uređaja</b> — primjerice <code>189/1/1</code>. Slijednost se vodi po
+  naplatnom uređaju, svaka blagajna ima svoj neprekinuti niz unutar godine.
+</p>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-problemi">
+<h2><span class="kicker">Poglavlje 14</span>Rješavanje problema</h2>
+
+<table>
+  <thead>
+    <tr><th style="width:34%">Situacija</th><th>Što učiniti</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Blagajna traži otvaranje smjene, a smjena je otvorena</b></td>
+      <td>Smjena je otvorena na drugoj blagajni ili na drugom korisniku. Provjerite <b>Prodaja → Smjene i blagajna</b> i zatvorite je.</td>
+    </tr>
+    <tr>
+      <td><b>„Na ovoj blagajni već je otvorena smjena"</b></td>
+      <td>Prethodni prodavač nije zatvorio smjenu. Zatvorite je u back officeu ili odaberite drugu blagajnu.</td>
+    </tr>
+    <tr>
+      <td><b>„Nedovoljna zaliha za…"</b></td>
+      <td>Artikl nema zalihe na prodajnom skladištu — najčešće primka nije proknjižena. Provjerite u <b>Nabava → Primke</b>.</td>
+    </tr>
+    <tr>
+      <td><b>„Popust prelazi vaš limit"</b></td>
+      <td>Vaša rola ima nižu granicu. Popust mora odobriti voditelj.</td>
+    </tr>
+    <tr>
+      <td><b>Artikl se ne nalazi skeniranjem</b></td>
+      <td>Barkod nije upisan na artikl. Dodajte ga u <b>Katalog → Artikli</b>, kartica <b>Barkodovi</b>.</td>
+    </tr>
+    <tr>
+      <td><b>Razlika u blagajni na kraju smjene</b></td>
+      <td>Usporedite kronologiju gotovinskih kretanja u Z-izvještaju. Razlika veća od pet eura automatski kreira obavijest.</td>
+    </tr>
+    <tr>
+      <td><b>Račun nije fiskaliziran</b></td>
+      <td>Otvorite <b>Prodaja → Fiskalizacija</b> i pokrenite ponovno slanje. Ako je adapter <code>none</code>, fiskalizacija nije ni uključena.</td>
+    </tr>
+    <tr>
+      <td><b>Ne vidim stavku izbornika iz ovog priručnika</b></td>
+      <td>Vaša rola nema to pravo. Provjera je u <b>Postavke → Role i prava</b>.</td>
+    </tr>
+    <tr>
+      <td><b>Negativna zaliha na popisu</b></td>
+      <td>Prodano je više nego zaprimljeno. Proknjižite primku ili provedite inventuru.</td>
+    </tr>
+    <tr>
+      <td><b>Poslužitelj se ne pokreće — port zauzet</b></td>
+      <td><code>PORT=3001 npm run dev</code>, u PowerShellu <code>$env:PORT=3001; npm run dev</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Vraćanje demo podataka</h3>
+<p>
+  Nakon isprobavanja svih funkcija demo skup se vraća u početno stanje
+  naredbom <code>npm run db:seed</code>.
+</p>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-provjera">
+<h2><span class="kicker">Dodatak A</span>Rezultati automatske provjere</h2>
+
+<p class="lead-in">
+  Sve snimke zaslona u ovom priručniku nastale su tijekom automatskog prolaza
+  kroz aplikaciju. Isti prolaz provjerava ishode svakog koraka — ne samo da se
+  ekran otvorio, nego i da su brojke točne. Tablica je generirana iz rezultata
+  tog prolaza.
+</p>
+
+<div id="provjera-sazetak"></div>
+<div id="provjera-tablica"></div>
+
+<h3>Kako ponoviti provjeru</h3>
+
+<pre><code>npm run db:seed        # čisto početno stanje
+npm run build &amp;&amp; npm run start
+node scripts/e2e.mjs   # prolaz + snimke zaslona</code></pre>
+
+<p>
+  Prolaz traje oko četiri minute. Snimke se spremaju u
+  <code>docs/screenshots</code>, a rezultat u
+  <code>docs/e2e-results.json</code>. Uz funkcionalni prolaz postoji i
+  <code>npm test</code> — 44 testa koja pokrivaju novčanu aritmetiku,
+  kalkulaciju cijene, motor akcija i tok naplate protiv baze.
+</p>
+</section>
+
+<!-- ====================================================================== -->
+<section class="chapter" id="ch-granice">
+<h2><span class="kicker">Dodatak B</span>Što sustav još ne radi</h2>
+
+<p class="lead-in">
+  Popis je namjerno izričit kako biste znali što možete očekivati, a što tek
+  slijedi.
+</p>
+
+<table>
+  <thead>
+    <tr><th style="width:32%">Područje</th><th>Stanje</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Fiskalizacija s certifikatom</b></td>
+      <td>Adapter i cijeli tok postoje i rade u demo načinu. Nedostaje FINA aplikativni certifikat i digitalno potpisivanje poruke.</td>
+    </tr>
+    <tr>
+      <td><b>Hardver</b></td>
+      <td>POS terminali, vage i pisači naljepnica imaju mjesto u modelu podataka i konfiguraciju po blagajni, ali nisu testirani na uređajima.</td>
+    </tr>
+    <tr>
+      <td><b>Rad bez mreže</b></td>
+      <td>Naplata je idempotentna — ponovno slanje istog računa ne stvara duplikat — pa je temelj za red čekanja postavljen. Lokalna pohrana košarice i sinkronizacija nisu izvedene.</td>
+    </tr>
+    <tr>
+      <td><b>Uređivanje kroz sučelje</b></td>
+      <td>Artikl se može kreirati kroz obrazac. Dio šifrarnika (poslovnice, role, akcije, cjenici) za sada se popunjava kroz punjenje podataka; obrasci za izmjenu su sljedeći korak.</td>
+    </tr>
+    <tr>
+      <td><b>Izvoz izvještaja</b></td>
+      <td>Gumb <b>Izvoz</b> postoji na svim izvještajima, ali izvoz datoteke još nije implementiran.</td>
+    </tr>
+    <tr>
+      <td><b>Ispis</b></td>
+      <td>Ekrani su pripremljeni za ispis (skriveni su elementi sučelja), ali ispis na termalni pisač računa nije podešen.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <span class="label">Što je provjereno</span>
+  <p>
+    Sve ostalo opisano u ovom priručniku prolazi automatsku provjeru iz
+    Dodatka A i pokriveno je testovima domenske logike.
+  </p>
+</div>
+</section>
+
+</body>
+</html>

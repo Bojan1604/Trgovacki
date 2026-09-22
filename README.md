@@ -199,11 +199,33 @@ postaje prazan modul i poslužiteljski servisi se mogu pozvati izravno iz Node-a
 
 ---
 
+## Priručnik za korisnike
+
+`docs/Trgovacki-prirucnik.pdf` — 60 stranica uputa sa snimkama zaslona iz radne
+aplikacije. Nastaje u dva koraka:
+
+```bash
+npm run db:seed                 # čisto početno stanje
+npm run build && npm run start  # produkcijski poslužitelj
+npm run e2e                     # prolaz kroz sve funkcije + snimke zaslona
+npm run manual                  # priprema snimki i izrada PDF-a
+```
+
+`npm run e2e` vozi stvarne tokove u pregledniku — otvaranje smjene, prodaju s
+popustom i kupcem, parkiranje, naplatu gotovinom i karticom, povrat, zatvaranje
+smjene, te sve ekrane back officea — i provjerava ishode (77 provjera).
+Snimke nastale tijekom prolaza ulaze u priručnik, a rezultat provjere ispisuje
+se u dodatku PDF-a. Tako upute i slike ne mogu zastarjeti u odnosu na kod.
+
+---
+
 ## Naredbe
 
 ```bash
 npm run dev          # razvojni poslužitelj
 npm test             # testovi
+npm run e2e          # funkcionalni prolaz + snimke zaslona
+npm run manual       # izrada PDF priručnika
 npm run build        # produkcijski build (uključuje prisma generate)
 npm run start        # pokretanje builda
 npm run typecheck    # provjera tipova

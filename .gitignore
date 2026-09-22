@@ -14,3 +14,8 @@ next-env.d.ts
 /prisma/*.db
 /pgdata/
 .vercel
+
+# Izvorne snimke zaslona (nastaju iz `npm run e2e`) — u repozitorij idu samo
+# pripremljene verzije koje koristi priručnik.
+/docs/screenshots/
+/docs/prirucnik/.render.html
