@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
-import { requirePermission } from '@/lib/auth';
+import { assertStoreAccess, requirePermission } from '@/lib/auth';
 import { apiError, readJson } from '@/lib/api';
 import { toNumber } from '@/lib/money';
 import { quoteBasket } from '@/lib/services/sales';
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
   try {
     const user = await requirePermission('pos.operate');
     const body = await readJson(request, parkSchema);
+    await assertStoreAccess(user, body.storeId);
 
     const quote = await quoteBasket({
       tenantId: user.tenantId,

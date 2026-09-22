@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requirePermission } from '@/lib/auth';
+import { assertStoreAccess, requirePermission } from '@/lib/auth';
 import { apiError, readJson } from '@/lib/api';
 import { closeShift, openShift, recordCashMovement } from '@/lib/services/shifts';
 import { toNumber } from '@/lib/money';
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     const body = await readJson(request, schema);
 
     if (body.action === 'open') {
+      await assertStoreAccess(user, body.storeId);
       const shift = await openShift({
         tenantId: user.tenantId,
         storeId: body.storeId,
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
       });
     }
 
+    await assertStoreAccess(user, body.storeId);
     const movement = await recordCashMovement({
       tenantId: user.tenantId,
       storeId: body.storeId,

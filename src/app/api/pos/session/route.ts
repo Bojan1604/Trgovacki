@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requirePermission } from '@/lib/auth';
+import { assertStoreAccess, requirePermission } from '@/lib/auth';
 import { apiError } from '@/lib/api';
 import { toNumber } from '@/lib/money';
 
@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const storeId = url.searchParams.get('storeId') ?? user.activeStoreId;
     if (!storeId) return NextResponse.json({ error: 'Nije odabrana poslovnica.' }, { status: 400 });
+    await assertStoreAccess(user, storeId);
 
     const [store, paymentMethods, openShift, parked] = await Promise.all([
       db.store.findFirst({

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requirePermission } from '@/lib/auth';
+import { assertStoreAccess, requirePermission } from '@/lib/auth';
 import { apiError } from '@/lib/api';
 import { toNumber } from '@/lib/money';
 import { parseWeightBarcode } from '@/lib/utils';
@@ -19,6 +19,7 @@ export async function GET(request: Request) {
     const limit = Math.min(60, Number(url.searchParams.get('limit') ?? 40));
 
     if (!storeId) return NextResponse.json({ error: 'Nije odabrana poslovnica.' }, { status: 400 });
+    await assertStoreAccess(user, storeId);
 
     // Interni barkod s težinom/cijenom (prefiks 2x)
     const weighted = q ? parseWeightBarcode(q) : null;

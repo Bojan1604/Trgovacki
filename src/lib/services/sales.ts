@@ -89,8 +89,8 @@ export async function quoteBasket(input: {
   const variantMap = new Map(variants.map((v) => [v.id, v]));
 
   const customer = input.customerId
-    ? await db.customer.findUnique({
-        where: { id: input.customerId },
+    ? await db.customer.findFirst({
+        where: { id: input.customerId, tenantId: input.tenantId },
         include: {
           group: { select: { id: true, discountPct: true } },
           loyaltyCards: { where: { isActive: true }, include: { tier: true }, take: 1 },
@@ -241,7 +241,19 @@ export async function checkout(input: CheckoutInput) {
     input.registerId ? db.register.findUnique({ where: { id: input.registerId } }) : Promise.resolve(null),
   ]);
 
-  if (!store) throw new CheckoutError('Poslovnica ne postoji.', 'UNKNOWN_STORE');
+  if (!store || store.tenantId !== input.tenantId) {
+    throw new CheckoutError('Poslovnica ne postoji.', 'UNKNOWN_STORE');
+  }
+  if (register && register.storeId !== store.id) {
+    throw new CheckoutError('Blagajna ne pripada odabranoj poslovnici.', 'REGISTER_MISMATCH');
+  }
+  if (input.shiftId) {
+    const shift = await db.shift.findFirst({
+      where: { id: input.shiftId, tenantId: input.tenantId, storeId: store.id, status: 'OPEN' },
+      select: { id: true },
+    });
+    if (!shift) throw new CheckoutError('Smjena nije otvorena na ovoj poslovnici.', 'SHIFT_MISMATCH');
+  }
   const warehouse = store.warehouses[0];
   if (!warehouse) throw new CheckoutError('Poslovnica nema prodajno skladište.', 'NO_WAREHOUSE');
 
@@ -254,7 +266,7 @@ export async function checkout(input: CheckoutInput) {
     couponCodes: input.couponCodes,
   });
 
-  const isCashOnly = await isCashPaymentOnly(input.payments);
+  const isCashOnly = await isCashPaymentOnly(input.tenantId, input.payments);
   const total = input.cashRounding && isCashOnly ? roundCash(quote.total) : quote.total;
   const roundingAmount = roundAmount(total - quote.total);
 
@@ -266,6 +278,14 @@ export async function checkout(input: CheckoutInput) {
     );
   }
   const changeAmount = roundAmount(paidTotal - total);
+
+  const methodIds = Array.from(new Set(input.payments.map((p) => p.paymentMethodId)));
+  const validMethods = await db.paymentMethod.count({
+    where: { id: { in: methodIds }, tenantId: input.tenantId },
+  });
+  if (validMethods !== methodIds.length) {
+    throw new CheckoutError('Odabrani način plaćanja nije dostupan.', 'PAYMENT_METHOD');
+  }
 
   const variantCosts = await currentCosts(warehouse.id, quote.lines.map((l) => l.variantId));
 
@@ -640,9 +660,12 @@ async function paymentTypeMap(tenantId: string) {
   return new Map(methods.map((m) => [m.id, m]));
 }
 
-async function isCashPaymentOnly(payments: CheckoutPaymentInput[]) {
+async function isCashPaymentOnly(tenantId: string, payments: CheckoutPaymentInput[]) {
   if (payments.length !== 1) return false;
-  const method = await db.paymentMethod.findUnique({ where: { id: payments[0].paymentMethodId } });
+  const method = await db.paymentMethod.findFirst({
+    where: { id: payments[0].paymentMethodId, tenantId },
+    select: { type: true },
+  });
   return method?.type === 'CASH';
 }
 

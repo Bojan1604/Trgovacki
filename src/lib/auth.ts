@@ -196,3 +196,29 @@ export async function accessibleStoreIds(user: SessionUser): Promise<string[]> {
   }
   return user.storeIds;
 }
+
+/**
+ * Sužava opseg poslovnica na one kojima korisnik smije pristupiti.
+ *
+ * Parametar iz URL-a ili tijela zahtjeva nikad se ne koristi izravno —
+ * poslovnica koja ne pripada korisniku (ili drugoj organizaciji) tiho se
+ * odbacuje i vraća se puni dozvoljeni opseg.
+ */
+export async function resolveStoreScope(
+  user: SessionUser,
+  requestedStoreId?: string | null,
+): Promise<{ storeIds: string[]; storeId: string | null; isSingle: boolean }> {
+  const allowed = await accessibleStoreIds(user);
+  if (requestedStoreId && allowed.includes(requestedStoreId)) {
+    return { storeIds: [requestedStoreId], storeId: requestedStoreId, isSingle: true };
+  }
+  return { storeIds: allowed, storeId: null, isSingle: false };
+}
+
+/** Provjera da poslovnica pripada korisniku — baca AuthError ako ne pripada. */
+export async function assertStoreAccess(user: SessionUser, storeId: string): Promise<void> {
+  const allowed = await accessibleStoreIds(user);
+  if (!allowed.includes(storeId)) {
+    throw new AuthError('Nemate pristup odabranoj poslovnici.', 403);
+  }
+}

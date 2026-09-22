@@ -59,6 +59,20 @@ export async function refundSale(input: RefundInput) {
   const warehouse = original.store.warehouses[0];
   if (!warehouse) throw new RefundError('Poslovnica nema skladište za povrat.', 'NO_WAREHOUSE');
 
+  if (input.shiftId) {
+    const shift = await db.shift.findFirst({
+      where: { id: input.shiftId, tenantId: input.tenantId, storeId: original.storeId, status: 'OPEN' },
+      select: { id: true },
+    });
+    if (!shift) throw new RefundError('Smjena nije otvorena na ovoj poslovnici.', 'SHIFT_MISMATCH');
+  }
+
+  const method = await db.paymentMethod.findFirst({
+    where: { id: input.paymentMethodId, tenantId: input.tenantId },
+    select: { id: true },
+  });
+  if (!method) throw new RefundError('Način povrata novca nije ispravan.', 'PAYMENT_METHOD');
+
   const lineMap = new Map(original.lines.map((l) => [l.id, l]));
   const refundLines = input.lines.map((rl) => {
     const line = lineMap.get(rl.saleLineId);

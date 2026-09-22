@@ -60,7 +60,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       ORDER BY st."code"
     `,
     db.stockMovement.findMany({
-      where: { variantId: { in: variantIds } },
+      where: { variantId: { in: variantIds }, warehouse: { storeId: { in: storeIds } } },
       include: { warehouse: { include: { store: { select: { name: true } } } } },
       orderBy: { occurredAt: 'desc' },
       take: 20,

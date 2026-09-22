@@ -27,9 +27,9 @@ const CASH_MOVEMENT_LABEL: Record<string, string> = {
 
 export default async function ShiftDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await requirePermission('sale.view');
+  const user = await requirePermission('sale.view');
 
-  const report = await shiftReport(id).catch(() => null);
+  const report = await shiftReport(id, user.tenantId).catch(() => null);
   if (!report) notFound();
 
   const { shift, byPayment, byTax, topItems, totals } = report;

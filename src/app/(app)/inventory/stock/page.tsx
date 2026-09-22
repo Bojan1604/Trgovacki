@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Boxes, Download } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { formatAmount, formatQty } from '@/lib/format';
 import { Card, EmptyState, PageHeader } from '@/components/ui/primitives';
@@ -40,7 +40,7 @@ export default async function StockPage({
   const page = Math.max(1, Number(params.page ?? 1) || 1);
 
   const allStores = await accessibleStoreIds(user);
-  const storeIds = params.store ? [params.store] : allStores;
+  const { storeIds, storeId: selectedStoreId } = await resolveStoreScope(user, params.store);
   const search = params.q ? `%${params.q}%` : null;
   const onlyNegative = params.filter === 'negative';
   const onlyZero = params.filter === 'zero';
@@ -97,7 +97,7 @@ export default async function StockPage({
     <div className="mx-auto max-w-[1440px]">
       <PageHeader
         title="Stanje zaliha"
-        subtitle={params.store ? 'Odabrana poslovnica' : `Zbirno za ${allStores.length} lokacija`}
+        subtitle={selectedStoreId ? 'Odabrana poslovnica' : `Zbirno za ${allStores.length} lokacija`}
         actions={<Button size="sm" variant="secondary" icon={<Download className="size-3.5" />}>Izvoz u CSV</Button>}
       />
 
@@ -113,7 +113,7 @@ export default async function StockPage({
         searchValue={params.q}
         activeCount={['q', 'store', 'category', 'filter'].filter((k) => params[k]).length}
         selects={[
-          { param: 'store', placeholder: 'Sve poslovnice', value: params.store, width: 170, options: stores.map((s) => ({ value: s.id, label: s.name })) },
+          { param: 'store', placeholder: 'Sve poslovnice', value: selectedStoreId ?? '', width: 170, options: stores.map((s) => ({ value: s.id, label: s.name })) },
           { param: 'category', placeholder: 'Sve kategorije', value: params.category, width: 180, options: categories.map((c) => ({ value: c.id, label: `${'  '.repeat(c.level)}${c.name}` })) },
           {
             param: 'filter',

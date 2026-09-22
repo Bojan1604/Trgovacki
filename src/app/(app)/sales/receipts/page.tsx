@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Download, Receipt } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime } from '@/lib/format';
@@ -31,7 +31,7 @@ export default async function SalesReceiptsPage({
   const preset = params.range ?? '30d';
   const range = resolveRange(preset);
   const allStores = await accessibleStoreIds(user);
-  const storeIds = params.store ? [params.store] : allStores;
+  const { storeIds, storeId: selectedStoreId } = await resolveStoreScope(user, params.store);
 
   const where: Prisma.SaleWhereInput = {
     tenantId: user.tenantId,
@@ -95,7 +95,7 @@ export default async function SalesReceiptsPage({
         searchValue={params.q}
         activeCount={['q', 'store', 'status', 'fiscal', 'user'].filter((k) => params[k]).length}
         selects={[
-          { param: 'store', placeholder: 'Sve poslovnice', value: params.store, width: 170, options: stores.map((s) => ({ value: s.id, label: s.name })) },
+          { param: 'store', placeholder: 'Sve poslovnice', value: selectedStoreId ?? '', width: 170, options: stores.map((s) => ({ value: s.id, label: s.name })) },
           { param: 'status', placeholder: 'Svi statusi', value: params.status, width: 170, options: Object.entries(SALE_STATUS).map(([value, v]) => ({ value, label: v.label })) },
           { param: 'fiscal', placeholder: 'Fiskalizacija', value: params.fiscal, width: 160, options: Object.entries(FISCAL_STATUS).map(([value, v]) => ({ value, label: v.label })) },
           { param: 'user', placeholder: 'Svi prodavači', value: params.user, width: 170, options: cashiers.map((c) => ({ value: c.id, label: `${c.firstName} ${c.lastName}` })) },

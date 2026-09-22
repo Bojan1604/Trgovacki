@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Wallet } from 'lucide-react';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime } from '@/lib/format';
@@ -25,7 +25,7 @@ export default async function ShiftsPage({
   const preset = params.range ?? '30d';
   const range = resolveRange(preset);
   const allStores = await accessibleStoreIds(user);
-  const storeIds = params.store ? [params.store] : allStores;
+  const { storeIds, storeId: selectedStoreId } = await resolveStoreScope(user, params.store);
 
   const [shifts, stores] = await Promise.all([
     db.shift.findMany({
@@ -73,7 +73,7 @@ export default async function ShiftsPage({
         searchPlaceholder="—"
         activeCount={['store', 'status'].filter((k) => params[k]).length}
         selects={[
-          { param: 'store', placeholder: 'Sve poslovnice', value: params.store, width: 180, options: stores.map((s) => ({ value: s.id, label: s.name })) },
+          { param: 'store', placeholder: 'Sve poslovnice', value: selectedStoreId ?? '', width: 180, options: stores.map((s) => ({ value: s.id, label: s.name })) },
           { param: 'status', placeholder: 'Svi statusi', value: params.status, width: 160, options: Object.entries(SHIFT_STATUS).map(([value, v]) => ({ value, label: v.label })) },
         ]}
       />

@@ -613,7 +613,9 @@ export function PosTerminal({
                             <span className="font-mono">{line.sku}</span>
                             {' · '}
                             {formatAmount(q?.basePrice ?? line.unitPrice)} €/{line.unit}
-                            {line.discountPct > 0 && <span className="ml-1 text-warning">−{line.discountPct} %</span>}
+                            {line.discountPct > 0 && (
+                              <span className="ml-1.5 text-warning">· −{line.discountPct} %</span>
+                            )}
                           </p>
                           {promo > 0 && (
                             <p className="mt-0.5 text-2xs text-positive">Akcija −{formatAmount(promo)} €</p>
@@ -860,7 +862,7 @@ export function PosTerminal({
           inputMode="decimal"
           autoFocus
         />
-        <Numpad value={discountInput} onChange={setDiscountInput} quickValues={[5, 10, 15, 20]} />
+        <Numpad value={discountInput} onChange={setDiscountInput} quickValues={[5, 10, 15, 20]} quickSuffix="%" />
       </Modal>
 
       {/* Unos količine */}

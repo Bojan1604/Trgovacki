@@ -87,8 +87,8 @@ export async function closeShift(args: {
   countedCash: number;
   note?: string;
 }) {
-  const shift = await db.shift.findUnique({
-    where: { id: args.shiftId },
+  const shift = await db.shift.findFirst({
+    where: { id: args.shiftId, tenantId: args.tenantId },
     include: { cashMovements: true },
   });
   if (!shift) throw new ShiftError('Smjena ne postoji.', 'NOT_FOUND');
@@ -160,7 +160,9 @@ export async function recordCashMovement(args: {
   amount: number;
   note?: string;
 }) {
-  const shift = await db.shift.findUnique({ where: { id: args.shiftId } });
+  const shift = await db.shift.findFirst({
+    where: { id: args.shiftId, tenantId: args.tenantId, storeId: args.storeId },
+  });
   if (!shift || shift.status !== 'OPEN') throw new ShiftError('Smjena nije otvorena.', 'NOT_OPEN');
 
   const signed = args.type === 'DEPOSIT' ? Math.abs(args.amount) : -Math.abs(args.amount);
@@ -187,10 +189,13 @@ export async function recordCashMovement(args: {
   return movement;
 }
 
-/** Z-izvještaj smjene: promet po načinu plaćanja, PDV-u i artiklima. */
-export async function shiftReport(shiftId: string) {
-  const shift = await db.shift.findUnique({
-    where: { id: shiftId },
+/**
+ * Z-izvještaj smjene: promet po načinu plaćanja, PDV-u i artiklima.
+ * `tenantId` je obavezan — smjena druge organizacije se ne smije prikazati.
+ */
+export async function shiftReport(shiftId: string, tenantId: string) {
+  const shift = await db.shift.findFirst({
+    where: { id: shiftId, tenantId },
     include: {
       store: true,
       register: true,

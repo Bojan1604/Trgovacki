@@ -11,6 +11,7 @@ export function Numpad({
   enterLabel = 'U redu',
   enterDisabled,
   quickValues,
+  quickSuffix = '€',
   className,
 }: {
   value: string;
@@ -19,6 +20,8 @@ export function Numpad({
   enterLabel?: string;
   enterDisabled?: boolean;
   quickValues?: number[];
+  /** Oznaka uz brze vrijednosti — "€" za iznose, "%" za popuste. */
+  quickSuffix?: string;
   className?: string;
 }) {
   const press = (key: string) => {
@@ -45,7 +48,7 @@ export function Numpad({
               onClick={() => onChange(String(amount).replace('.', ','))}
               className="h-9 rounded-lg bg-surface-3 text-base font-medium tnum transition-colors hover:bg-hairline-strong/50 active:scale-[0.97]"
             >
-              {amount} €
+              {amount} {quickSuffix}
             </button>
           ))}
         </div>

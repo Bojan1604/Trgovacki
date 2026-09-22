@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requirePermission } from '@/lib/auth';
+import { assertStoreAccess, requirePermission } from '@/lib/auth';
 import { apiError, readJson } from '@/lib/api';
 import { quoteBasket } from '@/lib/services/sales';
 
@@ -28,6 +28,7 @@ export async function POST(request: Request) {
   try {
     const user = await requirePermission('pos.operate');
     const body = await readJson(request, schema);
+    await assertStoreAccess(user, body.storeId);
 
     const quote = await quoteBasket({
       tenantId: user.tenantId,

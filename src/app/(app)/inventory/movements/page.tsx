@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ScrollText } from 'lucide-react';
 import { Prisma } from '@prisma/client';
-import { accessibleStoreIds, requirePermission } from '@/lib/auth';
+import { accessibleStoreIds, requirePermission, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime, formatQty } from '@/lib/format';
@@ -24,10 +24,10 @@ export default async function MovementsPage({
   const params = await searchParams;
   const user = await requirePermission('stock.view');
   const page = Math.max(1, Number(params.page ?? 1) || 1);
-  const storeIds = await accessibleStoreIds(user);
+  const { storeIds, storeId: selectedStoreId } = await resolveStoreScope(user, params.store);
 
   const where: Prisma.StockMovementWhereInput = {
-    warehouse: { storeId: { in: params.store ? [params.store] : storeIds } },
+    warehouse: { storeId: { in: storeIds } },
     ...(params.variant ? { variantId: params.variant } : {}),
     ...(params.type ? { type: params.type as never } : {}),
     ...(params.q
@@ -70,7 +70,7 @@ export default async function MovementsPage({
         searchValue={params.q}
         activeCount={['q', 'store', 'type', 'variant'].filter((k) => params[k]).length}
         selects={[
-          { param: 'store', placeholder: 'Sve poslovnice', value: params.store, width: 170, options: stores.map((s) => ({ value: s.id, label: s.name })) },
+          { param: 'store', placeholder: 'Sve poslovnice', value: selectedStoreId ?? '', width: 170, options: stores.map((s) => ({ value: s.id, label: s.name })) },
           { param: 'type', placeholder: 'Sve vrste', value: params.type, width: 180, options: Object.entries(MOVEMENT_TYPE).map(([value, label]) => ({ value, label })) },
         ]}
       />

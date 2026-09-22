@@ -20,17 +20,24 @@ export default async function LoyaltyPage() {
       where: { tenantId: user.tenantId },
       include: { tiers: { orderBy: { sortOrder: 'asc' } }, _count: { select: { cards: true } } },
     }),
-    db.loyaltyCard.aggregate({ _sum: { points: true, lifetimePoints: true }, _count: true }),
+    db.loyaltyCard.aggregate({
+      where: { program: { tenantId: user.tenantId } },
+      _sum: { points: true, lifetimePoints: true },
+      _count: true,
+    }),
     db.$queryRaw<{ name: string; color: string | null; count: string; points: string }[]>`
       SELECT COALESCE(lt."name", 'Bez razine') AS name, lt."color",
              COUNT(lc."id")::text AS count,
              COALESCE(SUM(lc."points"), 0)::text AS points
       FROM loyalty_cards lc
+      JOIN loyalty_programs lp ON lp."id" = lc."programId"
       LEFT JOIN loyalty_tiers lt ON lt."id" = lc."tierId"
+      WHERE lp."tenantId" = ${user.tenantId}
       GROUP BY lt."name", lt."color", lt."sortOrder"
       ORDER BY lt."sortOrder" NULLS FIRST
     `,
     db.loyaltyCard.findMany({
+      where: { program: { tenantId: user.tenantId } },
       include: {
         customer: { select: { id: true, firstName: true, lastName: true, companyName: true, totalSpent: true } },
         tier: { select: { name: true } },
@@ -39,6 +46,7 @@ export default async function LoyaltyPage() {
       take: 20,
     }),
     db.loyaltyTransaction.findMany({
+      where: { customer: { tenantId: user.tenantId } },
       include: { customer: { select: { id: true, firstName: true, lastName: true, companyName: true } } },
       orderBy: { createdAt: 'desc' },
       take: 15,

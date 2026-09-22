@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requirePermission } from '@/lib/auth';
+import { assertStoreAccess, requirePermission } from '@/lib/auth';
 import { apiError, readJson } from '@/lib/api';
 import { checkout } from '@/lib/services/sales';
 import { toNumber } from '@/lib/money';
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
   try {
     const user = await requirePermission('pos.operate');
     const body = await readJson(request, schema);
+    await assertStoreAccess(user, body.storeId);
 
     // Provjera ovlasti za ručne popuste i izmjenu cijene.
     const maxDiscount = user.maxDiscountPct;

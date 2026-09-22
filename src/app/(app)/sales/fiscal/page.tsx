@@ -38,6 +38,7 @@ export default async function FiscalPage() {
       take: 50,
     }),
     db.fiscalLog.findMany({
+      where: { sale: { tenantId: user.tenantId, storeId: { in: storeIds } } },
       orderBy: { createdAt: 'desc' },
       take: 20,
       include: { sale: { select: { id: true, number: true } } },
