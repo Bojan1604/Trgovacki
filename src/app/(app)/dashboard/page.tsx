@@ -17,6 +17,8 @@ import { TrendArea } from '@/components/charts/trend-area';
 import { BarList } from '@/components/charts/bar-list';
 import { ShareBar } from '@/components/charts/share-bar';
 import { RangePicker } from '@/components/filters/range-picker';
+import { ReadinessCard } from '@/components/dashboard/readiness-card';
+import { readinessChecks } from '@/lib/services/readiness';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 
 export const metadata = { title: 'Nadzorna ploča' };
@@ -40,7 +42,7 @@ export default async function DashboardPage({
 
   const [
     totals, prevTotals, byDay, byStore, byCategory, byPayment, products,
-    stock, lowStock, openShifts, pendingFiscal, recentSales,
+    stock, lowStock, openShifts, pendingFiscal, recentSales, readiness,
   ] = await Promise.all([
     salesTotals(scope, range),
     salesTotals(scope, previous),
@@ -64,6 +66,7 @@ export default async function DashboardPage({
         _count: { select: { lines: true } },
       },
     }),
+    readinessChecks(user.tenantId),
   ]);
 
   const stockMargin = stock.retail > 0 ? ((stock.retail / 1.25 - stock.cost) / (stock.retail / 1.25)) * 100 : 0;
@@ -81,6 +84,9 @@ export default async function DashboardPage({
         </div>
         <RangePicker current={preset} scope={scopeAll ? 'all' : 'store'} />
       </div>
+
+      {/* Što nije postavljeno, a treba za rad */}
+      <ReadinessCard items={readiness} />
 
       {/* Upozorenja */}
       {(lowStock > 0 || pendingFiscal > 0) && (

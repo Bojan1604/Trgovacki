@@ -10,6 +10,7 @@ import { Badge, Card, CardHeader, DetailRow, PageHeader } from '@/components/ui/
 import { Button } from '@/components/ui/button';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 import { RegistersPanel } from '@/components/settings/registers-panel';
+import { AssortmentPanel } from '@/components/settings/assortment-panel';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,8 @@ export default async function StoreDetailPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const user = await requirePageAccess('store.manage');
 
-  const store = await db.store.findFirst({
+  const [store, categories] = await Promise.all([
+    db.store.findFirst({
     where: { id, tenantId: user.tenantId },
     include: {
       company: { select: { name: true, legalName: true } },
@@ -50,9 +52,15 @@ export default async function StoreDetailPage({ params }: { params: Promise<{ id
         orderBy: { code: 'asc' },
         include: { _count: { select: { shifts: { where: { status: 'OPEN' } } } } },
       },
-      _count: { select: { userAccess: true } },
+      _count: { select: { userAccess: true, assortment: true } },
     },
-  });
+    }),
+    db.category.findMany({
+      where: { tenantId: user.tenantId, isActive: true },
+      select: { id: true, name: true },
+      orderBy: { path: 'asc' },
+    }),
+  ]);
   if (!store) notFound();
 
   return (
@@ -118,6 +126,15 @@ export default async function StoreDetailPage({ params }: { params: Promise<{ id
             isActive: r.isActive,
             openShifts: r._count.shifts,
           }))}
+        />
+      </div>
+
+      <div className="mb-2.5">
+        <AssortmentPanel
+          storeId={store.id}
+          categories={categories}
+          initialMode={store.assortmentMode}
+          initialDeviations={store._count.assortment}
         />
       </div>
 

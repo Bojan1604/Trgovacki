@@ -153,6 +153,45 @@ Blagajna s otvorenom smjenom ne može izvan pogona — smjenu treba prvo zatvori
 
 Oznaka poslovnice i oznaka blagajne ulaze u broj računa i u fiskalizaciju.
 
+### Različita ponuda po poslovnicama
+
+Ponuda se postavlja **po poslovnici, ne po blagajni** — blagajne su uređaji u
+istoj poslovnici i prodaju isto. Otvorite **Postavke → Poslovnice → poslovnica
+→ Ponuda poslovnice**. Dva načina:
+
+| Način | Znači |
+|---|---|
+| **Cijeli katalog osim isključenih** | Sve iz kataloga, minus artikli koje ovdje izbacite. Za lanac sa sličnim asortimanom. |
+| **Samo uvršteni artikli** | Ništa osim onoga što ovdje uvrstite. Za kiosk ili specijaliziranu lokaciju. |
+
+U bazi se drže samo odstupanja, pa poslovnica koja prodaje cijeli katalog nema
+nijedan zapis. Promjena načina briše dotadašnja odstupanja, jer u drugom načinu
+znače suprotno.
+
+Artikl izvan ponude blagajna **ne prikazuje u mreži, ne nalazi skeniranjem i ne
+prihvaća pri naplati** — filtriranje pretrage samo skriva artikl, pa se odbija i
+na razini izračuna računa.
+
+Ostale razlike među poslovnicama postavljaju se drugdje:
+
+- **cijene** — cjenik poslovnice (Postavke → Poslovnice → Cjenik)
+- **zaliha** — skladište poslovnice, svaka ima svoje
+- **akcije** — akcija može ciljati pojedine poslovnice
+
+### Provjera postavljenosti
+
+Nadzorna ploča na vrhu prikazuje što nije postavljeno, a treba za rad:
+poslovnica bez blagajne ili skladišta, nema načina plaćanja, nema zadanog
+cjenika, tvrtka bez OIB-a, artikli bez cijene, prazna ponuda u načinu „samo
+uvršteni", fiskalizacija uključena bez konfiguriranog adaptera.
+
+Zapreke (crveno) doslovno zaustavljaju blagajnu; upozorenja (žuto) puštaju rad,
+ali s posljedicama. Svaka stavka vodi na mjesto gdje se rješava i nestaje sama
+kad je riješena. Kad nema ničega, piše da je sustav spreman.
+
+Centralno skladište i web shop ne traže blagajnu ni prodajni prostor — ondje bi
+to bio lažni alarm.
+
 ### Demo pristup
 
 | Uloga | E-pošta | Lozinka |
@@ -380,10 +419,10 @@ Namjerno izvan opsega ove faze, uz pripremljene temelje:
   ali nisu testirani na uređajima.
 - **Offline rad blagajne** — naplata je idempotentna i spremna za red čekanja,
   ali lokalna pohrana košarice i sinkronizacija nisu implementirane.
-- **Uređivanje kroz sučelje** — poslovnice, blagajne i artikli imaju obrasce;
-  ostatak šifrarnika za sada se popunjava punjenjem podataka. Gumbi za koje
-  obrazac još ne postoji: *Nova kategorija*, *Novi brend*, *Novi dobavljač*,
-  *Novi kupac*, *Novi način plaćanja*, *Nova inventura*, *Novi otpis* i
-  *Nova međuskladišnica*. Klik na njih zasad ne otvara ništa.
+- **Uređivanje kroz sučelje** — poslovnice, blagajne, kategorije, ponuda
+  poslovnice i artikli imaju obrasce; ostatak šifrarnika za sada se popunjava
+  punjenjem podataka. Gumbi za koje obrazac još ne postoji: *Novi brend*,
+  *Novi dobavljač*, *Novi kupac*, *Novi način plaćanja*, *Nova inventura*,
+  *Novi otpis* i *Nova međuskladišnica*. Klik na njih zasad ne otvara ništa.
 - **Testovi sučelja** — pokriveni su domenska logika i tok naplate; nema
   automatiziranih testova samih ekrana.

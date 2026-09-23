@@ -4,6 +4,7 @@ import { assertStoreAccess, requirePermission } from '@/lib/auth';
 import { apiError } from '@/lib/api';
 import { toNumber } from '@/lib/money';
 import { parseWeightBarcode } from '@/lib/utils';
+import { assortmentWhere, loadAssortmentRule } from '@/lib/services/assortment';
 
 /**
  * Pretraga artikala za blagajnu.
@@ -37,8 +38,13 @@ export async function GET(request: Request) {
     });
     const priceListId = store?.priceListId ?? defaultList?.id ?? '';
 
+    // Ponuda se razlikuje po poslovnici; artikli izvan nje ne smiju se ni
+    // prikazati u mreži ni naći skeniranjem.
+    const assortment = await loadAssortmentRule(storeId);
+
     const variants = await db.productVariant.findMany({
       where: {
+        ...assortmentWhere(assortment),
         isActive: true,
         product: {
           tenantId: user.tenantId,

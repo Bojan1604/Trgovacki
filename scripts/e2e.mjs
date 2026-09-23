@@ -201,6 +201,7 @@ async function runSettings() {
     { timeout: 60_000 },
   );
   await page.waitForSelector('text=Prodajni prostor', { timeout: 60_000 });
+  const newStorePath = new URL(page.url()).pathname;
   const newRegisters = await page.locator('table').first().locator('tbody tr').count();
   check('Poslovnica je otvorena sa zadanim blagajnama', newRegisters === 2,
     plural(newRegisters, 'blagajna', 'blagajne', 'blagajni'));
@@ -220,6 +221,35 @@ async function runSettings() {
   await page.locator('button:has-text("Isključi")').last().click();
   await page.waitForSelector('text=Izvan pogona', { timeout: 60_000 });
   check('Blagajna se može staviti izvan pogona', true);
+
+  // Ponuda poslovnice — lanac rijetko prodaje isto na svakoj lokaciji.
+  await page.waitForSelector('text=Ponuda poslovnice', { timeout: 60_000 });
+  const assortmentMode = await page.getByLabel('Način ponude').inputValue();
+  check('Nova poslovnica prodaje cijeli katalog', assortmentMode === 'ALL', assortmentMode);
+  await page.locator('button:has-text("Izbaci")').first().click();
+  await page.locator('tbody').getByText('Izvan ponude').first()
+    .waitFor({ state: 'visible', timeout: 60_000 });
+  check('Artikl se može izbaciti iz ponude poslovnice', true);
+  await shot('postavke-ponuda');
+  await page.locator('button:has-text("Uvrsti")').first().click();
+  await page.locator('tbody').getByText('Izvan ponude').first()
+    .waitFor({ state: 'detached', timeout: 60_000 });
+  check('Artikl se vraća u ponudu', true);
+
+  // Testna poslovnica se zatvara, da ne ostane u podacima ni u provjeri spremnosti.
+  await page.goto(`${BASE}${newStorePath}/edit`, { waitUntil: 'networkidle' });
+  await page.getByLabel('Status').selectOption('CLOSED');
+  await page.getByRole('button', { name: 'Spremi' }).click();
+  // Spremanje vodi na detalj poslovnice; ondje status piše u oznaci, dok se
+  // riječ "Zatvorena" u obrascu pojavljuje i kao stavka padajućeg popisa.
+  await page.waitForFunction(
+    (path) => location.pathname === path,
+    newStorePath,
+    { timeout: 60_000 },
+  );
+  await page.getByText('Zatvorena', { exact: true }).first()
+    .waitFor({ state: 'visible', timeout: 60_000 });
+  check('Poslovnica se može zatvoriti', true);
 
   await page.goto(`${BASE}/settings/users`, { waitUntil: 'networkidle' });
   check('Popis korisnika je popunjen', (await page.locator('tbody tr').count()) > 1);
@@ -482,6 +512,8 @@ try {
   await page.waitForSelector('text=Kretanje prometa', { timeout: 60_000 });
   const kpiCount = await page.locator('main .text-2xl').count();
   check('Prikazani ključni pokazatelji', kpiCount >= 6, `${kpiCount} pokazatelja`);
+  const readiness = await page.getByText(/Sustav je spreman za rad|Postavljanje sustava/).first().isVisible();
+  check('Nadzorna ploča prikazuje stanje postavljenosti', readiness);
   const promet = await page.locator('main .text-2xl').first().innerText();
   check('Promet je izračunat', Number.parseFloat(promet.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.')) > 0, amount(promet));
   await shot('nadzorna-ploca');
@@ -527,6 +559,50 @@ try {
   check('Pretraga filtrira popis', filtered > 0 && filtered < rows, plural(filtered, 'redak', 'retka', 'redaka'));
   await shot('katalog-pretraga');
 
+  // Kategorije — stablo koje određuje i izbornik na blagajni.
+  await page.goto(`${BASE}/catalog/categories`, { waitUntil: 'networkidle' });
+  const catBefore = await page.locator('tbody tr').count();
+  const catCode = `E2E${Date.now().toString().slice(-5)}`;
+  await page.getByRole('button', { name: 'Nova kategorija' }).first().click();
+  const dialog = page.locator('[role=dialog]');
+  await dialog.waitFor({ state: 'visible', timeout: 60_000 });
+  check('Gumb otvara obrazac nove kategorije', true);
+  await dialog.getByLabel('Šifra').fill(catCode);
+  await dialog.getByLabel('Naziv').fill('E2E kategorija');
+  await dialog.getByLabel('Ciljana marža').fill('25');
+  await dialog.getByRole('button', { name: 'Dodaj' }).click();
+  await page.waitForFunction(
+    (n) => document.querySelectorAll('tbody tr').length === n + 1,
+    catBefore,
+    { timeout: 60_000 },
+  );
+  check('Kategorija je dodana', true, catCode);
+
+  const catRow = page.locator('tbody tr', { hasText: 'E2E kategorija' }).first();
+  await catRow.getByLabel('Dodaj podkategoriju').click();
+  await dialog.waitFor({ state: 'visible', timeout: 60_000 });
+  await dialog.getByLabel('Šifra').fill(`${catCode}A`);
+  await dialog.getByLabel('Naziv').fill('E2E podkategorija');
+  await dialog.getByRole('button', { name: 'Dodaj' }).click();
+  await page.waitForFunction(
+    (n) => document.querySelectorAll('tbody tr').length === n + 2,
+    catBefore,
+    { timeout: 60_000 },
+  );
+  check('Podkategorija je dodana ispod nadređene', true);
+  await shot('katalog-kategorije');
+
+  // Testne kategorije se gase da ne ostanu u stablu.
+  for (const name of ['E2E podkategorija', 'E2E kategorija']) {
+    await page.locator('tbody tr', { hasText: name }).first().getByLabel('Izmijeni kategoriju').click();
+    await dialog.waitFor({ state: 'visible', timeout: 60_000 });
+    await dialog.getByText('Aktivna', { exact: true }).click();
+    await dialog.getByRole('button', { name: 'Spremi' }).click();
+    await dialog.waitFor({ state: 'hidden', timeout: 60_000 });
+  }
+  check('Kategorija se može deaktivirati', true);
+
+  await page.goto(`${BASE}/catalog/products`, { waitUntil: 'networkidle' });
   await page.locator('tbody tr td a').first().click();
   await page.waitForSelector('text=Zaliha po lokacijama', { timeout: 60_000 });
   check('Detalj artikla prikazuje zalihu po lokacijama', true);

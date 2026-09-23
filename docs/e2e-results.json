@@ -1,7 +1,7 @@
 {
-  "pokrenuto": "2026-09-23T18:56:11.598Z",
-  "ukupno": 84,
-  "proslo": 84,
+  "pokrenuto": "2026-09-23T19:39:20.797Z",
+  "ukupno": 93,
+  "proslo": 93,
   "greskeUKonzoli": [],
   "provjere": [
     {
@@ -30,15 +30,21 @@
     },
     {
       "section": "Nadzorna ploča",
+      "name": "Nadzorna ploča prikazuje stanje postavljenosti",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Nadzorna ploča",
       "name": "Promet je izračunat",
       "ok": true,
-      "detail": "66.038 €"
+      "detail": "66.051 €"
     },
     {
       "section": "Nadzorna ploča",
       "name": "Prebacivanje na cijeli lanac mijenja brojke",
       "ok": true,
-      "detail": "602.834 €"
+      "detail": "602.848 €"
     },
     {
       "section": "Globalna pretraga",
@@ -60,6 +66,30 @@
     },
     {
       "section": "Katalog artikala",
+      "name": "Gumb otvara obrazac nove kategorije",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Katalog artikala",
+      "name": "Kategorija je dodana",
+      "ok": true,
+      "detail": "E2E48971"
+    },
+    {
+      "section": "Katalog artikala",
+      "name": "Podkategorija je dodana ispod nadređene",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Katalog artikala",
+      "name": "Kategorija se može deaktivirati",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Katalog artikala",
       "name": "Detalj artikla prikazuje zalihu po lokacijama",
       "ok": true,
       "detail": ""
@@ -74,7 +104,7 @@
       "section": "Novi artikl s kalkulacijom",
       "name": "Generiran ispravan EAN-13",
       "ok": true,
-      "detail": "3851896669676"
+      "detail": "3851922545776"
     },
     {
       "section": "Novi artikl s kalkulacijom",
@@ -86,7 +116,7 @@
       "section": "Novi artikl s kalkulacijom",
       "name": "Novi artikl je spremljen i otvoren",
       "ok": true,
-      "detail": "cmuegpgm800057d44qkx0r1db"
+      "detail": "cmuei8x94003r7diqqacyaio7"
     },
     {
       "section": "Cijene i akcije",
@@ -116,7 +146,7 @@
       "section": "Skladište",
       "name": "Izračunata vrijednost zalihe po nabavnoj cijeni",
       "ok": true,
-      "detail": "5.012.561 €"
+      "detail": "5.012.537 €"
     },
     {
       "section": "Skladište",
@@ -200,7 +230,7 @@
       "section": "Izvještaji",
       "name": "Izvještaj: Usporedba poslovnica",
       "ok": true,
-      "detail": "10 redaka"
+      "detail": "9 redaka"
     },
     {
       "section": "Izvještaji",
@@ -212,7 +242,7 @@
       "section": "Izvještaji",
       "name": "Izvještaj: Vrijednost zaliha",
       "ok": true,
-      "detail": "10 redaka"
+      "detail": "9 redaka"
     },
     {
       "section": "Izvještaji",
@@ -260,7 +290,7 @@
       "section": "Izvještaji",
       "name": "Promjena razdoblja mijenja rezultat",
       "ok": true,
-      "detail": "7 dana 11.693 € · 90 dana 134.066 €"
+      "detail": "7 dana 11.706 € · 90 dana 134.080 €"
     },
     {
       "section": "Kupci i program vjernosti",
@@ -296,7 +326,7 @@
       "section": "Postavke",
       "name": "Popis poslovnica je popunjen",
       "ok": true,
-      "detail": "10 lokacija"
+      "detail": "9 lokacija"
     },
     {
       "section": "Postavke",
@@ -325,6 +355,30 @@
     {
       "section": "Postavke",
       "name": "Blagajna se može staviti izvan pogona",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Postavke",
+      "name": "Nova poslovnica prodaje cijeli katalog",
+      "ok": true,
+      "detail": "ALL"
+    },
+    {
+      "section": "Postavke",
+      "name": "Artikl se može izbaciti iz ponude poslovnice",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Postavke",
+      "name": "Artikl se vraća u ponudu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "section": "Postavke",
+      "name": "Poslovnica se može zatvoriti",
       "ok": true,
       "detail": ""
     },
@@ -434,7 +488,7 @@
       "section": "Blagajna — naplata gotovinom",
       "name": "Račun je izdan s brojem i fiskalnim podacima",
       "ok": true,
-      "detail": "broj 230/1/1"
+      "detail": "broj 246/1/1"
     },
     {
       "section": "Blagajna — naplata gotovinom",
@@ -452,13 +506,13 @@
       "section": "Blagajna — povrat robe",
       "name": "Račun za povrat je pronađen po broju",
       "ok": true,
-      "detail": "230/1/1"
+      "detail": "246/1/1"
     },
     {
       "section": "Blagajna — povrat robe",
       "name": "Povrat je proveden",
       "ok": true,
-      "detail": "Povrat je proveden  Dokument 232/1/1"
+      "detail": "Povrat je proveden  Dokument 248/1/1"
     },
     {
       "section": "Blagajna — zatvaranje smjene",
@@ -470,7 +524,7 @@
       "section": "Blagajna — zatvaranje smjene",
       "name": "Z-izvještaj prikazuje promet i razliku",
       "ok": true,
-      "detail": "Smjena je zatvorena  Z-izvještaj za smjenu SM-00501/2026  Promet smjene 9,43 € Broj računa"
+      "detail": "Smjena je zatvorena  Z-izvještaj za smjenu SM-00505/2026  Promet smjene 9,43 € Broj računa"
     },
     {
       "section": "Prodaja — evidencija",

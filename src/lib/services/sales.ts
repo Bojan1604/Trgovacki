@@ -7,6 +7,7 @@ import { fiscalAdapter } from '../fiscal';
 import { nextReceiptNumber, nextDocumentNumber } from './numbering';
 import { applyPromotions, loadActivePromotions, resolvePrices, type BasketLine } from './pricing';
 import { assertAvailable, postMovement } from './inventory';
+import { assertInAssortment } from './assortment';
 
 export interface CheckoutLineInput {
   variantId: string;
@@ -87,6 +88,20 @@ export async function quoteBasket(input: {
     },
   });
   const variantMap = new Map(variants.map((v) => [v.id, v]));
+
+  // Ponuda se razlikuje po poslovnici. Filtriranje u pretrazi skriva artikl,
+  // ali ga barkod i dalje nađe, pa se odbija ovdje — prije naplate.
+  const notListed = await assertInAssortment(db, input.storeId, variantIds);
+  if (notListed.length > 0) {
+    const names = notListed
+      .map((id) => variantMap.get(id)?.product.name ?? id)
+      .slice(0, 3)
+      .join(', ');
+    throw new CheckoutError(
+      `Artikl nije u ponudi ove poslovnice: ${names}.`,
+      'NOT_IN_ASSORTMENT',
+    );
+  }
 
   const customer = input.customerId
     ? await db.customer.findFirst({
