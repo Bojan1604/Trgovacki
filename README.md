@@ -96,6 +96,39 @@ uobičajene portove i javi ako sluša još jedan poslužitelj.
 
 Drugi port: `set PORT=3001` pa `npm run dev` (PowerShell: `$env:PORT=3001`).
 
+### Brzina: razvojni i produkcijski način
+
+`npm run dev` je namijenjen razvoju — Next.js prevodi svaku rutu pri prvom
+otvaranju i prati promjene datoteka. Zato prvi ulazak u modul traje sekundu do
+pet, a prebacivanje između njih djeluje sporo. To nije stanje aplikacije, nego
+cijena razvojnog načina.
+
+Za stvarnu brzinu pokrenite produkcijski build:
+
+```bat
+npm run serve      :: build + pokretanje, jednom naredbom
+```
+
+ili, ako želite razdvojeno:
+
+```bat
+npm run build
+npm run start
+```
+
+Mjereno na demo podacima (~11 000 računa, 51 000 stavki), isti sklop:
+
+| | razvojni (`dev`) | produkcijski (`start`) |
+|---|---|---|
+| prosječan odgovor stranice | 448 ms | **56 ms** |
+| prvi ulazak u modul | 1–5,5 s | isto kao i svaki sljedeći |
+| klik po izborniku | osjetno | 118–242 ms |
+
+Build traje desetak sekundi i radi se jednom; nakon njega `npm run start`
+pokreće aplikaciju odmah. Kod izmjene koda build treba ponoviti, pa je za
+svakodnevni rad `dev` praktičniji, a za testiranje brzine i za rad na
+blagajni koristite `serve`.
+
 ---
 
 ### Demo pristup

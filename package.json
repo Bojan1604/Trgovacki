@@ -12,6 +12,7 @@
     "doctor": "node scripts/doctor.mjs",
     "build": "prisma generate && next build",
     "start": "next start",
+    "serve": "npm run build && npm run start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:generate": "prisma generate",

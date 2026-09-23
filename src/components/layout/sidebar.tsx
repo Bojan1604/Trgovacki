@@ -1,12 +1,25 @@
 'use client';
 
-import Link from 'next/link';
+import Link, { useLinkStatus } from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { ChevronsLeft, Monitor, Search } from 'lucide-react';
+import { ChevronsLeft, Loader2, Monitor, Search } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { hasPermission } from '@/lib/permissions';
 import { NAV_GROUPS } from './nav-config';
+
+/**
+ * Ikona stavke izbornika koja zna da se navigacija odvija.
+ *
+ * `useLinkStatus` radi samo unutar `Link`, pa je ovo zaseban sastavni dio.
+ * Bez odziva korisnik ne zna je li klik primljen i sklon je kliknuti opet.
+ */
+function NavIcon({ icon: Icon, active }: { icon: LucideIcon; active: boolean }) {
+  const { pending } = useLinkStatus();
+  if (pending) return <Loader2 className="size-[15px] shrink-0 animate-spin" />;
+  return <Icon className={cn('size-[15px] shrink-0', active ? 'opacity-100' : 'opacity-65')} />;
+}
 
 export function Sidebar({
   permissions,
@@ -110,7 +123,7 @@ export function Sidebar({
                         collapsed && 'justify-center px-0',
                       )}
                     >
-                      <Icon className={cn('size-[15px] shrink-0', active ? 'opacity-100' : 'opacity-65')} />
+                      <NavIcon icon={Icon} active={active} />
                       {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
                       {!collapsed && badge !== undefined && badge > 0 && (
                         <span

@@ -368,7 +368,7 @@ async function runPos() {
   const salesRows = await page.locator('tbody tr').count();
   check('Izdani računi su vidljivi u evidenciji', salesRows > 0, plural(salesRows, 'dokument', 'dokumenta', 'dokumenata'));
 
-  const tableText = await page.locator('tbody').innerText();
+  const tableText = await page.locator('main tbody').first().innerText();
   check('Povrat je evidentiran kao odobrenje uz izvorni račun',
     tableText.includes('Storniran') || tableText.includes('Djelomični povrat'));
   await shot('racuni');
@@ -438,7 +438,15 @@ try {
   await shot('nadzorna-ploca');
 
   await page.getByRole('button', { name: /Lanac/ }).click();
-  await page.waitForTimeout(2500);
+  // Brojka se mijenja tek kad stignu podaci za cijeli lanac — čekanje na
+  // promjenu je pouzdanije od fiksnog odbrojavanja.
+  await page
+    .waitForFunction(
+      (previous) => document.querySelector('main .text-2xl')?.textContent?.trim() !== previous,
+      promet.trim(),
+      { timeout: 30_000 },
+    )
+    .catch(() => {});
   const prometLanac = await page.locator('main .text-2xl').first().innerText();
   check('Prebacivanje na cijeli lanac mijenja brojke', prometLanac !== promet, amount(prometLanac));
   await shot('nadzorna-ploca-lanac');
@@ -505,7 +513,7 @@ try {
   await page.goto(`${BASE}/pricing/promotions`, { waitUntil: 'networkidle' });
   const promoRows = await page.locator('tbody tr').count();
   check('Popis akcija je popunjen', promoRows > 0, plural(promoRows, 'akcija', 'akcije', 'akcija'));
-  const promoTypes = await page.locator('tbody').innerText();
+  const promoTypes = await page.locator('main tbody').first().innerText();
   check('Tablica prikazuje različite tipove akcija',
     promoTypes.includes('Kupi X dobij Y') && promoTypes.includes('Popust na košaricu'));
   await shot('akcije');
