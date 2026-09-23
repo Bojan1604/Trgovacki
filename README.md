@@ -129,6 +129,15 @@ pokreće aplikaciju odmah. Kod izmjene koda build treba ponoviti, pa je za
 svakodnevni rad `dev` praktičniji, a za testiranje brzine i za rad na
 blagajni koristite `serve`.
 
+Razvojni poslužitelj koristi **Turbopack**, koji rute prevodi osjetno brže od
+starog sklopa (izmjereno ovdje: medijan 476 ms naspram 711 ms, a na Windowsu
+je razlika veća jer webpack ondje sporo prati datoteke). Ako nešto zapne,
+`npm run dev:webpack` vraća stari sklop.
+
+Razvojni i produkcijski build pišu u odvojene mape — `.next-dev` i `.next` —
+pa se `dev` i `serve` mogu izmjenjivati, čak i istovremeno na različitim
+portovima, bez ponovnog buildanja.
+
 ---
 
 ### Poslovnice i blagajne

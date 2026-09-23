@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { ShieldCheck } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
@@ -68,8 +69,10 @@ export default async function RolesSettingsPage() {
           </THead>
           <TBody>
             {PERMISSION_GROUPS.map((group) => (
-              <>
-                <TR key={group.module} className="bg-surface-2">
+              // Skupina daje dva retka — naslovni i po jedno pravo — pa ključ
+              // nosi Fragment. Kratki zapis <> ne prima ključ.
+              <Fragment key={group.module}>
+                <TR className="bg-surface-2">
                   <TD colSpan={roles.length + 1} className="text-xs font-semibold uppercase tracking-wide text-ink-3">
                     {group.label}
                   </TD>
@@ -98,7 +101,7 @@ export default async function RolesSettingsPage() {
                     })}
                   </TR>
                 ))}
-              </>
+              </Fragment>
             ))}
           </TBody>
         </Table>

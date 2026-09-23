@@ -7,7 +7,8 @@
     "node": ">=20.9"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
+    "dev:webpack": "next dev",
     "postinstall": "prisma generate",
     "doctor": "node scripts/doctor.mjs",
     "build": "prisma generate && next build",
