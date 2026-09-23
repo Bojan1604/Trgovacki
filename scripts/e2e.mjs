@@ -181,6 +181,46 @@ async function runSettings() {
   check('Popis poslovnica je popunjen', stores > 1, plural(stores, 'lokacija', 'lokacije', 'lokacija'));
   await shot('postavke-poslovnice');
 
+  // Otvaranje poslovnice s blagajnama i skladištem, pa dodavanje još jedne
+  // blagajne — cijeli put kojim se lanac širi na novu lokaciju.
+  const storeCode = `E2E${Date.now().toString().slice(-5)}`;
+  await page.click('a[href="/settings/stores/new"]');
+  await page.waitForSelector('text=Nova poslovnica', { timeout: 60_000 });
+  check('Gumb otvara obrazac nove poslovnice', true);
+  await page.getByLabel('Oznaka poslovnog prostora').fill(storeCode);
+  await page.getByLabel('Naziv').first().fill('E2E poslovnica');
+  await page.getByLabel('Grad').fill('Zagreb');
+  await page.getByLabel('Broj blagajni').fill('2');
+  await shot('postavke-nova-poslovnica');
+  await page.getByRole('button', { name: 'Otvori poslovnicu' }).click();
+  // Spremanje preusmjerava na detalj poslovnice; čekamo tu adresu, a ne tekst,
+  // jer se naslov "Blagajne" pojavi prije nego se tablica popuni.
+  await page.waitForFunction(
+    () => /\/settings\/stores\/[a-z0-9]{20,}$/.test(location.pathname),
+    null,
+    { timeout: 60_000 },
+  );
+  await page.waitForSelector('text=Prodajni prostor', { timeout: 60_000 });
+  const newRegisters = await page.locator('table').first().locator('tbody tr').count();
+  check('Poslovnica je otvorena sa zadanim blagajnama', newRegisters === 2,
+    plural(newRegisters, 'blagajna', 'blagajne', 'blagajni'));
+  check('Uz poslovnicu je kreirano prodajno skladište',
+    await page.getByText('Prodajni prostor').first().isVisible());
+
+  await page.getByRole('button', { name: 'Nova blagajna' }).click();
+  await page.getByRole('button', { name: 'Dodaj' }).click();
+  await page.waitForFunction(
+    () => document.querySelectorAll('table tbody tr').length >= 3,
+    null,
+    { timeout: 60_000 },
+  );
+  check('Blagajna je dodana u postojeću poslovnicu', true);
+  await shot('postavke-blagajne');
+
+  await page.locator('button:has-text("Isključi")').last().click();
+  await page.waitForSelector('text=Izvan pogona', { timeout: 60_000 });
+  check('Blagajna se može staviti izvan pogona', true);
+
   await page.goto(`${BASE}/settings/users`, { waitUntil: 'networkidle' });
   check('Popis korisnika je popunjen', (await page.locator('tbody tr').count()) > 1);
   await shot('postavke-korisnici');

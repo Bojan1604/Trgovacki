@@ -44,7 +44,11 @@ export default async function StoresSettingsPage() {
       <PageHeader
         title="Poslovnice"
         subtitle={`${stores.length} lokacija · oznaka poslovnog prostora koristi se u fiskalizaciji`}
-        actions={<Button size="sm" variant="primary" icon={<Plus className="size-3.5" />}>Nova poslovnica</Button>}
+        actions={
+          <Link href="/settings/stores/new">
+            <Button size="sm" variant="primary" icon={<Plus className="size-3.5" />}>Nova poslovnica</Button>
+          </Link>
+        }
       />
 
       <Card padded={false}>
@@ -68,9 +72,15 @@ export default async function StoresSettingsPage() {
           <TBody>
             {stores.map((store) => (
               <TR key={store.id}>
-                <TD className="font-mono text-sm font-medium">{store.code}</TD>
+                <TD className="font-mono text-sm font-medium">
+                  <Link href={`/settings/stores/${store.id}`} className="text-accent hover:underline">
+                    {store.code}
+                  </Link>
+                </TD>
                 <TD>
-                  <span className="font-medium">{store.name}</span>
+                  <Link href={`/settings/stores/${store.id}`} className="font-medium hover:underline">
+                    {store.name}
+                  </Link>
                   <span className="ml-1.5 text-2xs text-ink-4">{store.company.name}</span>
                 </TD>
                 <TD className="text-ink-2">{STORE_TYPE[store.type]}</TD>
@@ -97,7 +107,8 @@ export default async function StoresSettingsPage() {
       </Card>
 
       <p className="mt-2 px-1 text-2xs text-ink-4">
-        Otvaranje nove poslovnice automatski kreira prodajno skladište i zadanu blagajnu.
+        Otvaranje nove poslovnice odmah kreira prodajno skladište i zadane blagajne.
+        Klikom na poslovnicu otvarate njezine blagajne i skladišta.
         Prva poslovnica otvorena je {formatDate(stores[0]?.openedAt)}.
         <Link href="/settings/integrations" className="ml-1 text-accent hover:underline">
           Postavke fiskalizacije

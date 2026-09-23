@@ -131,6 +131,19 @@ blagajni koristite `serve`.
 
 ---
 
+### Poslovnice i blagajne
+
+**Postavke → Poslovnice → + Nova poslovnica.** Uz poslovnicu se u istoj
+transakciji otvaraju prodajno skladište i zadani broj blagajni — bez njih
+lokacija ne bi mogla ni zaprimiti robu ni naplatiti račun.
+
+Klik na poslovnicu u popisu otvara njezin detalj, gdje su **blagajne** i
+skladišta. Ondje se blagajna dodaje (**+ Nova blagajna**), preimenuje, upisuje
+joj se serijski broj uređaja i IP adresa te se stavlja izvan pogona i natrag.
+Blagajna s otvorenom smjenom ne može izvan pogona — smjenu treba prvo zatvoriti.
+
+Oznaka poslovnice i oznaka blagajne ulaze u broj računa i u fiskalizaciju.
+
 ### Demo pristup
 
 | Uloga | E-pošta | Lozinka |
@@ -358,7 +371,10 @@ Namjerno izvan opsega ove faze, uz pripremljene temelje:
   ali nisu testirani na uređajima.
 - **Offline rad blagajne** — naplata je idempotentna i spremna za red čekanja,
   ali lokalna pohrana košarice i sinkronizacija nisu implementirane.
-- **Uređivanje kroz sučelje** — dio šifrarnika (poslovnice, role, akcije) za
-  sada se popunjava kroz punjenje podataka; obrasci za izmjenu su sljedeći korak.
+- **Uređivanje kroz sučelje** — poslovnice, blagajne i artikli imaju obrasce;
+  ostatak šifrarnika za sada se popunjava punjenjem podataka. Gumbi za koje
+  obrazac još ne postoji: *Nova kategorija*, *Novi brend*, *Novi dobavljač*,
+  *Novi kupac*, *Novi način plaćanja*, *Nova inventura*, *Novi otpis* i
+  *Nova međuskladišnica*. Klik na njih zasad ne otvara ništa.
 - **Testovi sučelja** — pokriveni su domenska logika i tok naplate; nema
   automatiziranih testova samih ekrana.
