@@ -33,3 +33,18 @@ export function landingPath(permissions: string[]): string {
   const match = LANDING_ROUTES.find((route) => hasPermission(permissions, route.permission));
   return match?.href ?? NO_ACCESS_PATH;
 }
+
+/**
+ * Izlaz iz blagajne natrag u back office.
+ *
+ * Namjerno preskače `/pos`: blagajnik se ondje prijavljuje, pa bi ga veza na
+ * vlastito odredište vratila u blagajnu iz koje pokušava izaći. `null` znači
+ * da korisnik doista nema nijednu stranicu izvan blagajne i da vezu ne treba
+ * ni prikazivati.
+ */
+export function backOfficePath(permissions: string[]): string | null {
+  const match = LANDING_ROUTES.find(
+    (route) => route.href !== '/pos' && hasPermission(permissions, route.permission),
+  );
+  return match?.href ?? null;
+}

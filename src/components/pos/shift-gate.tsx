@@ -6,15 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input, Select } from '@/components/ui/field';
 import { formatAmount } from '@/lib/format';
 import { Numpad, numpadValue } from './numpad';
+import { BackOfficeLink } from './back-office-link';
 import type { PosSession } from './types';
 
 /** Zaslon otvaranja smjene — blagajna ne radi dok smjena nije otvorena. */
 export function ShiftGate({
   session,
   onOpened,
+  backHref,
 }: {
   session: PosSession;
   onOpened: () => void;
+  /** Izlaz iz blagajne; `null` znači da korisnik ima samo blagajnu. */
+  backHref: string | null;
 }) {
   const [registerId, setRegisterId] = useState(session.registers[0]?.id ?? '');
   const [amount, setAmount] = useState('150');
@@ -49,7 +53,12 @@ export function ShiftGate({
   }
 
   return (
-    <div className="grid h-full place-items-center p-6">
+    <div className="relative grid h-full place-items-center p-6">
+      {/* Izlaz iz blagajne — bez njega je zaslon otvaranja smjene slijepa ulica. */}
+      <div className="absolute left-2.5 top-2.5">
+        <BackOfficeLink href={backHref} />
+      </div>
+
       <div className="w-full max-w-[380px]">
         <div className="mb-4 text-center">
           <div className="mx-auto mb-2.5 grid size-11 place-items-center rounded-2xl bg-accent text-white">

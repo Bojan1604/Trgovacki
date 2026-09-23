@@ -212,10 +212,19 @@ async function runPos() {
   await page.goto(`${BASE}/pos`, { waitUntil: 'networkidle' });
   if (await page.getByRole('button', { name: /Otvori smjenu/ }).count()) {
     await shot('blagajna-otvaranje-smjene');
+    // Blagajna zauzima cijeli ekran; bez izlaza je zaslon otvaranja smjene
+    // slijepa ulica iz koje korisnik ne može natrag u back office.
+    const gateExit = page.locator('a:has-text("Back office")').first();
+    check('Zaslon otvaranja smjene nudi izlaz u back office',
+      await gateExit.isVisible(), await gateExit.getAttribute('href'));
     await page.getByRole('button', { name: /Otvori smjenu/ }).click();
   }
   await page.waitForSelector('text=Košarica je prazna', { timeout: 60_000 });
   check('Smjena je otvorena i blagajna je spremna', true);
+
+  const posExit = page.locator('a:has-text("Back office")').first();
+  check('Otvorena blagajna nudi izlaz u back office',
+    await posExit.isVisible(), await posExit.getAttribute('href'));
 
   section('Blagajna — košarica');
   const tiles = page.locator('section button.group');

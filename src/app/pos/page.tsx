@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { accessibleStoreIds, getSessionUser } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { landingPath } from '@/lib/landing';
+import { backOfficePath, landingPath } from '@/lib/landing';
 import { PosTerminal } from '@/components/pos/pos-terminal';
 
 export const dynamic = 'force-dynamic';
@@ -33,6 +33,7 @@ export default async function PosPage({
       storeId={storeId}
       categories={categories}
       operator={{ id: user.id, name: user.fullName, initials: user.initials }}
+      backHref={backOfficePath(user.permissions)}
     />
   );
 }

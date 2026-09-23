@@ -1,9 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import {
-  ArrowLeft, Barcode, Check, ChevronLeft, Loader2, Minus, Pause, Percent, Play, Plus,
+  Barcode, Check, ChevronLeft, Loader2, Minus, Pause, Percent, Play, Plus,
   Printer, RotateCcw, Search, ShoppingBasket, Trash2, User, X,
 } from 'lucide-react';
 import { Button, IconButton } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import { useToast } from '@/components/ui/toast';
 import { formatAmount, formatQty, formatTime } from '@/lib/format';
 import { roundAmount } from '@/lib/money';
 import { cn } from '@/lib/utils';
+import { BackOfficeLink } from './back-office-link';
 import { ShiftGate } from './shift-gate';
 import { CustomerPanel } from './customer-panel';
 import { PaymentPanel, type DraftPayment } from './payment-panel';
@@ -30,10 +30,13 @@ export function PosTerminal({
   storeId,
   categories,
   operator,
+  backHref,
 }: {
   storeId: string;
   categories: { id: string; name: string; code: string }[];
   operator: { id: string; name: string; initials: string };
+  /** Izlaz u back office; `null` kad korisnik nema nijednu stranicu izvan blagajne. */
+  backHref: string | null;
 }) {
   const toast = useToast();
   const [session, setSession] = useState<PosSession | null>(null);
@@ -403,14 +406,15 @@ export function PosTerminal({
 
   if (!session) {
     return (
-      <div className="grid h-full place-items-center">
+      <div className="grid h-full place-items-center gap-2 text-center">
         <p className="text-base text-ink-3">Blagajnu nije moguće učitati.</p>
+        <BackOfficeLink href={backHref} className="justify-self-center" />
       </div>
     );
   }
 
   if (!session.shift) {
-    return <ShiftGate session={session} onOpened={loadSession} />;
+    return <ShiftGate session={session} onOpened={loadSession} backHref={backHref} />;
   }
 
   const quoteLineByKey = new Map((quote?.lines ?? []).map((l, index) => [cart[index]?.key ?? l.key, l]));
@@ -419,10 +423,12 @@ export function PosTerminal({
     <div className="flex h-full flex-col">
       {/* Gornja traka */}
       <header className="flex h-[46px] shrink-0 items-center gap-2 border-b border-hairline bg-surface px-2.5">
-        <Link href="/dashboard" className="flex items-center gap-1 rounded-md px-1.5 py-1 text-sm text-ink-3 hover:bg-surface-3 hover:text-ink">
-          <ArrowLeft className="size-3.5" /> Back office
-        </Link>
-        <div className="h-4 w-px bg-hairline" />
+        {backHref && (
+          <>
+            <BackOfficeLink href={backHref} />
+            <div className="h-4 w-px bg-hairline" />
+          </>
+        )}
         <span className="text-base font-semibold">{session.store.name}</span>
         <Badge tone="neutral">{session.shift.registerName}</Badge>
         <Badge tone="positive" dot>Smjena {session.shift.number}</Badge>
