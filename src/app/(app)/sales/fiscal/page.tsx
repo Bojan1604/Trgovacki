@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { AlertTriangle, RefreshCw, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
+import { FiscalRetryButton } from '@/components/sales/fiscal-retry-button';
 import { requirePageAccess } from '@/lib/page-auth';
 import { accessibleStoreIds } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -8,7 +9,6 @@ import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime } from '@/lib/format';
 import { FISCAL_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, EmptyState, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 import { StatTile } from '@/components/charts/stat-tile';
 
@@ -59,9 +59,7 @@ export default async function FiscalPage() {
         title="Fiskalizacija"
         subtitle="Status dostave računa poreznoj upravi i red čekanja za ponovno slanje"
         actions={
-          <Button size="sm" variant="primary" icon={<RefreshCw className="size-3.5" />} disabled={failedCount + pending === 0}>
-            Ponovi slanje ({failedCount + pending})
-          </Button>
+          <FiscalRetryButton count={failedCount + pending} />
         }
       />
 

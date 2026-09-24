@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Check, Printer, X } from 'lucide-react';
+import { ArrowLeft, Check, X } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
@@ -9,6 +9,7 @@ import { formatAmount, formatDate, formatPercent, formatQty } from '@/lib/format
 import { PRICE_CHANGE_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, PageHeader } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
+import { PrintButton } from '@/components/ui/print-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 
 export const dynamic = 'force-dynamic';
@@ -47,7 +48,7 @@ export default async function PriceChangeDetailPage({ params }: { params: Promis
         }
         actions={
           <>
-            <Button size="sm" variant="secondary" icon={<Printer className="size-3.5" />}>Ispis</Button>
+            <PrintButton>Ispis</PrintButton>
             {doc.status === 'DRAFT' && (
               <>
                 <Button size="sm" variant="secondary" icon={<X className="size-3.5" />}>Odbaci</Button>

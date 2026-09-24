@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { Plus, Tags } from 'lucide-react';
+import { Tags } from 'lucide-react';
 
+import { BrandDialog } from '@/components/catalog/brand-dialog';
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { formatAmount, formatQty } from '@/lib/format';
 import { resolveRange } from '@/lib/ranges';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 
 export const metadata = { title: 'Brendovi' };
@@ -47,7 +47,7 @@ export default async function BrandsPage() {
       <PageHeader
         title="Brendovi"
         subtitle={`${brands.length} brendova · promet posljednjih 90 dana`}
-        actions={<Button size="sm" variant="primary" icon={<Plus className="size-3.5" />}>Novi brend</Button>}
+        actions={<BrandDialog />}
       />
       <Card padded={false}>
         <Table>
@@ -60,6 +60,7 @@ export default async function BrandsPage() {
               <TH numeric width={110}>Promet</TH>
               <TH numeric width={110}>Marža</TH>
               <TH width={90}>Status</TH>
+              <TH width={50} />
             </TR>
           </THead>
           <TBody>
@@ -78,6 +79,11 @@ export default async function BrandsPage() {
                   <TD numeric className="font-medium">{stat ? formatAmount(Number(stat.total), 0) : '—'}</TD>
                   <TD numeric className="text-positive">{stat ? formatAmount(Number(stat.margin), 0) : '—'}</TD>
                   <TD><Badge tone={brand.isActive ? 'positive' : 'neutral'}>{brand.isActive ? 'Aktivan' : 'Neaktivan'}</Badge></TD>
+                  <TD>
+                    <div className="flex justify-end">
+                      <BrandDialog brand={{ id: brand.id, code: brand.code, name: brand.name, isActive: brand.isActive }} />
+                    </div>
+                  </TD>
                 </TR>
               );
             })}

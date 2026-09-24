@@ -128,6 +128,13 @@ async function runReports() {
       rowCount > 0 ? plural(rowCount, 'redak', 'retka', 'redaka') : 'prazno stanje');
   }
 
+  // Ispis i izvoz na izvještaju — oba su prije bila mrtva.
+  const download = page.waitForEvent('download', { timeout: 30_000 }).catch(() => null);
+  await page.getByRole('button', { name: /Izvoz/ }).first().click();
+  const file = await download;
+  check('Izvještaj se izvozi u CSV', Boolean(file), file ? await file.suggestedFilename() : 'nema datoteke');
+  check('Izvještaj nudi ispis', await page.getByRole('button', { name: /Ispis/ }).first().isVisible());
+
   await page.goto(`${BASE}/reports/margin`, { waitUntil: 'networkidle' });
   await shot('izvjestaj-marza', { fullPage: true });
   await page.goto(`${BASE}/reports/abc`, { waitUntil: 'networkidle' });
@@ -282,6 +289,15 @@ async function runPos() {
   await page.goto(`${BASE}/pos`, { waitUntil: 'networkidle' });
   if (await page.getByRole('button', { name: /Otvori smjenu/ }).count()) {
     await shot('blagajna-otvaranje-smjene');
+    // Zauzete blagajne su onemogućene; biramo prvu slobodnu, inače bi
+    // otvaranje palo na tuđoj otvorenoj smjeni.
+    const freeRegister = await page
+      .getByLabel('Blagajna')
+      .locator('option:not([disabled])')
+      .first()
+      .getAttribute('value');
+    check('Zauzete blagajne se ne nude', Boolean(freeRegister));
+    if (freeRegister) await page.getByLabel('Blagajna').selectOption(freeRegister);
     // Blagajna zauzima cijeli ekran; bez izlaza je zaslon otvaranja smjene
     // slijepa ulica iz koje korisnik ne može natrag u back office.
     const gateExit = page.locator('a:has-text("Back office")').first();
@@ -601,6 +617,50 @@ try {
     await dialog.waitFor({ state: 'hidden', timeout: 60_000 });
   }
   check('Kategorija se može deaktivirati', true);
+
+  // Šifrarnici: gumbi koji su nekad bili ukras moraju otvarati obrazac.
+  const dialogOpens = [
+    ['/catalog/brands', 'Novi brend'],
+    ['/catalog/suppliers', 'Novi dobavljač'],
+    ['/customers', 'Novi kupac'],
+    ['/settings/payment-methods', 'Novi način'],
+  ];
+  for (const [href, label] of dialogOpens) {
+    await page.goto(`${BASE}${href}`, { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: label }).first().click();
+    const opened = await dialog.isVisible().catch(() => false);
+    check(`Gumb „${label}" otvara obrazac`, opened);
+    await page.keyboard.press('Escape');
+  }
+
+  // Puni krug na brendu: unos, izmjena, gašenje.
+  await page.goto(`${BASE}/catalog/brands`, { waitUntil: 'networkidle' });
+  const brandBefore = await page.locator('tbody tr').count();
+  const brandCode = `E2E${Date.now().toString().slice(-5)}`;
+  await page.getByRole('button', { name: 'Novi brend' }).click();
+  await dialog.waitFor({ state: 'visible', timeout: 60_000 });
+  await dialog.getByLabel(/^Šifra/).fill(brandCode);
+  await dialog.getByLabel(/^Naziv/).fill('E2E brend');
+  await dialog.getByRole('button', { name: 'Dodaj' }).click();
+  await page.waitForFunction(
+    (n) => document.querySelectorAll('tbody tr').length === n + 1,
+    brandBefore,
+    { timeout: 60_000 },
+  );
+  check('Brend je spremljen', true, brandCode);
+
+  await page.locator('tbody tr', { hasText: 'E2E brend' }).first().getByLabel('Izmijeni brend').click();
+  await dialog.waitFor({ state: 'visible', timeout: 60_000 });
+  await dialog.getByText('Aktivan', { exact: true }).click();
+  await dialog.getByRole('button', { name: 'Spremi' }).click();
+  await dialog.waitFor({ state: 'hidden', timeout: 60_000 });
+  await page.waitForFunction(
+    () => [...document.querySelectorAll('tbody tr')]
+      .some((tr) => tr.textContent?.includes('E2E brend') && tr.textContent?.includes('Neaktivan')),
+    null,
+    { timeout: 60_000 },
+  );
+  check('Brend se može ugasiti', true);
 
   await page.goto(`${BASE}/catalog/products`, { waitUntil: 'networkidle' });
   await page.locator('tbody tr td a').first().click();

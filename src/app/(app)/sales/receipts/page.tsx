@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Download, Receipt } from 'lucide-react';
+import { Receipt } from 'lucide-react';
 import { Prisma } from '@prisma/client';
 import { requirePageAccess } from '@/lib/page-auth';
 import { accessibleStoreIds, resolveStoreScope } from '@/lib/auth';
@@ -9,7 +9,7 @@ import { formatAmount, formatDateTime } from '@/lib/format';
 import { FISCAL_STATUS, SALE_STATUS } from '@/lib/labels';
 import { resolveRange } from '@/lib/ranges';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
+import { ExportButton } from '@/components/ui/export-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/navigation';
 import { FilterBar } from '@/components/filters/filter-bar';
@@ -80,7 +80,7 @@ export default async function SalesReceiptsPage({
         </div>
         <div className="flex items-center gap-2">
           <RangePicker current={preset} showScope={false} />
-          <Button size="sm" variant="secondary" icon={<Download className="size-3.5" />}>Izvoz</Button>
+          <ExportButton filename="racuni" />
         </div>
       </div>
 

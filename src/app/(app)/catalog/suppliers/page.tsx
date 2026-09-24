@@ -1,13 +1,13 @@
 import Link from 'next/link';
-import { Handshake, Plus } from 'lucide-react';
+import { Handshake } from 'lucide-react';
 import { Prisma } from '@prisma/client';
 
+import { SupplierDialog } from '@/components/catalog/supplier-dialog';
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatPercent } from '@/lib/format';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 import { FilterBar } from '@/components/filters/filter-bar';
 
@@ -58,7 +58,7 @@ export default async function SuppliersPage({
       <PageHeader
         title="Dobavljači"
         subtitle={`${suppliers.length} dobavljača`}
-        actions={<Button size="sm" variant="primary" icon={<Plus className="size-3.5" />}>Novi dobavljač</Button>}
+        actions={<SupplierDialog />}
       />
 
       <FilterBar
@@ -94,6 +94,7 @@ export default async function SuppliersPage({
               <TH numeric width={80}>Artikala</TH>
               <TH numeric width={110}>Nabavljeno</TH>
               <TH width={80}>Status</TH>
+              <TH width={50} />
             </TR>
           </THead>
           <TBody>
@@ -119,6 +120,23 @@ export default async function SuppliersPage({
                     <Badge tone={supplier.isActive ? 'positive' : 'neutral'}>
                       {supplier.isActive ? 'Aktivan' : 'Neaktivan'}
                     </Badge>
+                  </TD>
+                  <TD>
+                    <div className="flex justify-end">
+                      <SupplierDialog
+                        supplier={{
+                          id: supplier.id, code: supplier.code, name: supplier.name,
+                          legalName: supplier.legalName, vatId: supplier.vatId,
+                          contactPerson: supplier.contactPerson, email: supplier.email,
+                          phone: supplier.phone, addressLine: supplier.addressLine,
+                          city: supplier.city, postalCode: supplier.postalCode, iban: supplier.iban,
+                          paymentTerms: supplier.paymentTerms, leadTimeDays: supplier.leadTimeDays,
+                          minOrderValue: toNumber(supplier.minOrderValue),
+                          discountPct: toNumber(supplier.discountPct),
+                          isActive: supplier.isActive,
+                        }}
+                      />
+                    </div>
                   </TD>
                 </TR>
               );

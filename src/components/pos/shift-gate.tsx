@@ -20,7 +20,9 @@ export function ShiftGate({
   /** Izlaz iz blagajne; `null` znači da korisnik ima samo blagajnu. */
   backHref: string | null;
 }) {
-  const [registerId, setRegisterId] = useState(session.registers[0]?.id ?? '');
+  // Zauzeta blagajna se ne nudi kao početni odabir.
+  const free = session.registers.filter((r) => !r.busyBy);
+  const [registerId, setRegisterId] = useState(free[0]?.id ?? session.registers[0]?.id ?? '');
   const [amount, setAmount] = useState('150');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,8 +77,17 @@ export function ShiftGate({
             label="Blagajna"
             value={registerId}
             onChange={(e) => setRegisterId(e.target.value)}
-            options={session.registers.map((r) => ({ value: r.id, label: r.name }))}
+            options={session.registers.map((r) => ({
+              value: r.id,
+              label: r.busyBy ? `${r.name} — zauzeta (${r.busyBy})` : r.name,
+              disabled: Boolean(r.busyBy),
+            }))}
             className="mb-3"
+            help={
+              free.length === 0
+                ? 'Sve blagajne imaju otvorenu smjenu. Zatvorite jednu ili dodajte novu u postavkama.'
+                : undefined
+            }
           />
 
           <label className="mb-1 block text-sm font-medium text-ink-2">Početni saldo u ladici</label>
@@ -97,7 +108,7 @@ export function ShiftGate({
             size="lg"
             block
             loading={loading}
-            disabled={!registerId}
+            disabled={!registerId || free.length === 0}
             icon={<LogIn className="size-4" />}
             onClick={open}
           >

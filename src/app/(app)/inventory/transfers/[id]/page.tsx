@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Check, Printer, Truck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Truck } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
@@ -9,6 +9,7 @@ import { formatAmount, formatDateTime, formatQty } from '@/lib/format';
 import { TRANSFER_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, PageHeader } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
+import { PrintButton } from '@/components/ui/print-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 
 export const dynamic = 'force-dynamic';
@@ -60,7 +61,7 @@ export default async function TransferDetailPage({ params }: { params: Promise<{
         }
         actions={
           <>
-            <Button size="sm" variant="secondary" icon={<Printer className="size-3.5" />}>Otpremnica</Button>
+            <PrintButton>Otpremnica</PrintButton>
             {transfer.status === 'APPROVED' && (
               <Button size="sm" variant="primary" icon={<Truck className="size-3.5" />}>Otpremi</Button>
             )}

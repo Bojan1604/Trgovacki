@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Boxes, Download } from 'lucide-react';
+import { Boxes } from 'lucide-react';
 import { requirePageAccess } from '@/lib/page-auth';
 import { accessibleStoreIds, resolveStoreScope } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { formatAmount, formatQty } from '@/lib/format';
 import { Card, EmptyState, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
+import { ExportButton } from '@/components/ui/export-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/navigation';
 import { FilterBar } from '@/components/filters/filter-bar';
@@ -99,7 +99,7 @@ export default async function StockPage({
       <PageHeader
         title="Stanje zaliha"
         subtitle={selectedStoreId ? 'Odabrana poslovnica' : `Zbirno za ${allStores.length} lokacija`}
-        actions={<Button size="sm" variant="secondary" icon={<Download className="size-3.5" />}>Izvoz u CSV</Button>}
+        actions={<ExportButton filename="stanje-zaliha" />}
       />
 
       <div className="mb-3 grid grid-cols-2 gap-2.5 lg:grid-cols-4">

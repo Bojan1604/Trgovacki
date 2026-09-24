@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Check, Printer } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
@@ -9,6 +9,7 @@ import { formatAmount, formatDate, formatPercent, formatQty } from '@/lib/format
 import { DOC_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, PageHeader } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
+import { PrintButton } from '@/components/ui/print-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 
 export const dynamic = 'force-dynamic';
@@ -68,7 +69,7 @@ export default async function ReceiptDetailPage({ params }: { params: Promise<{ 
         }
         actions={
           <>
-            <Button size="sm" variant="secondary" icon={<Printer className="size-3.5" />}>Ispis kalkulacije</Button>
+            <PrintButton>Ispis kalkulacije</PrintButton>
             {receipt.status !== 'POSTED' && (
               <Button size="sm" variant="primary" icon={<Check className="size-3.5" />}>Proknjiži</Button>
             )}

@@ -11,6 +11,7 @@
     "dev:webpack": "next dev",
     "postinstall": "prisma generate",
     "doctor": "node scripts/doctor.mjs",
+    "audit": "node scripts/audit.mjs",
     "build": "prisma generate && next build",
     "start": "next start",
     "serve": "npm run build && npm run start",

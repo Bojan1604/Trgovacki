@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Download, Plus } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { Prisma } from '@prisma/client';
 
 import { requirePageAccess } from '@/lib/page-auth';
@@ -9,6 +9,7 @@ import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate } from '@/lib/format';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
+import { ExportButton } from '@/components/ui/export-button';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/navigation';
 import { FilterBar } from '@/components/filters/filter-bar';
@@ -84,7 +85,7 @@ export default async function PriceListDetailPage({
         }
         actions={
           <>
-            <Button size="sm" variant="secondary" icon={<Download className="size-3.5" />}>Izvoz</Button>
+            <ExportButton filename="cjenik" />
             <Button size="sm" variant="primary" icon={<Plus className="size-3.5" />}>Dodaj artikl</Button>
           </>
         }

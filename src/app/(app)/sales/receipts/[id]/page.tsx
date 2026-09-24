@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Mail, Printer, RotateCcw, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Mail, RotateCcw, ShieldCheck } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
@@ -9,6 +9,7 @@ import { formatAmount, formatDateTime, formatPercent, formatQty } from '@/lib/fo
 import { FISCAL_STATUS, SALE_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, PageHeader } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
+import { PrintButton } from '@/components/ui/print-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 
 export const dynamic = 'force-dynamic';
@@ -58,7 +59,7 @@ export default async function SaleDetailPage({ params }: { params: Promise<{ id:
         }
         actions={
           <div className="no-print flex items-center gap-1.5">
-            <Button size="sm" variant="secondary" icon={<Printer className="size-3.5" />}>Ispiši</Button>
+            <PrintButton>Ispiši</PrintButton>
             <Button size="sm" variant="secondary" icon={<Mail className="size-3.5" />}>Pošalji e-poštom</Button>
             {!isRefund && sale.status === 'COMPLETED' && (
               <Button size="sm" variant="danger" icon={<RotateCcw className="size-3.5" />}>Povrat</Button>

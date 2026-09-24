@@ -684,6 +684,41 @@ export async function seedOperations(db: PrismaClient, ctx: SeedContext) {
   `;
 
   // Usklađivanje zaliha s prodajom
+  //
+  // Računi se generiraju skupno, izvan servisa naplate, pa se i kretanja
+  // zalihe moraju napisati ovdje. Bez njih kartica artikla pokazuje samo
+  // početno stanje i ne objašnjava zašto je zaliha manja — a upravo to je
+  // prvo što se u trgovini provjerava kad se stanje ne slaže.
+  console.log('▸ Knjiženje izlaza po prodaji…');
+  await db.$executeRaw`
+    INSERT INTO stock_movements
+      (id, "warehouseId", "variantId", type, quantity, "unitCost", "totalCost",
+       "balanceAfter", "avgCostAfter", "refType", "refId", "refNumber", "occurredAt", "createdAt")
+    SELECT
+      md5(random()::text || clock_timestamp()::text || sl.id),
+      w.id,
+      sl."variantId",
+      'SALE',
+      -sl.quantity,
+      COALESCE(sl."unitCost", 0),
+      -COALESCE(sl."costTotal", 0),
+      -- Tekući saldo: početno stanje umanjeno za dotadašnju prodaju.
+      si.quantity - SUM(sl.quantity) OVER (
+        PARTITION BY w.id, sl."variantId" ORDER BY s."issuedAt", sl.id
+      ),
+      COALESCE(si."avgCost", 0),
+      'sale',
+      s.id,
+      s.number,
+      s."issuedAt",
+      s."issuedAt"
+    FROM sale_lines sl
+    JOIN sales s ON s.id = sl."saleId"
+    JOIN warehouses w ON w."storeId" = s."storeId" AND w."isSellable" = true
+    JOIN stock_items si ON si."warehouseId" = w.id AND si."variantId" = sl."variantId"
+    WHERE s.kind = 'RECEIPT'
+  `;
+
   console.log('▸ Usklađivanje zaliha nakon prodaje…');
   await db.$executeRaw`
     UPDATE stock_items si
@@ -692,10 +727,39 @@ export async function seedOperations(db: PrismaClient, ctx: SeedContext) {
       SELECT sl."variantId", s."storeId", SUM(sl."quantity") AS qty
       FROM sale_lines sl
       JOIN sales s ON s."id" = sl."saleId"
+      WHERE s.kind = 'RECEIPT'
       GROUP BY sl."variantId", s."storeId"
     ) sold
     JOIN warehouses w ON w."storeId" = sold."storeId" AND w."isSellable" = true
     WHERE si."variantId" = sold."variantId" AND si."warehouseId" = w."id"
+  `;
+
+  // Gdje je prodaja premašila početno stanje, zaliha je zaustavljena na nuli,
+  // pa saldo u kartici ostaje niži od stvarnog. Razlika se knjiži kao
+  // inventurna korekcija — isto što bi u trgovini napravio popis.
+  console.log('▸ Korekcija zalihe gdje je prodaja premašila stanje…');
+  await db.$executeRaw`
+    INSERT INTO stock_movements
+      (id, "warehouseId", "variantId", type, quantity, "balanceAfter", "avgCostAfter",
+       "refType", note, "occurredAt", "createdAt")
+    SELECT
+      md5(random()::text || clock_timestamp()::text || si.id),
+      si."warehouseId", si."variantId", 'STOCKTAKE',
+      si.quantity - zadnji."balanceAfter",
+      si.quantity,
+      COALESCE(si."avgCost", 0),
+      'stock_take',
+      'Usklađenje početnog stanja',
+      NOW(), NOW()
+    FROM stock_items si
+    JOIN LATERAL (
+      SELECT sm."balanceAfter"
+      FROM stock_movements sm
+      WHERE sm."warehouseId" = si."warehouseId" AND sm."variantId" = si."variantId"
+      ORDER BY sm."occurredAt" DESC, sm.id DESC
+      LIMIT 1
+    ) zadnji ON true
+    WHERE ABS(si.quantity - zadnji."balanceAfter") > 0.0001
   `;
 
   // =========================================================================

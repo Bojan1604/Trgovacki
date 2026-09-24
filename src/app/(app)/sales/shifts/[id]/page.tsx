@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
 import { shiftReport } from '@/lib/services/shifts';
@@ -8,7 +8,7 @@ import { toNumber } from '@/lib/money';
 import { formatAmount, formatDateTime, formatPercent, formatQty } from '@/lib/format';
 import { SHIFT_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
+import { PrintButton } from '@/components/ui/print-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 import { StatTile } from '@/components/charts/stat-tile';
 import { ShareBar } from '@/components/charts/share-bar';
@@ -53,7 +53,7 @@ export default async function ShiftDetailPage({ params }: { params: Promise<{ id
             <Badge tone={SHIFT_STATUS[shift.status].tone} dot>{SHIFT_STATUS[shift.status].label}</Badge>
           </span>
         }
-        actions={<Button size="sm" variant="secondary" icon={<Printer className="size-3.5" />} className="no-print">Ispiši Z-izvještaj</Button>}
+        actions={<PrintButton>Ispiši Z-izvještaj</PrintButton>}
       />
 
       <div className="mb-3 grid grid-cols-2 gap-2.5 lg:grid-cols-5">

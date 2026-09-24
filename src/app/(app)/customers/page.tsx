@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import { Plus, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { Prisma } from '@prisma/client';
 
+import { CustomerDialog } from '@/components/customers/customer-dialog';
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatAmount, formatDate, formatPercent } from '@/lib/format';
 import { CUSTOMER_TYPE } from '@/lib/labels';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/navigation';
 import { FilterBar } from '@/components/filters/filter-bar';
@@ -73,7 +73,7 @@ export default async function CustomersPage({
       <PageHeader
         title="Kupci"
         subtitle={`${total.toLocaleString('hr-HR')} kupaca u bazi`}
-        actions={<Button size="sm" variant="primary" icon={<Plus className="size-3.5" />}>Novi kupac</Button>}
+        actions={<CustomerDialog groups={groups} />}
       />
 
       <div className="mb-3 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
@@ -108,6 +108,7 @@ export default async function CustomersPage({
               <TH numeric width={70}>Kupnji</TH>
               <TH numeric width={110}>Potrošeno</TH>
               <TH width={110}>Zadnja kupnja</TH>
+              <TH width={50} />
             </TR>
           </THead>
           <TBody>
@@ -140,6 +141,26 @@ export default async function CustomersPage({
                   <TD numeric>{customer.orderCount}</TD>
                   <TD numeric className="font-medium">{formatAmount(toNumber(customer.totalSpent), 0)}</TD>
                   <TD className="text-sm text-ink-3">{formatDate(customer.lastPurchaseAt)}</TD>
+                  <TD>
+                    <div className="flex justify-end">
+                      <CustomerDialog
+                        groups={groups}
+                        customer={{
+                          id: customer.id, type: customer.type,
+                          firstName: customer.firstName, lastName: customer.lastName,
+                          companyName: customer.companyName, vatId: customer.vatId,
+                          email: customer.email, phone: customer.phone,
+                          addressLine: customer.addressLine, city: customer.city,
+                          postalCode: customer.postalCode, groupId: customer.groupId,
+                          discountPct: toNumber(customer.discountPct),
+                          creditLimit: toNumber(customer.creditLimit),
+                          paymentTerms: customer.paymentTerms,
+                          marketingOptIn: customer.marketingOptIn,
+                          isActive: customer.isActive,
+                        }}
+                      />
+                    </div>
+                  </TD>
                 </TR>
               );
             })}

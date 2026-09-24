@@ -1,10 +1,22 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { RangePicker } from '@/components/filters/range-picker';
-import { Button } from '@/components/ui/button';
+import { ExportButton } from '@/components/ui/export-button';
+import { PrintButton } from '@/components/ui/print-button';
 
-/** Zajednički okvir izvještaja: naslov, odabir razdoblja i izvoz. */
+/** Naziv datoteke iz naslova izvještaja, bez dijakritike i razmaka. */
+function slugify(title: string) {
+  return title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/** Zajednički okvir izvještaja: naslov, odabir razdoblja, ispis i izvoz. */
 export function ReportShell({
   title,
   subtitle,
@@ -36,9 +48,8 @@ export function ReportShell({
         <div className="no-print flex items-center gap-2">
           <RangePicker current={range} scope={scope} showScope={showScope} />
           {actions}
-          <Button size="sm" variant="secondary" icon={<Download className="size-3.5" />}>
-            Izvoz
-          </Button>
+          <PrintButton />
+          <ExportButton filename={slugify(title)} />
         </div>
       </div>
 

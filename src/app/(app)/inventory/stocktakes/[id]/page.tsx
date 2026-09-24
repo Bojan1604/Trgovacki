@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Check, Printer } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
@@ -9,6 +9,7 @@ import { formatAmount, formatDateTime, formatQty } from '@/lib/format';
 import { STOCKTAKE_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, PageHeader, Progress } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
+import { PrintButton } from '@/components/ui/print-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 import { StatTile } from '@/components/charts/stat-tile';
 
@@ -60,7 +61,7 @@ export default async function StockTakeDetailPage({
         }
         actions={
           <>
-            <Button size="sm" variant="secondary" icon={<Printer className="size-3.5" />}>Ispis popisa</Button>
+            <PrintButton>Ispis popisa</PrintButton>
             {take.status === 'REVIEW' && (
               <Button size="sm" variant="primary" icon={<Check className="size-3.5" />}>Odobri i proknjiži</Button>
             )}

@@ -93,7 +93,8 @@ export interface PosSession {
     allowNegativeStock: boolean;
     fiscalEnabled: boolean;
   };
-  registers: { id: string; code: string; name: string }[];
+  /** `busyBy` je ime blagajnika koji na tom uređaju već ima otvorenu smjenu. */
+  registers: { id: string; code: string; name: string; busyBy: string | null }[];
   paymentMethods: PaymentMethodOption[];
   shift: {
     id: string;

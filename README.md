@@ -192,6 +192,17 @@ kad je riješena. Kad nema ničega, piše da je sustav spreman.
 Centralno skladište i web shop ne traže blagajnu ni prodajni prostor — ondje bi
 to bio lažni alarm.
 
+### Provjera sučelja
+
+```bat
+npm run audit
+```
+
+Prolazi kroz sve `.tsx` datoteke i ispisuje **gumbe bez radnje** (bez `onClick`,
+`href`, `type="submit"` ili roditelja `Link`) te **veze koje ne vode ni na jednu
+rutu**. Veza bez rute vraća izlazni kod 1 — to je uvijek kvar. Mrtvi gumbi se
+samo popisuju, jer dio njih čeka funkcionalnost koja tek dolazi.
+
 ### Demo pristup
 
 | Uloga | E-pošta | Lozinka |
@@ -419,10 +430,11 @@ Namjerno izvan opsega ove faze, uz pripremljene temelje:
   ali nisu testirani na uređajima.
 - **Offline rad blagajne** — naplata je idempotentna i spremna za red čekanja,
   ali lokalna pohrana košarice i sinkronizacija nisu implementirane.
-- **Uređivanje kroz sučelje** — poslovnice, blagajne, kategorije, ponuda
-  poslovnice i artikli imaju obrasce; ostatak šifrarnika za sada se popunjava
-  punjenjem podataka. Gumbi za koje obrazac još ne postoji: *Novi brend*,
-  *Novi dobavljač*, *Novi kupac*, *Novi način plaćanja*, *Nova inventura*,
-  *Novi otpis* i *Nova međuskladišnica*. Klik na njih zasad ne otvara ništa.
+- **Radnje nad dokumentima** — narudžbenica, primka, međuskladišnica,
+  inventura, otpis i nivelacija prikazuju se i čitaju, ali se još ne mogu
+  kreirati ni provesti kroz sučelje. `npm run audit` ispisuje točan popis
+  gumba koji zato još ne rade; trenutno ih je 27. Svaki od njih traži
+  poslužiteljski servis s pravilima struke (rezervacija zalihe, kalkulacija,
+  knjiženje), pa to nije rad na sučelju nego na domeni.
 - **Testovi sučelja** — pokriveni su domenska logika i tok naplate; nema
   automatiziranih testova samih ekrana.

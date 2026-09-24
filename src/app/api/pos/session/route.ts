@@ -18,7 +18,19 @@ export async function GET(request: Request) {
         where: { id: storeId, tenantId: user.tenantId },
         include: {
           company: { select: { legalName: true, vatId: true, addressLine: true, city: true, invoiceFooter: true } },
-          registers: { where: { isActive: true }, orderBy: { code: 'asc' } },
+          registers: {
+            where: { isActive: true },
+            orderBy: { code: 'asc' },
+            // Na blagajni s tuđom otvorenom smjenom ne može se otvoriti nova,
+            // pa to mora biti vidljivo prije klika, a ne nakon njega.
+            include: {
+              shifts: {
+                where: { status: 'OPEN' },
+                select: { userId: true, user: { select: { firstName: true, lastName: true } } },
+                take: 1,
+              },
+            },
+          },
         },
       }),
       db.paymentMethod.findMany({
@@ -49,7 +61,16 @@ export async function GET(request: Request) {
         allowNegativeStock: store.allowNegativeStock,
         fiscalEnabled: store.fiscalEnabled,
       },
-      registers: store.registers.map((r) => ({ id: r.id, code: r.code, name: r.name })),
+      registers: store.registers.map((r) => {
+        const busy = r.shifts[0];
+        return {
+          id: r.id,
+          code: r.code,
+          name: r.name,
+          // Vlastita otvorena smjena nije zauzeće — nju blagajna nastavlja.
+          busyBy: busy && busy.userId !== user.id ? `${busy.user.firstName} ${busy.user.lastName}` : null,
+        };
+      }),
       paymentMethods: paymentMethods.map((m) => ({
         id: m.id, code: m.code, name: m.name, type: m.type,
         opensDrawer: m.opensDrawer, allowsChange: m.allowsChange, requiresRef: m.requiresRef,

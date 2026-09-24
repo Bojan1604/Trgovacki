@@ -1,12 +1,12 @@
-import { CreditCard, Plus } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 
+import { PaymentMethodDialog } from '@/components/settings/payment-method-dialog';
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
 import { toNumber } from '@/lib/money';
 import { formatPercent } from '@/lib/format';
 import { PAYMENT_TYPE } from '@/lib/labels';
 import { Badge, Card, EmptyState, PageHeader } from '@/components/ui/primitives';
-import { Button } from '@/components/ui/button';
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table';
 
 export const metadata = { title: 'Načini plaćanja' };
@@ -26,7 +26,7 @@ export default async function PaymentMethodsPage() {
       <PageHeader
         title="Načini plaćanja"
         subtitle="Sredstva naplate dostupna na blagajni, s fiskalnim oznakama i naknadama"
-        actions={<Button size="sm" variant="primary" icon={<Plus className="size-3.5" />}>Novi način</Button>}
+        actions={<PaymentMethodDialog />}
       />
 
       <Card padded={false}>
@@ -43,6 +43,7 @@ export default async function PaymentMethodsPage() {
               <TH numeric width={90}>Naknada</TH>
               <TH numeric width={110}>Transakcija</TH>
               <TH width={90}>Status</TH>
+              <TH width={50} />
             </TR>
           </THead>
           <TBody>
@@ -63,6 +64,18 @@ export default async function PaymentMethodsPage() {
                   <Badge tone={method.isActive ? 'positive' : 'neutral'}>
                     {method.isActive ? 'Aktivan' : 'Neaktivan'}
                   </Badge>
+                </TD>
+                <TD>
+                  <div className="flex justify-end">
+                    <PaymentMethodDialog
+                      method={{
+                        id: method.id, code: method.code, name: method.name, type: method.type,
+                        fiscalCode: method.fiscalCode, opensDrawer: method.opensDrawer,
+                        allowsChange: method.allowsChange, requiresRef: method.requiresRef,
+                        feePct: toNumber(method.feePct), isActive: method.isActive,
+                      }}
+                    />
+                  </div>
                 </TD>
               </TR>
             ))}

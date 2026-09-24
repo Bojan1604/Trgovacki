@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Printer, Send, Truck } from 'lucide-react';
+import { ArrowLeft, Send, Truck } from 'lucide-react';
 
 import { requirePageAccess } from '@/lib/page-auth';
 import { db } from '@/lib/db';
@@ -9,6 +9,7 @@ import { formatAmount, formatDate, formatPercent, formatQty } from '@/lib/format
 import { DOC_STATUS, PO_STATUS } from '@/lib/labels';
 import { Badge, Card, CardHeader, DetailRow, PageHeader, Progress } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
+import { PrintButton } from '@/components/ui/print-button';
 import { Table, TBody, TD, TFootRow, TH, THead, TR } from '@/components/ui/table';
 
 export const dynamic = 'force-dynamic';
@@ -54,7 +55,7 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
         }
         actions={
           <>
-            <Button size="sm" variant="secondary" icon={<Printer className="size-3.5" />}>Ispis</Button>
+            <PrintButton>Ispis</PrintButton>
             {order.status === 'DRAFT' && <Button size="sm" variant="primary" icon={<Send className="size-3.5" />}>Pošalji dobavljaču</Button>}
             {['SENT', 'CONFIRMED', 'PARTIALLY_RECEIVED'].includes(order.status) && (
               <Button size="sm" variant="primary" icon={<Truck className="size-3.5" />}>Kreiraj primku</Button>
